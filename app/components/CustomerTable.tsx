@@ -2,13 +2,7 @@
 
 import { useMemo, useState } from "react";
 import CustomerDrawer from "./CustomerDrawer";
-
-type Customer = {
-  id: number;
-  Name: string;
-  Category: string;
-  created_at: string;
-};
+import type { Customer } from "../types/customer";
 
 export default function CustomerTable({
   customers,
@@ -22,43 +16,44 @@ export default function CustomerTable({
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("created");
+  const [sortBy, setSortBy] = useState("deadline");
 
   const filteredCustomers = useMemo(() => {
     let result = [...customers];
 
-    // Search all fields
     if (search) {
       const searchTerm = search.toLowerCase();
 
       result = result.filter((customer) =>
         Object.values(customer).some((value) =>
-          String(value)
+          String(value ?? "")
             .toLowerCase()
             .includes(searchTerm)
         )
       );
     }
 
-    // Filter by category
     if (filter !== "all") {
       result = result.filter(
         (customer) => customer.Category === filter
       );
     }
 
-    // Sort
-    if (sortBy === "name") {
+    if (sortBy === "grantor") {
       result.sort((a, b) =>
-        a.Name.localeCompare(b.Name)
+        a.grantor.localeCompare(b.grantor)
       );
     }
 
-    if (sortBy === "created") {
+    if (sortBy === "deadline") {
       result.sort(
         (a, b) =>
-          new Date(b.created_at).getTime() -
-          new Date(a.created_at).getTime()
+          new Date(
+            a.deadline || "9999-12-31"
+          ).getTime() -
+          new Date(
+            b.deadline || "9999-12-31"
+          ).getTime()
       );
     }
 
@@ -67,7 +62,6 @@ export default function CustomerTable({
 
   return (
     <>
-      {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <h2 className="text-3xl font-bold">
@@ -87,7 +81,7 @@ export default function CustomerTable({
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="border rounded-lg px-3 py-2 w-64 bg-white"
+            className="border rounded-lg px-3 py-2 w-72 bg-white"
           />
 
           <select
@@ -115,24 +109,39 @@ export default function CustomerTable({
             }
             className="border rounded-lg px-3 py-2 bg-white"
           >
-            <option value="created">
-              Newest First
+            <option value="deadline">
+              Deadline
             </option>
-            <option value="name">
-              Name A-Z
+            <option value="grantor">
+              Grantor A-Z
             </option>
           </select>
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="text-left p-4">Name</th>
-              <th className="text-left p-4">Category</th>
-              <th className="text-left p-4">Created</th>
+              <th className="text-left p-4">
+                Grantor
+              </th>
+
+              <th className="text-left p-4">
+                Opportunity
+              </th>
+
+              <th className="text-left p-4">
+                Category
+              </th>
+
+              <th className="text-left p-4">
+                Deadline
+              </th>
+
+              <th className="text-left p-4">
+                Anticipated
+              </th>
             </tr>
           </thead>
 
@@ -146,7 +155,11 @@ export default function CustomerTable({
                 className="border-t hover:bg-gray-50 cursor-pointer"
               >
                 <td className="p-4">
-                  {customer.Name}
+                  {customer.grantor}
+                </td>
+
+                <td className="p-4">
+                  {customer.opportunity_name}
                 </td>
 
                 <td className="p-4">
@@ -154,9 +167,12 @@ export default function CustomerTable({
                 </td>
 
                 <td className="p-4">
-                  {new Date(
-                    customer.created_at
-                  ).toLocaleDateString()}
+                  {customer.deadline || "-"}
+                </td>
+
+                <td className="p-4">
+                  {customer.anticipated_deadline ||
+                    "-"}
                 </td>
               </tr>
             ))}

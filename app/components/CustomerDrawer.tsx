@@ -1,7 +1,9 @@
 "use client";
 
+import type { Customer } from "../types/customer";
+
 type Props = {
-  customer: any;
+  customer: Customer | null;
   onClose: () => void;
 };
 
@@ -27,7 +29,7 @@ export default function CustomerDrawer({
 
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-black"
+            className="text-gray-500 hover:text-black text-xl"
           >
             ✕
           </button>
@@ -38,7 +40,6 @@ export default function CustomerDrawer({
             <div className="text-sm text-gray-500">
               Opportunity Name
             </div>
-
             <div className="font-medium">
               {customer.opportunity_name}
             </div>
@@ -48,7 +49,6 @@ export default function CustomerDrawer({
             <div className="text-sm text-gray-500">
               Category
             </div>
-
             <div>{customer.Category}</div>
           </div>
 
@@ -56,7 +56,6 @@ export default function CustomerDrawer({
             <div className="text-sm text-gray-500">
               Deadline
             </div>
-
             <div>
               {customer.deadline || "Not set"}
             </div>
@@ -66,7 +65,6 @@ export default function CustomerDrawer({
             <div className="text-sm text-gray-500">
               Anticipated Deadline
             </div>
-
             <div>
               {customer.anticipated_deadline ||
                 "Not set"}
@@ -77,7 +75,6 @@ export default function CustomerDrawer({
             <div className="text-sm text-gray-500">
               Record ID
             </div>
-
             <div>{customer.id}</div>
           </div>
 
@@ -85,7 +82,6 @@ export default function CustomerDrawer({
             <div className="text-sm text-gray-500">
               Created
             </div>
-
             <div>
               {new Date(
                 customer.created_at
