@@ -2,8 +2,11 @@
 
 type Customer = {
   id: number;
-  Name: string;
+  grantor: string;
+  opportunity_name: string;
   Category: string;
+  deadline: string | null;
+  anticipated_deadline: string | null;
   created_at: string;
 };
 
@@ -20,16 +23,16 @@ export default function CustomerDrawer({
 
   return (
     <div
-      className="fixed inset-0 bg-black/30 flex justify-end"
+      className="fixed inset-0 bg-black/30 flex justify-end z-50"
       onClick={onClose}
     >
       <div
-        className="h-full w-[450px] bg-white shadow-2xl p-6"
+        className="h-full w-[500px] bg-white shadow-2xl p-6 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">
-            {customer.Name}
+            {customer.grantor}
           </h2>
 
           <button
@@ -40,25 +43,59 @@ export default function CustomerDrawer({
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
             <div className="text-sm text-gray-500">
-              ID
+              Opportunity Name
             </div>
-            <div>{customer.id}</div>
+
+            <div className="font-medium">
+              {customer.opportunity_name}
+            </div>
           </div>
 
           <div>
             <div className="text-sm text-gray-500">
               Category
             </div>
+
             <div>{customer.Category}</div>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-500">
+              Deadline
+            </div>
+
+            <div>
+              {customer.deadline || "Not set"}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-500">
+              Anticipated Deadline
+            </div>
+
+            <div>
+              {customer.anticipated_deadline ||
+                "Not set"}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-500">
+              Record ID
+            </div>
+
+            <div>{customer.id}</div>
           </div>
 
           <div>
             <div className="text-sm text-gray-500">
               Created
             </div>
+
             <div>
               {new Date(
                 customer.created_at
