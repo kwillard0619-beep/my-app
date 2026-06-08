@@ -27,7 +27,7 @@ export default function CustomerTable({
   const filteredCustomers = useMemo(() => {
     let result = [...customers];
 
-    // Search ALL fields
+    // Search all fields
     if (search) {
       const searchTerm = search.toLowerCase();
 
@@ -40,7 +40,7 @@ export default function CustomerTable({
       );
     }
 
-    // Filter
+    // Filter by category
     if (filter !== "all") {
       result = result.filter(
         (customer) => customer.Category === filter
@@ -70,9 +70,9 @@ export default function CustomerTable({
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-red-500">
-  TESTING 123
-</h2>
+          <h2 className="text-3xl font-bold">
+            Customer Dashboard
+          </h2>
 
           <div className="mt-2 text-sm font-medium text-gray-700">
             Active: {activeCount}
@@ -124,10 +124,6 @@ export default function CustomerTable({
           </select>
         </div>
       </div>
-
-      <div className="mb-4 text-xs bg-yellow-100 p-2">
-  <pre>{JSON.stringify(customers[0], null, 2)}</pre>
-</div>
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
