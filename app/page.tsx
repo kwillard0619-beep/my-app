@@ -15,7 +15,6 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white p-6">
         <h1 className="text-2xl font-bold mb-8">
           Big Breakfast
@@ -44,17 +43,11 @@ export default async function Home() {
         </nav>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-8">
-        <h2 className="text-3xl font-bold">
-          Customer Dashboard
-        </h2>
-
-        <div className="mt-2 mb-6 text-sm font-medium text-gray-700">
-          Active: {active}
-        </div>
-
-        <CustomerTable customers={data ?? []} />
+        <CustomerTable
+          customers={data ?? []}
+          activeCount={active}
+        />
       </main>
     </div>
   );
