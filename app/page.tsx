@@ -6,8 +6,8 @@ export default async function Home() {
     .select("*");
 
   return (
-    <pre>
-      {JSON.stringify({ data, error }, null, 2)}
-    </pre>
-  );
-}
+  <>
+    <h1>Customer Portal</h1>
+    <pre>{JSON.stringify({ data, error }, null, 2)}</pre>
+  </>
+);
