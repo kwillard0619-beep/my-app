@@ -27,20 +27,27 @@ export default function CustomerTable({
   const filteredCustomers = useMemo(() => {
     let result = [...customers];
 
+    // Search ALL fields
     if (search) {
+      const searchTerm = search.toLowerCase();
+
       result = result.filter((customer) =>
-        customer.Name.toLowerCase().includes(
-          search.toLowerCase()
+        Object.values(customer).some((value) =>
+          String(value)
+            .toLowerCase()
+            .includes(searchTerm)
         )
       );
     }
 
+    // Filter
     if (filter !== "all") {
       result = result.filter(
         (customer) => customer.Category === filter
       );
     }
 
+    // Sort
     if (sortBy === "name") {
       result.sort((a, b) =>
         a.Name.localeCompare(b.Name)
@@ -63,9 +70,9 @@ export default function CustomerTable({
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h2 className="text-3xl font-bold">
-            Customer Dashboard
-          </h2>
+          <h2 className="text-3xl font-bold text-red-500">
+  TESTING 123
+</h2>
 
           <div className="mt-2 text-sm font-medium text-gray-700">
             Active: {activeCount}
@@ -75,7 +82,7 @@ export default function CustomerTable({
         <div className="flex gap-3">
           <input
             type="text"
-            placeholder="Search customers..."
+            placeholder="Search all fields..."
             value={search}
             onChange={(e) =>
               setSearch(e.target.value)
@@ -118,20 +125,18 @@ export default function CustomerTable({
         </div>
       </div>
 
+      <div className="mb-4 text-xs bg-yellow-100 p-2">
+  <pre>{JSON.stringify(customers[0], null, 2)}</pre>
+</div>
+
       {/* Table */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="text-left p-4">
-                Name
-              </th>
-              <th className="text-left p-4">
-                Category
-              </th>
-              <th className="text-left p-4">
-                Created
-              </th>
+              <th className="text-left p-4">Name</th>
+              <th className="text-left p-4">Category</th>
+              <th className="text-left p-4">Created</th>
             </tr>
           </thead>
 
