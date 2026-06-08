@@ -7,7 +7,7 @@ export default async function Home() {
 
   return (
     <>
-      <h1>Customer Portal</h1>
+      <h1>Customer Portal v2</h1>
       <pre>{JSON.stringify({ data, error }, null, 2)}</pre>
     </>
   );
