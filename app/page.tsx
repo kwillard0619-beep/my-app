@@ -5,10 +5,41 @@ export default async function Home() {
     .from("Personal_BB")
     .select("*");
 
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
-    <>
-      <h1>Customer Portal v2</h1>
-      <pre>{JSON.stringify({ data, error }, null, 2)}</pre>
-    </>
+    <main style={{ padding: "2rem" }}>
+      <h1>Customer Portal</h1>
+
+      <table
+        style={{
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "20px",
+        }}
+      >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {data?.map((person, index) => (
+            <tr key={index}>
+              <td>{person.Name}</td>
+              <td>{person.Category}</td>
+              <td>
+                {new Date(person.created_at).toLocaleDateString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
   );
 }
