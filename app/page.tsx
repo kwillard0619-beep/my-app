@@ -6,11 +6,8 @@ export default async function Home() {
     .from("Personal_BB")
     .select("*");
 
-  const total = data?.length ?? 0;
   const active =
     data?.filter((p) => p.Category === "active").length ?? 0;
-  const pending =
-    data?.filter((p) => p.Category === "pending").length ?? 0;
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -49,41 +46,14 @@ export default async function Home() {
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-        <h2 className="text-3xl font-bold mb-6">
+        <h2 className="text-3xl font-bold">
           Customer Dashboard
         </h2>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow">
-            <div className="text-gray-500">
-              Total Customers
-            </div>
-            <div className="text-3xl font-bold">
-              {total}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow">
-            <div className="text-gray-500">
-              Active
-            </div>
-            <div className="text-3xl font-bold">
-              {active}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow">
-            <div className="text-gray-500">
-              Pending
-            </div>
-            <div className="text-3xl font-bold">
-              {pending}
-            </div>
-          </div>
+        <div className="mt-2 mb-6 text-sm font-medium text-gray-700">
+          Active: {active}
         </div>
 
-        {/* Customer Table with Drawer */}
         <CustomerTable customers={data ?? []} />
       </main>
     </div>
