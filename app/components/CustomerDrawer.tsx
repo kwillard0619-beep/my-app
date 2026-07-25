@@ -20,12 +20,22 @@ export default function CustomerDrawer({
     >
       <div
         className="h-full w-[500px] bg-white shadow-2xl p-6 overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) =>
+          e.stopPropagation()
+        }
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            {customer.grantor}
-          </h2>
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <div className="text-sm text-gray-500 mb-1">
+              {customer.grantor || "Grantor"}
+            </div>
+
+            <h2 className="text-2xl font-bold">
+              {customer.opportunity_name ||
+                "Opportunity"}
+            </h2>
+          </div>
 
           <button
             onClick={onClose}
@@ -35,57 +45,156 @@ export default function CustomerDrawer({
           </button>
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-6">
+          {/* Grantor */}
           <div>
             <div className="text-sm text-gray-500">
-              Opportunity Name
+              Grantor
             </div>
+
             <div className="font-medium">
-              {customer.opportunity_name}
+              {customer.grantor || "Not set"}
             </div>
           </div>
 
+          {/* Opportunity */}
           <div>
             <div className="text-sm text-gray-500">
-              Category
+              Opportunity
             </div>
-            <div>{customer.Category}</div>
+
+            <div className="font-medium">
+              {customer.opportunity_name ||
+                "Not set"}
+            </div>
           </div>
 
+          {/* Maximum Grant */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Maximum Grant
+            </div>
+
+            <div>
+              {customer.maximum_grant ||
+                "Not set"}
+            </div>
+          </div>
+
+          {/* Deadline */}
           <div>
             <div className="text-sm text-gray-500">
               Deadline
             </div>
+
             <div>
               {customer.deadline || "Not set"}
             </div>
           </div>
 
+          {/* Anticipated Deadline Month */}
           <div>
             <div className="text-sm text-gray-500">
-              Anticipated Deadline
+              Anticipated Deadline Month
             </div>
+
             <div>
               {customer.anticipated_deadline ||
                 "Not set"}
             </div>
           </div>
 
+          {/* Website */}
           <div>
             <div className="text-sm text-gray-500">
-              Record ID
+              Website
             </div>
-            <div>{customer.id}</div>
+
+            {customer.website_link ? (
+              <a
+                href={customer.website_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline break-all"
+              >
+                Visit Website
+              </a>
+            ) : (
+              <div>Not set</div>
+            )}
           </div>
 
+          {/* Abstract */}
           <div>
             <div className="text-sm text-gray-500">
-              Created
+              Abstract
             </div>
+
+            <div className="whitespace-pre-wrap">
+              {customer.abstract ||
+                "Not provided"}
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Categories
+            </div>
+
             <div>
-              {new Date(
-                customer.created_at
-              ).toLocaleDateString()}
+              {customer.rfp_categories?.length
+                ? customer.rfp_categories.join(
+                    ", "
+                  )
+                : "Not set"}
+            </div>
+          </div>
+
+          {/* Additional Details */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Additional Details
+            </div>
+
+            <div className="whitespace-pre-wrap">
+              {customer.additional_information ||
+                "Not provided"}
+            </div>
+          </div>
+
+          {/* Limited Opportunity */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Limited Opportunity
+            </div>
+
+            <div>
+              {customer.limited_opportunity ||
+                "Not set"}
+            </div>
+          </div>
+
+          {/* Fellowship Opportunity */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Fellowship Opportunity
+            </div>
+
+            <div>
+              {customer.fellowship_opportunity ||
+                "Not set"}
+            </div>
+          </div>
+
+          {/* Attachments */}
+          <div>
+            <div className="text-sm text-gray-500 mb-2">
+              Attachments
+            </div>
+
+            <div className="text-gray-500">
+              No attachments available yet.
             </div>
           </div>
         </div>

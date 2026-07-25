@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import CustomerTable from "./components/CustomerTable";
+import OpportunitiesRealtime from "./components/OpportunitiesRealtime";
 
 export default async function Home() {
   const { data, error } = await supabase
@@ -14,8 +14,6 @@ export default async function Home() {
     );
   }
 
-  // Category remains hidden from the user,
-  // but controls which opportunities are active.
   const active =
     data?.filter(
       (opportunity) =>
@@ -55,8 +53,8 @@ export default async function Home() {
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-        <CustomerTable
-          customers={data ?? []}
+        <OpportunitiesRealtime
+          initialCustomers={data ?? []}
           activeCount={active}
         />
       </main>

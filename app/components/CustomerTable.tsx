@@ -18,27 +18,35 @@ export default function CustomerTable({
   const [sortBy, setSortBy] = useState("deadline");
 
   const filteredCustomers = useMemo(() => {
-    // Only show opportunities where Category is active.
-    // Category itself remains hidden from the dashboard.
+    // Only show active opportunities.
+    // Category is intentionally hidden from the user.
     let result = customers.filter(
       (customer) =>
         customer.Category === "active"
     );
 
-    // Search across all fields, including hidden fields.
+    // Search across all fields
     if (search) {
       const searchTerm = search.toLowerCase();
 
       result = result.filter((customer) =>
-        Object.values(customer).some((value) =>
-          String(value ?? "")
+        Object.values(customer).some((value) => {
+          if (Array.isArray(value)) {
+            return value.some((item) =>
+              String(item)
+                .toLowerCase()
+                .includes(searchTerm)
+            );
+          }
+
+          return String(value ?? "")
             .toLowerCase()
-            .includes(searchTerm)
-        )
+            .includes(searchTerm);
+        })
       );
     }
 
-    // Sort by selected field.
+    // Sort by Grantor
     if (sortBy === "grantor") {
       result.sort((a, b) =>
         (a.grantor ?? "").localeCompare(
@@ -47,6 +55,7 @@ export default function CustomerTable({
       );
     }
 
+    // Sort by Deadline
     if (sortBy === "deadline") {
       result.sort(
         (a, b) =>
@@ -187,8 +196,7 @@ export default function CustomerTable({
                         ? customer.rfp_categories.join(
                             ", "
                           )
-                        : customer.rfp_categories ||
-                          "-"}
+                        : "-"}
                     </td>
                   </tr>
                 )
