@@ -14,48 +14,17 @@ export default async function Home() {
     );
   }
 
-  const active =
+  const activeCount =
     data?.filter(
-      (opportunity) =>
-        opportunity.Category === "active"
+      (customer) => customer.Category === "active"
     ).length ?? 0;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white p-6">
-        <h1 className="text-2xl font-bold mb-8">
-          Big Breakfast
-        </h1>
-
-        <nav className="space-y-3">
-          <div className="p-3 rounded bg-slate-800">
-            Dashboard
-          </div>
-
-          <div className="p-3 rounded hover:bg-slate-800 cursor-pointer">
-            Customers
-          </div>
-
-          <div className="p-3 rounded hover:bg-slate-800 cursor-pointer">
-            Inventory
-          </div>
-
-          <div className="p-3 rounded hover:bg-slate-800 cursor-pointer">
-            Reports
-          </div>
-
-          <div className="p-3 rounded hover:bg-slate-800 cursor-pointer">
-            Settings
-          </div>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8">
+    <div className="min-h-screen bg-gray-100">
+      <main className="p-8">
         <OpportunitiesRealtime
           initialCustomers={data ?? []}
-          activeCount={active}
+          activeCount={activeCount}
         />
       </main>
     </div>

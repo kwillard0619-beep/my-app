@@ -18,15 +18,16 @@ export default function CustomerTable({
   const [sortBy, setSortBy] = useState("deadline");
 
   const filteredCustomers = useMemo(() => {
-    // Only show active opportunities.
-    // Category is intentionally hidden from the user.
+    // Only display opportunities that are marked as active.
+    // The Category field is intentionally hidden from the user.
     let result = customers.filter(
       (customer) =>
         customer.Category === "active"
     );
 
-    // Search all visible opportunity information,
-    // including fields shown only in the pop-out drawer.
+    // Search all opportunity information.
+    // This includes information displayed in the main table
+    // as well as information displayed in the pop-out drawer.
     if (search.trim()) {
       const searchTerm = search
         .trim()
@@ -55,7 +56,7 @@ export default function CustomerTable({
       });
     }
 
-    // Sort by Grantor
+    // Sort by Grantor A-Z
     if (sortBy === "grantor") {
       result.sort((a, b) =>
         (a.grantor ?? "").localeCompare(
@@ -82,10 +83,16 @@ export default function CustomerTable({
 
   return (
     <>
+      {/* Page Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
+          {/* Logo Placeholder */}
+          <div className="mb-4 h-16 w-48 flex items-center">
+            {/* Your logo will go here */}
+          </div>
+
           <h2 className="text-3xl font-bold">
-            Opportunities Dashboard
+            Active RFP Opportunities
           </h2>
 
           <div className="mt-2 text-sm font-medium text-gray-700">
@@ -93,8 +100,8 @@ export default function CustomerTable({
           </div>
         </div>
 
+        {/* Search and Sort */}
         <div className="flex gap-3">
-          {/* Search */}
           <input
             type="text"
             placeholder="Search opportunities..."
@@ -105,7 +112,6 @@ export default function CustomerTable({
             className="border rounded-lg px-3 py-2 w-72 bg-white"
           />
 
-          {/* Sort */}
           <select
             value={sortBy}
             onChange={(e) =>
@@ -124,6 +130,7 @@ export default function CustomerTable({
         </div>
       </div>
 
+      {/* Opportunities Table */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -171,15 +178,18 @@ export default function CustomerTable({
                     }
                     className="border-t hover:bg-gray-50 cursor-pointer"
                   >
+                    {/* Grantor */}
                     <td className="p-4">
                       {customer.grantor || "-"}
                     </td>
 
+                    {/* Opportunity */}
                     <td className="p-4">
                       {customer.opportunity_name ||
                         "-"}
                     </td>
 
+                    {/* Maximum Grant */}
                     <td className="p-4">
                       {customer.maximum_grant ||
                         "-"}
@@ -201,15 +211,18 @@ export default function CustomerTable({
                         : "-"}
                     </td>
 
+                    {/* Anticipated Deadline Month */}
                     <td className="p-4">
                       {customer.anticipated_deadline ||
                         "-"}
                     </td>
 
+                    {/* Abstract */}
                     <td className="p-4 max-w-md">
                       {customer.abstract || "-"}
                     </td>
 
+                    {/* Categories */}
                     <td className="p-4">
                       {Array.isArray(
                         customer.rfp_categories
@@ -227,6 +240,7 @@ export default function CustomerTable({
         </div>
       </div>
 
+      {/* Opportunity Pop-Out Drawer */}
       <CustomerDrawer
         customer={selectedCustomer}
         onClose={() =>
