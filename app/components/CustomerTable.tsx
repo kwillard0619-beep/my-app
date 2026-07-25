@@ -57,14 +57,19 @@ export default function CustomerTable({
     if (sortBy === "deadline") {
       result.sort(
         (a, b) =>
-          new Date(a.deadline || "9999-12-31").getTime() -
-          new Date(b.deadline || "9999-12-31").getTime()
+          new Date(
+            a.deadline || "9999-12-31"
+          ).getTime() -
+          new Date(
+            b.deadline || "9999-12-31"
+          ).getTime()
       );
     }
 
     return result;
   }, [customers, search, sortBy]);
 
+  // Deadline styling
   const getDeadlineStyle = (
     deadline: string | null
   ) => {
@@ -88,7 +93,8 @@ export default function CustomerTable({
       today.getTime();
 
     const daysUntil = Math.ceil(
-      difference / (1000 * 60 * 60 * 24)
+      difference /
+        (1000 * 60 * 60 * 24)
     );
 
     if (daysUntil < 0) {
@@ -118,6 +124,7 @@ export default function CustomerTable({
     };
   };
 
+  // Category colors
   const getCategoryStyle = (
     category: string
   ) => {
@@ -146,6 +153,8 @@ export default function CustomerTable({
     return colors[index];
   };
 
+  // Anticipated deadline month colors
+  // These are intentionally separate from category colors.
   const getMonthStyle = (
     month: string
   ) => {
@@ -157,34 +166,45 @@ export default function CustomerTable({
       string
     > = {
       january:
-        "bg-blue-100 text-blue-800 border-blue-300",
+        "bg-slate-200 text-slate-800 border-slate-300",
+
       february:
-        "bg-purple-100 text-purple-800 border-purple-300",
+        "bg-stone-200 text-stone-800 border-stone-300",
+
       march:
-        "bg-emerald-100 text-emerald-800 border-emerald-300",
+        "bg-zinc-200 text-zinc-800 border-zinc-300",
+
       april:
-        "bg-amber-100 text-amber-800 border-amber-300",
+        "bg-neutral-200 text-neutral-800 border-neutral-300",
+
       may:
-        "bg-rose-100 text-rose-800 border-rose-300",
+        "bg-gray-200 text-gray-800 border-gray-300",
+
       june:
-        "bg-cyan-100 text-cyan-800 border-cyan-300",
+        "bg-slate-300 text-slate-800 border-slate-400",
+
       july:
-        "bg-indigo-100 text-indigo-800 border-indigo-300",
+        "bg-stone-300 text-stone-800 border-stone-400",
+
       august:
-        "bg-orange-100 text-orange-800 border-orange-300",
+        "bg-zinc-300 text-zinc-800 border-zinc-400",
+
       september:
-        "bg-teal-100 text-teal-800 border-teal-300",
+        "bg-neutral-300 text-neutral-800 border-neutral-400",
+
       october:
-        "bg-pink-100 text-pink-800 border-pink-300",
+        "bg-gray-300 text-gray-800 border-gray-400",
+
       november:
-        "bg-violet-100 text-violet-800 border-violet-300",
+        "bg-slate-400 text-slate-900 border-slate-500",
+
       december:
-        "bg-sky-100 text-sky-800 border-sky-300",
+        "bg-stone-400 text-stone-900 border-stone-500",
     };
 
     return (
       monthColors[normalizedMonth] ||
-      "bg-slate-100 text-slate-700 border-slate-300"
+      "bg-gray-200 text-gray-800 border-gray-300"
     );
   };
 
@@ -425,6 +445,7 @@ export default function CustomerTable({
 
                             {customer.deadline ? (
                               <>
+
                                 <span className="font-semibold text-slate-800">
                                   {new Date(
                                     `${customer.deadline}T00:00:00`
@@ -438,15 +459,16 @@ export default function CustomerTable({
                                   )}
                                 </span>
 
-                                <span
-                                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
-                                >
-                                  {new Date(
-                                    `${customer.deadline}T00:00:00`
-                                  ) < new Date()
-                                    ? "Past deadline"
-                                    : "Due soon"}
-                                </span>
+                                {new Date(
+                                  `${customer.deadline}T00:00:00`
+                                ) < new Date() && (
+                                  <span
+                                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
+                                  >
+                                    Past deadline
+                                  </span>
+                                )}
+
                               </>
                             ) : (
                               <span

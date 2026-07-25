@@ -133,6 +133,35 @@ export default function CustomerDrawer({
       customer.fellowship_opportunity
     );
 
+  // Match category colors with the main table
+  const getCategoryStyle = (
+    category: string
+  ) => {
+    const colors = [
+      "bg-blue-100 text-blue-800 border-blue-300",
+      "bg-purple-100 text-purple-800 border-purple-300",
+      "bg-emerald-100 text-emerald-800 border-emerald-300",
+      "bg-amber-100 text-amber-800 border-amber-300",
+      "bg-rose-100 text-rose-800 border-rose-300",
+      "bg-cyan-100 text-cyan-800 border-cyan-300",
+      "bg-indigo-100 text-indigo-800 border-indigo-300",
+      "bg-orange-100 text-orange-800 border-orange-300",
+    ];
+
+    let hash = 0;
+
+    for (let i = 0; i < category.length; i++) {
+      hash =
+        category.charCodeAt(i) +
+        ((hash << 5) - hash);
+    }
+
+    const index =
+      Math.abs(hash) % colors.length;
+
+    return colors[index];
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm"
@@ -146,15 +175,17 @@ export default function CustomerDrawer({
         }
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-8 py-6 backdrop-blur">
+        <div className="sticky top-0 z-10 border-b border-[#C7D6E0] bg-[#EEF4F7]/95 px-8 py-8 backdrop-blur">
           <div className="flex items-start justify-between gap-6">
-            <div className="min-w-0">
-              <p className="text-sm font-medium uppercase tracking-wider text-gray-500">
+            <div className="min-w-0 pr-4">
+              {/* Grantor */}
+              <p className="text-lg font-bold uppercase tracking-[0.12em] text-[#6F8FA5] sm:text-xl">
                 {customer.grantor ||
                   "Grant Opportunity"}
               </p>
 
-              <h2 className="mt-2 text-2xl font-bold leading-tight text-slate-900">
+              {/* Opportunity Name */}
+              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl">
                 {customer.opportunity_name ||
                   "Untitled Opportunity"}
               </h2>
@@ -163,7 +194,7 @@ export default function CustomerDrawer({
             <button
               onClick={onClose}
               aria-label="Close opportunity details"
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-slate-900"
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition hover:bg-white hover:text-slate-900"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -220,13 +251,13 @@ export default function CustomerDrawer({
                 Website
               </div>
 
-              <div className="mt-1">
+              <div className="mt-2">
                 {customer.website_link ? (
                   <a
                     href={customer.website_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 font-medium text-slate-700 underline decoration-gray-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-900"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#AFC4D4] px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#9FB7C8] hover:shadow-md"
                   >
                     Visit Website
 
@@ -234,7 +265,7 @@ export default function CustomerDrawer({
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      strokeWidth={1.8}
+                      strokeWidth={2}
                       stroke="currentColor"
                       className="h-4 w-4"
                     >
@@ -265,7 +296,7 @@ export default function CustomerDrawer({
                 Deadline Countdown
               </div>
 
-              <div className="mt-1">
+              <div className="mt-2">
                 <span
                   className={
                     deadlineCountdown.className
@@ -307,7 +338,9 @@ export default function CustomerDrawer({
                   (category) => (
                     <span
                       key={category}
-                      className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700"
+                      className={`rounded-full border px-3 py-1.5 text-sm font-medium ${getCategoryStyle(
+                        category
+                      )}`}
                     >
                       {category}
                     </span>
@@ -351,10 +384,10 @@ export default function CustomerDrawer({
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                       limitedOpportunity ===
                       "Yes"
-                        ? "bg-amber-100 text-amber-800"
+                        ? "bg-emerald-100 text-emerald-800"
                         : limitedOpportunity ===
                           "No"
-                        ? "bg-gray-100 text-gray-700"
+                        ? "bg-slate-200 text-black"
                         : "bg-slate-100 text-slate-700"
                     }`}
                   >
@@ -381,7 +414,7 @@ export default function CustomerDrawer({
                         ? "bg-emerald-100 text-emerald-800"
                         : fellowshipOpportunity ===
                           "No"
-                        ? "bg-gray-100 text-gray-700"
+                        ? "bg-slate-200 text-black"
                         : "bg-slate-100 text-slate-700"
                     }`}
                   >
