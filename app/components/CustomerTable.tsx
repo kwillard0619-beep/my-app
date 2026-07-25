@@ -25,25 +25,34 @@ export default function CustomerTable({
         customer.Category === "active"
     );
 
-    // Search across all fields
-    if (search) {
-      const searchTerm = search.toLowerCase();
+    // Search all visible opportunity information,
+    // including fields shown only in the pop-out drawer.
+    if (search.trim()) {
+      const searchTerm = search
+        .trim()
+        .toLowerCase();
 
-      result = result.filter((customer) =>
-        Object.values(customer).some((value) => {
-          if (Array.isArray(value)) {
-            return value.some((item) =>
-              String(item)
-                .toLowerCase()
-                .includes(searchTerm)
-            );
-          }
+      result = result.filter((customer) => {
+        const searchableFields = [
+          customer.grantor,
+          customer.opportunity_name,
+          customer.maximum_grant,
+          customer.deadline,
+          customer.anticipated_deadline,
+          customer.website_link,
+          customer.abstract,
+          customer.additional_information,
+          customer.limited_opportunity,
+          customer.fellowship_opportunity,
+          ...(customer.rfp_categories ?? []),
+        ];
 
-          return String(value ?? "")
+        return searchableFields.some((value) =>
+          String(value ?? "")
             .toLowerCase()
-            .includes(searchTerm);
-        })
-      );
+            .includes(searchTerm)
+        );
+      });
     }
 
     // Sort by Grantor
@@ -88,7 +97,7 @@ export default function CustomerTable({
           {/* Search */}
           <input
             type="text"
-            placeholder="Search all fields..."
+            placeholder="Search opportunities..."
             value={search}
             onChange={(e) =>
               setSearch(e.target.value)
