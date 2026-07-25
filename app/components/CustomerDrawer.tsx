@@ -7,239 +7,345 @@ type Props = {
   onClose: () => void;
 };
 
-// Same category color logic used on CustomerTable
-const getCategoryStyle = (category: string) => {
-  const colors = [
-    "bg-blue-50 text-blue-700 border-blue-200",
-    "bg-purple-50 text-purple-700 border-purple-200",
-    "bg-emerald-50 text-emerald-700 border-emerald-200",
-    "bg-amber-50 text-amber-700 border-amber-200",
-    "bg-rose-50 text-rose-700 border-rose-200",
-    "bg-cyan-50 text-cyan-700 border-cyan-200",
-    "bg-indigo-50 text-indigo-700 border-indigo-200",
-    "bg-orange-50 text-orange-700 border-orange-200",
-  ];
-
-  let hash = 0;
-
-  for (let i = 0; i < category.length; i++) {
-    hash =
-      category.charCodeAt(i) +
-      ((hash << 5) - hash);
-  }
-
-  const index =
-    Math.abs(hash) % colors.length;
-
-  return colors[index];
-};
-
 export default function CustomerDrawer({
   customer,
   onClose,
 }: Props) {
   if (!customer) return null;
 
+  // Format the deadline for display
+  const formattedDeadline = customer.deadline
+    ? new Date(
+        `${customer.deadline}T00:00:00`
+      ).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : null;
+
+  // Convert enum values into a consistent Yes/No display
+  const formatBooleanValue = (
+    value: string | null | undefined
+  ) => {
+    if (!value) return null;
+
+    const normalized = String(value)
+      .trim()
+      .toLowerCase();
+
+    if (
+      normalized === "yes" ||
+      normalized === "true"
+    ) {
+      return "Yes";
+    }
+
+    if (
+      normalized === "no" ||
+      normalized === "false"
+    ) {
+      return "No";
+    }
+
+    return String(value);
+  };
+
+  const limitedOpportunity =
+    formatBooleanValue(
+      customer.limited_opportunity
+    );
+
+  const fellowshipOpportunity =
+    formatBooleanValue(
+      customer.fellowship_opportunity
+    );
+
   return (
     <div
-      className="fixed inset-0 bg-black/30 flex justify-end z-50"
+      className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
+      {/* Drawer */}
       <div
-        className="h-full w-[500px] bg-white shadow-2xl p-6 overflow-y-auto"
-        onClick={(e) =>
-          e.stopPropagation()
-        }
+        className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900">
-              {customer.grantor}
-            </h2>
+        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-8 py-6 backdrop-blur">
+          <div className="flex items-start justify-between gap-6">
+            <div className="min-w-0">
+              <p className="text-sm font-medium uppercase tracking-wider text-gray-500">
+                {customer.grantor ||
+                  "Grant Opportunity"}
+              </p>
 
-            <p className="mt-1 text-sm text-slate-500">
-              {customer.opportunity_name}
-            </p>
+              <h2 className="mt-2 text-2xl font-bold leading-tight text-slate-900">
+                {customer.opportunity_name ||
+                  "Untitled Opportunity"}
+              </h2>
+            </div>
+
+            <button
+              onClick={onClose}
+              aria-label="Close opportunity details"
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-slate-900"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.8}
+                stroke="currentColor"
+                className="h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
-
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-black text-xl"
-            aria-label="Close"
-          >
-            ✕
-          </button>
         </div>
 
-        {/* Details */}
-        <div className="space-y-5">
-
-          {/* Maximum Grant */}
-          <div>
-            <div className="text-sm text-gray-500">
-              Maximum Grant
-            </div>
-
-            <div className="font-medium">
-              {customer.maximum_grant ||
-                "Not specified"}
-            </div>
-          </div>
-
-          {/* Deadline */}
-          <div>
-            <div className="text-sm text-gray-500">
-              Deadline
-            </div>
-
-            <div className="font-medium">
-              {customer.deadline
-                ? new Date(
-                    `${customer.deadline}T00:00:00`
-                  ).toLocaleDateString(
-                    "en-US",
-                    {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }
-                  )
-                : "Not set"}
-            </div>
-          </div>
-
-          {/* Anticipated Deadline Month */}
-          <div>
-            <div className="text-sm text-gray-500">
-              Anticipated Deadline Month
-            </div>
-
-            <div className="font-medium">
-              {customer.anticipated_deadline ||
-                "Not set"}
-            </div>
-          </div>
-
-          {/* Website */}
-          <div>
-            <div className="text-sm text-gray-500">
-              Website
-            </div>
-
-            {customer.website_link ? (
-              <a
-                href={customer.website_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-slate-700 hover:text-slate-900 hover:underline"
-              >
-                Visit Opportunity Website ↗
-              </a>
-            ) : (
-              <div className="text-slate-400">
-                Not provided
+        {/* Content */}
+        <div className="px-8 py-8">
+          {/* Key Opportunity Information */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Maximum Grant */}
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+              <div className="text-sm font-medium text-gray-500">
+                Maximum Grant
               </div>
-            )}
+
+              <div className="mt-2 text-xl font-bold text-slate-900">
+                {customer.maximum_grant ||
+                  "Not specified"}
+              </div>
+            </div>
+
+            {/* Deadline */}
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+              <div className="text-sm font-medium text-gray-500">
+                Deadline
+              </div>
+
+              <div className="mt-2 text-xl font-bold text-slate-900">
+                {formattedDeadline || "Not set"}
+              </div>
+            </div>
           </div>
+
+          {/* Secondary Details */}
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Anticipated Deadline */}
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Anticipated Deadline Month
+              </div>
+
+              <div className="mt-1 text-gray-900">
+                {customer.anticipated_deadline ||
+                  "Not specified"}
+              </div>
+            </div>
+
+            {/* Website */}
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Website
+              </div>
+
+              <div className="mt-1">
+                {customer.website_link ? (
+                  <a
+                    href={customer.website_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-medium text-slate-700 underline decoration-gray-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-900"
+                  >
+                    Visit Website
+
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.8}
+                      stroke="currentColor"
+                      className="h-4 w-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
+                      />
+
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M18 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H11"
+                      />
+                    </svg>
+                  </a>
+                ) : (
+                  <span className="text-gray-400">
+                    Not provided
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="my-8 border-t border-gray-200" />
+
+          {/* Abstract */}
+          <section>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Abstract
+            </h3>
+
+            <div className="mt-3 text-base leading-7 text-gray-700 whitespace-pre-line">
+              {customer.abstract ||
+                "No abstract provided."}
+            </div>
+          </section>
 
           {/* Categories */}
-          <div>
-            <div className="text-sm text-gray-500 mb-2">
+          <section className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
               Categories
-            </div>
+            </h3>
 
-            {Array.isArray(
-              customer.rfp_categories
-            ) &&
-            customer.rfp_categories.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {customer.rfp_categories.map(
+            <div className="mt-3 flex flex-wrap gap-2">
+              {Array.isArray(
+                customer.rfp_categories
+              ) &&
+              customer.rfp_categories.length > 0 ? (
+                customer.rfp_categories.map(
                   (category) => (
                     <span
                       key={category}
-                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getCategoryStyle(
-                        category
-                      )}`}
+                      className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700"
                     >
                       {category}
                     </span>
                   )
-                )}
-              </div>
-            ) : (
-              <div className="text-slate-400">
-                No categories listed.
-              </div>
-            )}
-          </div>
-
-          {/* Abstract */}
-          <div>
-            <div className="text-sm text-gray-500 mb-2">
-              Abstract
+                )
+              ) : (
+                <span className="text-gray-400">
+                  No categories listed.
+                </span>
+              )}
             </div>
-
-            <div className="rounded-lg bg-slate-50 border border-slate-100 p-4 text-sm leading-6 text-slate-600">
-              {customer.abstract ||
-                "No abstract provided."}
-            </div>
-          </div>
+          </section>
 
           {/* Additional Details */}
-          <div>
-            <div className="text-sm text-gray-500 mb-2">
+          <section className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
               Additional Details
-            </div>
+            </h3>
 
-            <div className="rounded-lg bg-slate-50 border border-slate-100 p-4 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+            <div className="mt-3 text-base leading-7 text-gray-700 whitespace-pre-line">
               {customer.additional_information ||
                 "No additional details provided."}
             </div>
-          </div>
+          </section>
 
           {/* Opportunity Information */}
-          <div>
-            <div className="text-sm text-gray-500 mb-3">
+          <section className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
               Opportunity Information
-            </div>
+            </h3>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-slate-200 p-4">
-                <div className="text-xs text-slate-400 mb-1">
+            <div className="mt-4 divide-y divide-gray-100 rounded-xl border border-gray-200">
+              {/* Limited Opportunity */}
+              <div className="flex items-center justify-between gap-4 p-4">
+                <span className="text-sm font-medium text-gray-600">
                   Limited Opportunity
-                </div>
+                </span>
 
-                <div className="font-medium text-slate-700">
-                  {customer.limited_opportunity ||
-                    "Not specified"}
-                </div>
+                {limitedOpportunity ? (
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                      limitedOpportunity ===
+                      "Yes"
+                        ? "bg-amber-100 text-amber-800"
+                        : limitedOpportunity ===
+                          "No"
+                        ? "bg-gray-100 text-gray-700"
+                        : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {limitedOpportunity}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-400">
+                    Not specified
+                  </span>
+                )}
               </div>
 
-              <div className="rounded-lg border border-slate-200 p-4">
-                <div className="text-xs text-slate-400 mb-1">
+              {/* Fellowship Opportunity */}
+              <div className="flex items-center justify-between gap-4 p-4">
+                <span className="text-sm font-medium text-gray-600">
                   Fellowship Opportunity
-                </div>
+                </span>
 
-                <div className="font-medium text-slate-700">
-                  {customer.fellowship_opportunity ||
-                    "Not specified"}
-                </div>
+                {fellowshipOpportunity ? (
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                      fellowshipOpportunity ===
+                      "Yes"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : fellowshipOpportunity ===
+                          "No"
+                        ? "bg-gray-100 text-gray-700"
+                        : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {fellowshipOpportunity}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-400">
+                    Not specified
+                  </span>
+                )}
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Attachments */}
-          <div>
-            <div className="text-sm text-gray-500 mb-2">
+          <section className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
               Attachments
-            </div>
+            </h3>
 
-            <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-sm text-slate-500">
-              No attachments available.
-            </div>
-          </div>
+            <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="mx-auto h-8 w-8 text-gray-400"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m18.375 12.739-7.5 7.5a4.5 4.5 0 0 1-6.364-6.364l9-9a3 3 0 1 1 4.243 4.243l-9 9a1.5 1.5 0 0 1-2.121-2.121l8.25-8.25"
+                />
+              </svg>
 
+              <p className="mt-2 text-sm text-gray-500">
+                No attachments available.
+              </p>
+            </div>
+          </section>
+
+          {/* Bottom Spacing */}
+          <div className="h-8" />
         </div>
       </div>
     </div>
