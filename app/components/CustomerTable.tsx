@@ -18,16 +18,11 @@ export default function CustomerTable({
   const [sortBy, setSortBy] = useState("deadline");
 
   const filteredCustomers = useMemo(() => {
-    // Only display opportunities that are marked as active.
-    // The Category field is intentionally hidden from the user.
     let result = customers.filter(
       (customer) =>
         customer.Category === "active"
     );
 
-    // Search all opportunity information.
-    // This includes information displayed in the main table
-    // and information displayed in the pop-out drawer.
     if (search.trim()) {
       const searchTerm = search
         .trim()
@@ -56,7 +51,6 @@ export default function CustomerTable({
       });
     }
 
-    // Sort by Grantor A-Z
     if (sortBy === "grantor") {
       result.sort((a, b) =>
         (a.grantor ?? "").localeCompare(
@@ -65,7 +59,6 @@ export default function CustomerTable({
       );
     }
 
-    // Sort by Deadline
     if (sortBy === "deadline") {
       result.sort(
         (a, b) =>
@@ -81,55 +74,124 @@ export default function CustomerTable({
     return result;
   }, [customers, search, sortBy]);
 
+  // Determine deadline styling
+  const getDeadlineStyle = (
+    deadline: string | null
+  ) => {
+    if (!deadline) {
+      return {
+        container:
+          "bg-gray-100 text-gray-500 border-gray-200",
+        label: "Not set",
+      };
+    }
+
+    const deadlineDate = new Date(
+      `${deadline}T00:00:00`
+    );
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const difference =
+      deadlineDate.getTime() -
+      today.getTime();
+
+    const daysUntil = Math.ceil(
+      difference /
+        (1000 * 60 * 60 * 24)
+    );
+
+    if (daysUntil < 0) {
+      return {
+        container:
+          "bg-gray-100 text-gray-500 border-gray-200",
+        label: "Past deadline",
+      };
+    }
+
+    if (daysUntil === 0) {
+      return {
+        container:
+          "bg-red-50 text-red-700 border-red-200",
+        label: "Due today",
+      };
+    }
+
+    if (daysUntil <= 30) {
+      return {
+        container:
+          "bg-amber-50 text-amber-700 border-amber-200",
+        label: "Due soon",
+      };
+    }
+
+    return {
+      container:
+        "bg-slate-50 text-slate-700 border-slate-200",
+      label: "Upcoming",
+    };
+  };
+
   return (
     <div className="max-w-[1800px] mx-auto">
-      {/* Header Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-6">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6">
+        {/* Subtle decorative accent */}
+        <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-slate-700 via-slate-500 to-slate-300" />
+
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-          {/* Branding and Title */}
+          {/* Branding */}
           <div>
             {/* Logo Placeholder */}
-            <div className="h-16 w-48 mb-6 flex items-center">
-              {/* Your logo will go here */}
+            <div className="h-14 w-48 mb-6 flex items-center">
+              {/* Logo goes here */}
             </div>
 
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                Funding Opportunities
-              </p>
+            <p className="text-sm font-semibold uppercase tracking-[0.15em] text-slate-500 mb-2">
+              Funding Opportunities
+            </p>
 
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-                Active RFP Opportunities
-              </h1>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
+              Active RFP Opportunities
+            </h1>
 
-              <p className="mt-3 text-gray-500 max-w-2xl">
-                Explore current funding opportunities
-                and find grants that align with your
-                organization's goals and interests.
-              </p>
-            </div>
+            <p className="mt-3 text-gray-500 max-w-2xl leading-6">
+              Explore current funding opportunities
+              and discover grants aligned with your
+              organization's goals and interests.
+            </p>
           </div>
 
-          {/* Active Opportunity Count */}
+          {/* Active Count */}
           <div className="flex-shrink-0">
-            <div className="rounded-xl border border-gray-200 bg-gray-50 px-6 py-4 min-w-[180px]">
-              <div className="text-sm font-medium text-gray-500">
-                Active Opportunities
-              </div>
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-gray-100 px-7 py-5 min-w-[200px]">
+              <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-slate-200/40 -translate-y-8 translate-x-8" />
 
-              <div className="mt-1 text-3xl font-bold text-slate-900">
-                {activeCount}
+              <div className="relative">
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Active Opportunities
+                </div>
+
+                <div className="mt-1 text-4xl font-bold text-slate-900">
+                  {activeCount}
+                </div>
+
+                <div className="mt-1 text-xs text-gray-500">
+                  Currently available
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Search and Sort */}
-        <div className="mt-8 pt-6 border-t border-gray-100">
+        <div className="mt-8 pt-6 border-t border-slate-100">
           <div className="flex flex-col md:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -148,18 +210,18 @@ export default function CustomerTable({
 
               <input
                 type="text"
-                placeholder="Search grants, organizations, categories..."
+                placeholder="Search grants, organizations, categories, key words..."
                 value={search}
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-3 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-100"
               />
             </div>
 
             {/* Sort */}
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-gray-500 whitespace-nowrap">
+              <span className="text-sm font-medium text-slate-500 whitespace-nowrap">
                 Sort by
               </span>
 
@@ -168,7 +230,7 @@ export default function CustomerTable({
                 onChange={(e) =>
                   setSortBy(e.target.value)
                 }
-                className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100"
+                className="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-100"
               >
                 <option value="deadline">
                   Deadline
@@ -183,9 +245,11 @@ export default function CustomerTable({
 
           {/* Search Results Count */}
           {search.trim() && (
-            <div className="mt-4 text-sm text-gray-500">
+            <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
+              <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
+
               Showing{" "}
-              <span className="font-semibold text-gray-700">
+              <span className="font-semibold text-slate-700">
                 {filteredCustomers.length}
               </span>{" "}
               matching opportunities
@@ -194,159 +258,193 @@ export default function CustomerTable({
         </div>
       </div>
 
-      {/* Opportunities Table Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Opportunities Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             {/* Table Headers */}
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-slate-50/80 border-b border-slate-200">
               <tr>
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Grantor
                 </th>
 
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Opportunity
                 </th>
 
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Maximum Grant
                 </th>
 
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Deadline
                 </th>
 
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Anticipated Deadline Month
                 </th>
 
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Abstract
                 </th>
 
-                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Categories
                 </th>
               </tr>
             </thead>
 
             {/* Table Data */}
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {filteredCustomers.map(
-                (customer) => (
-                  <tr
-                    key={customer.id}
-                    onClick={() =>
-                      setSelectedCustomer(
-                        customer
-                      )
-                    }
-                    className="group cursor-pointer transition hover:bg-slate-50"
-                  >
-                    {/* Grantor */}
-                    <td className="p-5 align-top">
-                      <div className="font-medium text-gray-700">
-                        {customer.grantor || "-"}
-                      </div>
-                    </td>
+                (customer) => {
+                  const deadlineStyle =
+                    getDeadlineStyle(
+                      customer.deadline
+                    );
 
-                    {/* Opportunity */}
-                    <td className="p-5 align-top">
-                      <div className="font-semibold text-slate-900 group-hover:text-slate-700">
-                        {customer.opportunity_name ||
-                          "-"}
-                      </div>
-                    </td>
+                  return (
+                    <tr
+                      key={customer.id}
+                      onClick={() =>
+                        setSelectedCustomer(
+                          customer
+                        )
+                      }
+                      className="group cursor-pointer transition-all duration-200 hover:bg-slate-50/70"
+                    >
+                      {/* Grantor */}
+                      <td className="p-5 align-top">
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="h-8 w-8 flex-shrink-0 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                            {customer.grantor
+                              ?.charAt(0)
+                              ?.toUpperCase() ||
+                              "?"}
+                          </div>
 
-                    {/* Maximum Grant */}
-                    <td className="p-5 align-top">
-                      <div className="font-semibold text-slate-900">
-                        {customer.maximum_grant ||
-                          "-"}
-                      </div>
-                    </td>
+                          <span className="font-medium text-slate-700">
+                            {customer.grantor ||
+                              "-"}
+                          </span>
+                        </div>
+                      </td>
 
-                    {/* Deadline */}
-                    <td className="p-5 align-top">
-                      {customer.deadline ? (
-                        <div className="inline-flex rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700">
-                          {new Date(
-                            `${customer.deadline}T00:00:00`
-                          ).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            }
+                      {/* Opportunity */}
+                      <td className="p-5 align-top">
+                        <div className="font-semibold text-slate-900 group-hover:text-slate-700 transition">
+                          {customer.opportunity_name ||
+                            "-"}
+                        </div>
+
+                        <div className="mt-1 text-xs text-slate-400">
+                          Click to view details
+                        </div>
+                      </td>
+
+                      {/* Maximum Grant */}
+                      <td className="p-5 align-top text-center">
+                        <span className="inline-flex rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800">
+                          {customer.maximum_grant ||
+                            "Not specified"}
+                        </span>
+                      </td>
+
+                      {/* Deadline */}
+                      <td className="p-5 align-top">
+                        <div className="flex flex-col items-center gap-2">
+                          {customer.deadline ? (
+                            <>
+                              <span className="font-medium text-slate-800">
+                                {new Date(
+                                  `${customer.deadline}T00:00:00`
+                                ).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </span>
+
+                              <span
+                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
+                              >
+                                {deadlineStyle.label}
+                              </span>
+                            </>
+                          ) : (
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-xs font-medium ${deadlineStyle.container}`}
+                            >
+                              {deadlineStyle.label}
+                            </span>
                           )}
                         </div>
-                      ) : (
-                        <span className="text-gray-400">
-                          Not set
+                      </td>
+
+                      {/* Anticipated Deadline */}
+                      <td className="p-5 align-top text-center">
+                        <span className="text-sm text-slate-600">
+                          {customer.anticipated_deadline ||
+                            "—"}
                         </span>
-                      )}
-                    </td>
+                      </td>
 
-                    {/* Anticipated Deadline */}
-                    <td className="p-5 align-top">
-                      <span className="text-gray-700">
-                        {customer.anticipated_deadline ||
-                          "-"}
-                      </span>
-                    </td>
+                      {/* Abstract */}
+                      <td className="p-5 align-top">
+                        <div className="max-w-sm mx-auto text-sm leading-6 text-slate-600 line-clamp-3">
+                          {customer.abstract ||
+                            "No abstract provided."}
+                        </div>
+                      </td>
 
-                    {/* Abstract */}
-                    <td className="p-5 align-top">
-                      <div className="max-w-sm text-sm leading-6 text-gray-600 line-clamp-3">
-                        {customer.abstract || "-"}
-                      </div>
-                    </td>
-
-                    {/* Categories */}
-                    <td className="p-5 align-top">
-                      <div className="flex flex-wrap gap-2">
-                        {Array.isArray(
+                      {/* Categories */}
+                      <td className="p-5 align-top">
+                        <div className="flex flex-wrap justify-center gap-2">
+                          {Array.isArray(
+                            customer.rfp_categories
+                          ) &&
                           customer.rfp_categories
-                        ) &&
-                        customer.rfp_categories
-                          .length > 0 ? (
-                          customer.rfp_categories.map(
-                            (category) => (
-                              <span
-                                key={category}
-                                className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
-                              >
-                                {category}
-                              </span>
+                            .length > 0 ? (
+                            customer.rfp_categories.map(
+                              (category) => (
+                                <span
+                                  key={category}
+                                  className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
+                                >
+                                  {category}
+                                </span>
+                              )
                             )
-                          )
-                        ) : (
-                          <span className="text-gray-400">
-                            -
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
+                          ) : (
+                            <span className="text-gray-400">
+                              —
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Empty Search State */}
+        {/* Empty State */}
         {filteredCustomers.length === 0 && (
-          <div className="py-16 px-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+          <div className="py-20 px-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200 text-slate-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-7 h-7"
               >
                 <path
                   strokeLinecap="round"
@@ -356,11 +454,11 @@ export default function CustomerTable({
               </svg>
             </div>
 
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">
+            <h3 className="mt-5 text-lg font-semibold text-slate-900">
               No opportunities found
             </h3>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-slate-500">
               Try adjusting your search to find
               matching funding opportunities.
             </p>
@@ -368,7 +466,7 @@ export default function CustomerTable({
         )}
       </div>
 
-      {/* Opportunity Pop-Out Drawer */}
+      {/* Opportunity Drawer */}
       <CustomerDrawer
         customer={selectedCustomer}
         onClose={() =>
