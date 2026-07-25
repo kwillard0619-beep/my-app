@@ -15,12 +15,17 @@ export default function CustomerTable({
     useState<Customer | null>(null);
 
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("deadline");
 
   const filteredCustomers = useMemo(() => {
-    let result = [...customers];
+    // Only show opportunities where Category is active.
+    // Category itself remains hidden from the dashboard.
+    let result = customers.filter(
+      (customer) =>
+        customer.Category === "active"
+    );
 
+    // Search across all fields, including hidden fields.
     if (search) {
       const searchTerm = search.toLowerCase();
 
@@ -33,15 +38,12 @@ export default function CustomerTable({
       );
     }
 
-    if (filter !== "all") {
-      result = result.filter(
-        (customer) => customer.Category === filter
-      );
-    }
-
+    // Sort by selected field.
     if (sortBy === "grantor") {
       result.sort((a, b) =>
-        a.grantor.localeCompare(b.grantor)
+        (a.grantor ?? "").localeCompare(
+          b.grantor ?? ""
+        )
       );
     }
 
@@ -58,14 +60,14 @@ export default function CustomerTable({
     }
 
     return result;
-  }, [customers, search, filter, sortBy]);
+  }, [customers, search, sortBy]);
 
   return (
     <>
       <div className="flex items-start justify-between mb-6">
         <div>
           <h2 className="text-3xl font-bold">
-            Customer Dashboard
+            Opportunities Dashboard
           </h2>
 
           <div className="mt-2 text-sm font-medium text-gray-700">
@@ -74,6 +76,7 @@ export default function CustomerTable({
         </div>
 
         <div className="flex gap-3">
+          {/* Search */}
           <input
             type="text"
             placeholder="Search all fields..."
@@ -84,24 +87,7 @@ export default function CustomerTable({
             className="border rounded-lg px-3 py-2 w-72 bg-white"
           />
 
-          <select
-            value={filter}
-            onChange={(e) =>
-              setFilter(e.target.value)
-            }
-            className="border rounded-lg px-3 py-2 bg-white"
-          >
-            <option value="all">
-              All Categories
-            </option>
-            <option value="active">
-              Active
-            </option>
-            <option value="pending">
-              Pending
-            </option>
-          </select>
-
+          {/* Sort */}
           <select
             value={sortBy}
             onChange={(e) =>
@@ -112,6 +98,7 @@ export default function CustomerTable({
             <option value="deadline">
               Deadline
             </option>
+
             <option value="grantor">
               Grantor A-Z
             </option>
@@ -120,64 +107,95 @@ export default function CustomerTable({
       </div>
 
       <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left p-4">
-                Grantor
-              </th>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left p-4">
+                  Grantor
+                </th>
 
-              <th className="text-left p-4">
-                Opportunity
-              </th>
+                <th className="text-left p-4">
+                  Opportunity
+                </th>
 
-              <th className="text-left p-4">
-                Category
-              </th>
+                <th className="text-left p-4">
+                  Maximum Grant
+                </th>
 
-              <th className="text-left p-4">
-                Deadline
-              </th>
+                <th className="text-left p-4">
+                  Deadline
+                </th>
 
-              <th className="text-left p-4">
-                Anticipated
-              </th>
-            </tr>
-          </thead>
+                <th className="text-left p-4">
+                  Anticipated Deadline Month
+                </th>
 
-          <tbody>
-            {filteredCustomers.map((customer) => (
-              <tr
-                key={customer.id}
-                onClick={() =>
-                  setSelectedCustomer(customer)
-                }
-                className="border-t hover:bg-gray-50 cursor-pointer"
-              >
-                <td className="p-4">
-                  {customer.grantor}
-                </td>
+                <th className="text-left p-4">
+                  Abstract
+                </th>
 
-                <td className="p-4">
-                  {customer.opportunity_name}
-                </td>
-
-                <td className="p-4">
-                  {customer.Category}
-                </td>
-
-                <td className="p-4">
-                  {customer.deadline || "-"}
-                </td>
-
-                <td className="p-4">
-                  {customer.anticipated_deadline ||
-                    "-"}
-                </td>
+                <th className="text-left p-4">
+                  Categories
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {filteredCustomers.map(
+                (customer) => (
+                  <tr
+                    key={customer.id}
+                    onClick={() =>
+                      setSelectedCustomer(
+                        customer
+                      )
+                    }
+                    className="border-t hover:bg-gray-50 cursor-pointer"
+                  >
+                    <td className="p-4">
+                      {customer.grantor || "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {customer.opportunity_name ||
+                        "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {customer.maximum_grant ||
+                        "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {customer.deadline || "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {customer.anticipated_deadline ||
+                        "-"}
+                    </td>
+
+                    <td className="p-4 max-w-md">
+                      {customer.abstract || "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {Array.isArray(
+                        customer.rfp_categories
+                      )
+                        ? customer.rfp_categories.join(
+                            ", "
+                          )
+                        : customer.rfp_categories ||
+                          "-"}
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <CustomerDrawer

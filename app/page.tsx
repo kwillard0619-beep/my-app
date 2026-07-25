@@ -6,11 +6,6 @@ export default async function Home() {
     .from("Personal_BB")
     .select("*");
 
-  const active =
-    data?.filter(
-      (customer) => customer.Category === "active"
-    ).length ?? 0;
-
   if (error) {
     return (
       <div className="p-8 text-red-600">
@@ -18,6 +13,14 @@ export default async function Home() {
       </div>
     );
   }
+
+  // Category remains hidden from the user,
+  // but controls which opportunities are active.
+  const active =
+    data?.filter(
+      (opportunity) =>
+        opportunity.Category === "active"
+    ).length ?? 0;
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
