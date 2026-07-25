@@ -82,7 +82,6 @@ export default function CustomerTable({
       return {
         container:
           "bg-gray-100 text-gray-500 border-gray-200",
-        label: "Not set",
       };
     }
 
@@ -107,7 +106,6 @@ export default function CustomerTable({
       return {
         container:
           "bg-gray-100 text-gray-500 border-gray-200",
-        label: "Past deadline",
       };
     }
 
@@ -115,7 +113,6 @@ export default function CustomerTable({
       return {
         container:
           "bg-red-50 text-red-700 border-red-200",
-        label: "Due today",
       };
     }
 
@@ -123,15 +120,84 @@ export default function CustomerTable({
       return {
         container:
           "bg-amber-50 text-amber-700 border-amber-200",
-        label: "Due soon",
       };
     }
 
     return {
-      container:
-        "bg-slate-50 text-slate-700 border-slate-200",
-      label: "Upcoming",
+      container: "",
     };
+  };
+
+  // Give each category a consistent color
+  const getCategoryStyle = (
+    category: string
+  ) => {
+    const colors = [
+      "bg-blue-50 text-blue-700 border-blue-200",
+      "bg-purple-50 text-purple-700 border-purple-200",
+      "bg-emerald-50 text-emerald-700 border-emerald-200",
+      "bg-amber-50 text-amber-700 border-amber-200",
+      "bg-rose-50 text-rose-700 border-rose-200",
+      "bg-cyan-50 text-cyan-700 border-cyan-200",
+      "bg-indigo-50 text-indigo-700 border-indigo-200",
+      "bg-orange-50 text-orange-700 border-orange-200",
+    ];
+
+    let hash = 0;
+
+    for (let i = 0; i < category.length; i++) {
+      hash =
+        category.charCodeAt(i) +
+        ((hash << 5) - hash);
+    }
+
+    const index =
+      Math.abs(hash) % colors.length;
+
+    return colors[index];
+  };
+
+  // Give each anticipated deadline month a consistent color
+  const getMonthStyle = (
+    month: string
+  ) => {
+    const normalizedMonth =
+      month.trim().toLowerCase();
+
+    const monthColors: Record<
+      string,
+      string
+    > = {
+      january:
+        "bg-blue-50 text-blue-700 border-blue-200",
+      february:
+        "bg-purple-50 text-purple-700 border-purple-200",
+      march:
+        "bg-emerald-50 text-emerald-700 border-emerald-200",
+      april:
+        "bg-amber-50 text-amber-700 border-amber-200",
+      may:
+        "bg-rose-50 text-rose-700 border-rose-200",
+      june:
+        "bg-cyan-50 text-cyan-700 border-cyan-200",
+      july:
+        "bg-indigo-50 text-indigo-700 border-indigo-200",
+      august:
+        "bg-orange-50 text-orange-700 border-orange-200",
+      september:
+        "bg-teal-50 text-teal-700 border-teal-200",
+      october:
+        "bg-pink-50 text-pink-700 border-pink-200",
+      november:
+        "bg-violet-50 text-violet-700 border-violet-200",
+      december:
+        "bg-sky-50 text-sky-700 border-sky-200",
+    };
+
+    return (
+      monthColors[normalizedMonth] ||
+      "bg-slate-50 text-slate-700 border-slate-200"
+    );
   };
 
   return (
@@ -315,20 +381,11 @@ export default function CustomerTable({
                       className="group cursor-pointer transition-all duration-200 hover:bg-slate-50/70"
                     >
                       {/* Grantor */}
-                      <td className="p-5 align-top">
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="h-8 w-8 flex-shrink-0 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
-                            {customer.grantor
-                              ?.charAt(0)
-                              ?.toUpperCase() ||
-                              "?"}
-                          </div>
-
-                          <span className="font-medium text-slate-700">
-                            {customer.grantor ||
-                              "-"}
-                          </span>
-                        </div>
+                      <td className="p-5 align-top text-center">
+                        <span className="font-medium text-slate-700">
+                          {customer.grantor ||
+                            "-"}
+                        </span>
                       </td>
 
                       {/* Opportunity */}
@@ -336,10 +393,6 @@ export default function CustomerTable({
                         <div className="font-semibold text-slate-900 group-hover:text-slate-700 transition">
                           {customer.opportunity_name ||
                             "-"}
-                        </div>
-
-                        <div className="mt-1 text-xs text-slate-400">
-                          Click to view details
                         </div>
                       </td>
 
@@ -369,28 +422,45 @@ export default function CustomerTable({
                                 )}
                               </span>
 
-                              <span
-                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
-                              >
-                                {deadlineStyle.label}
-                              </span>
+                              {deadlineStyle.container && (
+                                <span
+                                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
+                                >
+                                  {new Date(
+                                    `${customer.deadline}T00:00:00`
+                                  ) < new Date()
+                                    ? "Past deadline"
+                                    : "Due soon"}
+                                </span>
+                              )}
                             </>
                           ) : (
                             <span
                               className={`rounded-full border px-2.5 py-1 text-xs font-medium ${deadlineStyle.container}`}
                             >
-                              {deadlineStyle.label}
+                              Not set
                             </span>
                           )}
                         </div>
                       </td>
 
-                      {/* Anticipated Deadline */}
+                      {/* Anticipated Deadline Month */}
                       <td className="p-5 align-top text-center">
-                        <span className="text-sm text-slate-600">
-                          {customer.anticipated_deadline ||
-                            "—"}
-                        </span>
+                        {customer.anticipated_deadline ? (
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
+                              customer.anticipated_deadline
+                            )}`}
+                          >
+                            {
+                              customer.anticipated_deadline
+                            }
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">
+                            —
+                          </span>
+                        )}
                       </td>
 
                       {/* Abstract */}
@@ -413,7 +483,9 @@ export default function CustomerTable({
                               (category) => (
                                 <span
                                   key={category}
-                                  className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
+                                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getCategoryStyle(
+                                    category
+                                  )}`}
                                 >
                                   {category}
                                 </span>
