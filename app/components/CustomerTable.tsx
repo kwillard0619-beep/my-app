@@ -185,8 +185,20 @@ export default function CustomerTable({
                         "-"}
                     </td>
 
+                    {/* Deadline */}
                     <td className="p-4">
-                      {customer.deadline || "-"}
+                      {customer.deadline
+                        ? new Date(
+                            `${customer.deadline}T00:00:00`
+                          ).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )
+                        : "-"}
                     </td>
 
                     <td className="p-4">

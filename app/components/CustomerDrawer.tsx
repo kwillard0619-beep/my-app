@@ -65,7 +65,18 @@ export default function CustomerDrawer({
             </div>
 
             <div>
-              {customer.deadline || "Not set"}
+              {customer.deadline
+                ? new Date(
+                    `${customer.deadline}T00:00:00`
+                  ).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )
+                : "Not set"}
             </div>
           </div>
 
