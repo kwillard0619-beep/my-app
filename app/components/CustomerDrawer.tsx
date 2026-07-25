@@ -28,7 +28,8 @@ const getCategoryStyle = (category: string) => {
       ((hash << 5) - hash);
   }
 
-  const index = Math.abs(hash) % colors.length;
+  const index =
+    Math.abs(hash) % colors.length;
 
   return colors[index];
 };
@@ -39,76 +40,6 @@ export default function CustomerDrawer({
 }: Props) {
   if (!customer) return null;
 
-  // Calculate deadline countdown
-  const getDeadlineCountdown = () => {
-    if (!customer.deadline) {
-      return {
-        text: "No deadline set",
-        style:
-          "bg-slate-50 border-slate-100 text-slate-600",
-      };
-    }
-
-    const deadlineDate = new Date(
-      `${customer.deadline}T00:00:00`
-    );
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const difference =
-      deadlineDate.getTime() - today.getTime();
-
-    const daysUntil = Math.ceil(
-      difference / (1000 * 60 * 60 * 24)
-    );
-
-    if (daysUntil < 0) {
-      const daysAgo = Math.abs(daysUntil);
-
-      return {
-        text: `${daysAgo} ${
-          daysAgo === 1 ? "day" : "days"
-        } past deadline`,
-        style:
-          "bg-slate-50 border-slate-200 text-slate-600",
-      };
-    }
-
-    if (daysUntil === 0) {
-      return {
-        text: "Deadline is today",
-        style:
-          "bg-red-50 border-red-200 text-red-700",
-      };
-    }
-
-    if (daysUntil === 1) {
-      return {
-        text: "1 day remaining",
-        style:
-          "bg-red-50 border-red-200 text-red-700",
-      };
-    }
-
-    if (daysUntil <= 30) {
-      return {
-        text: `${daysUntil} days remaining`,
-        style:
-          "bg-amber-50 border-amber-200 text-amber-700",
-      };
-    }
-
-    return {
-      text: `${daysUntil} days remaining`,
-      style:
-        "bg-emerald-50 border-emerald-200 text-emerald-700",
-    };
-  };
-
-  const deadlineCountdown =
-    getDeadlineCountdown();
-
   return (
     <div
       className="fixed inset-0 bg-black/30 flex justify-end z-50"
@@ -116,7 +47,9 @@ export default function CustomerDrawer({
     >
       <div
         className="h-full w-[500px] bg-white shadow-2xl p-6 overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) =>
+          e.stopPropagation()
+        }
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -141,6 +74,7 @@ export default function CustomerDrawer({
 
         {/* Details */}
         <div className="space-y-5">
+
           {/* Maximum Grant */}
           <div>
             <div className="text-sm text-gray-500">
@@ -163,12 +97,27 @@ export default function CustomerDrawer({
               {customer.deadline
                 ? new Date(
                     `${customer.deadline}T00:00:00`
-                  ).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                  ).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )
                 : "Not set"}
+            </div>
+          </div>
+
+          {/* Anticipated Deadline Month */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Anticipated Deadline Month
+            </div>
+
+            <div className="font-medium">
+              {customer.anticipated_deadline ||
+                "Not set"}
             </div>
           </div>
 
@@ -194,26 +143,15 @@ export default function CustomerDrawer({
             )}
           </div>
 
-          {/* Deadline Countdown */}
-          <div>
-            <div className="text-sm text-gray-500 mb-2">
-              Deadline Countdown
-            </div>
-
-            <div
-              className={`rounded-lg border p-4 font-medium ${deadlineCountdown.style}`}
-            >
-              {deadlineCountdown.text}
-            </div>
-          </div>
-
           {/* Categories */}
           <div>
             <div className="text-sm text-gray-500 mb-2">
               Categories
             </div>
 
-            {Array.isArray(customer.rfp_categories) &&
+            {Array.isArray(
+              customer.rfp_categories
+            ) &&
             customer.rfp_categories.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {customer.rfp_categories.map(
@@ -301,6 +239,7 @@ export default function CustomerDrawer({
               No attachments available.
             </div>
           </div>
+
         </div>
       </div>
     </div>

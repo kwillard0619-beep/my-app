@@ -19,14 +19,11 @@ export default function CustomerTable({
 
   const filteredCustomers = useMemo(() => {
     let result = customers.filter(
-      (customer) =>
-        customer.Category === "active"
+      (customer) => customer.Category === "active"
     );
 
     if (search.trim()) {
-      const searchTerm = search
-        .trim()
-        .toLowerCase();
+      const searchTerm = search.trim().toLowerCase();
 
       result = result.filter((customer) => {
         const searchableFields = [
@@ -53,21 +50,15 @@ export default function CustomerTable({
 
     if (sortBy === "grantor") {
       result.sort((a, b) =>
-        (a.grantor ?? "").localeCompare(
-          b.grantor ?? ""
-        )
+        (a.grantor ?? "").localeCompare(b.grantor ?? "")
       );
     }
 
     if (sortBy === "deadline") {
       result.sort(
         (a, b) =>
-          new Date(
-            a.deadline || "9999-12-31"
-          ).getTime() -
-          new Date(
-            b.deadline || "9999-12-31"
-          ).getTime()
+          new Date(a.deadline || "9999-12-31").getTime() -
+          new Date(b.deadline || "9999-12-31").getTime()
       );
     }
 
@@ -97,8 +88,7 @@ export default function CustomerTable({
       today.getTime();
 
     const daysUntil = Math.ceil(
-      difference /
-        (1000 * 60 * 60 * 24)
+      difference / (1000 * 60 * 60 * 24)
     );
 
     if (daysUntil < 0) {
@@ -202,10 +192,11 @@ export default function CustomerTable({
     <div className="min-h-screen bg-slate-100 py-2">
       <div className="max-w-[1800px] mx-auto">
 
-        {/* Header */}
-        <div className="relative overflow-hidden bg-slate-800 rounded-2xl shadow-lg border border-slate-700 p-8 mb-6 text-white">
+        {/* Dashboard Header */}
+        <div className="relative overflow-hidden bg-[#AFC4D4] rounded-2xl shadow-lg border border-[#9FB7C8] p-8 mb-6 text-slate-800">
 
-          <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400" />
+          {/* Accent Line */}
+          <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-[#7E9FB5] via-[#91AFC2] to-[#AFC4D4]" />
 
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
 
@@ -215,15 +206,15 @@ export default function CustomerTable({
                 {/* Logo goes here */}
               </div>
 
-              <p className="text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 mb-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.15em] text-slate-600 mb-2">
                 Funding Opportunities
               </p>
 
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
                 Active RFP Opportunities
               </h1>
 
-              <p className="mt-3 text-slate-300 max-w-2xl leading-6">
+              <p className="mt-3 text-slate-700 max-w-2xl leading-6">
                 Explore current funding opportunities
                 and discover grants aligned with your
                 organization's goals and interests.
@@ -232,20 +223,20 @@ export default function CustomerTable({
 
             {/* Active Count */}
             <div className="flex-shrink-0">
-              <div className="relative overflow-hidden rounded-2xl border border-slate-600 bg-slate-700 px-7 py-5 min-w-[200px] shadow-inner">
+              <div className="relative overflow-hidden rounded-2xl border border-[#91AFC2] bg-white/50 px-7 py-5 min-w-[200px] shadow-sm">
 
-                <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-slate-600/40 -translate-y-8 translate-x-8" />
+                <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-white/30 -translate-y-8 translate-x-8" />
 
                 <div className="relative">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                     Active Opportunities
                   </div>
 
-                  <div className="mt-1 text-4xl font-bold text-white">
+                  <div className="mt-1 text-4xl font-bold text-slate-900">
                     {activeCount}
                   </div>
 
-                  <div className="mt-1 text-xs text-slate-400">
+                  <div className="mt-1 text-xs text-slate-600">
                     Currently available
                   </div>
                 </div>
@@ -254,14 +245,14 @@ export default function CustomerTable({
           </div>
 
           {/* Search and Sort */}
-          <div className="mt-8 pt-6 border-t border-slate-700">
+          <div className="mt-8 pt-6 border-t border-[#91AFC2]">
 
             <div className="flex flex-col md:flex-row gap-3">
 
               {/* Search */}
               <div className="relative flex-1">
 
-                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-500">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -285,13 +276,13 @@ export default function CustomerTable({
                   onChange={(e) =>
                     setSearch(e.target.value)
                   }
-                  className="w-full rounded-xl border border-slate-500 bg-slate-700 py-3 pl-11 pr-4 text-sm text-white placeholder:text-slate-400 outline-none transition focus:border-blue-400 focus:bg-slate-600 focus:ring-4 focus:ring-blue-500/10"
+                  className="w-full rounded-xl border border-[#91AFC2] bg-white/70 py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-500 outline-none transition focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 />
               </div>
 
               {/* Sort */}
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-slate-300 whitespace-nowrap">
+                <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
                   Sort by
                 </span>
 
@@ -300,7 +291,7 @@ export default function CustomerTable({
                   onChange={(e) =>
                     setSortBy(e.target.value)
                   }
-                  className="rounded-xl border border-slate-500 bg-slate-700 px-4 py-3 text-sm font-medium text-white outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
+                  className="rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 >
                   <option value="deadline">
                     Deadline
@@ -314,11 +305,11 @@ export default function CustomerTable({
             </div>
 
             {search.trim() && (
-              <div className="mt-4 flex items-center gap-2 text-sm text-slate-300">
-                <span className="inline-block h-2 w-2 rounded-full bg-blue-400" />
+              <div className="mt-4 flex items-center gap-2 text-sm text-slate-700">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#6F91A8]" />
 
                 Showing{" "}
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-slate-900">
                   {filteredCustomers.length}
                 </span>{" "}
                 matching opportunities
