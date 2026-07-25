@@ -34,14 +34,13 @@ const getCategoryStyle = (category: string) => {
   return colors[index];
 };
 
-// Calculate deadline information
+// Calculate deadline countdown
 const getDeadlineInfo = (
   deadline: string | null
 ) => {
   if (!deadline) {
     return {
       label: "No deadline set",
-      daysRemaining: null,
       style:
         "bg-gray-50 text-gray-600 border-gray-200",
     };
@@ -72,7 +71,6 @@ const getDeadlineInfo = (
         daysPast === 1
           ? "1 day past deadline"
           : `${daysPast} days past deadline`,
-      daysRemaining,
       style:
         "bg-gray-50 text-gray-600 border-gray-200",
     };
@@ -81,7 +79,6 @@ const getDeadlineInfo = (
   if (daysRemaining === 0) {
     return {
       label: "Due today",
-      daysRemaining,
       style:
         "bg-red-50 text-red-700 border-red-200",
     };
@@ -90,7 +87,6 @@ const getDeadlineInfo = (
   if (daysRemaining === 1) {
     return {
       label: "1 day remaining",
-      daysRemaining,
       style:
         "bg-red-50 text-red-700 border-red-200",
     };
@@ -99,7 +95,6 @@ const getDeadlineInfo = (
   if (daysRemaining <= 30) {
     return {
       label: `${daysRemaining} days remaining`,
-      daysRemaining,
       style:
         "bg-amber-50 text-amber-700 border-amber-200",
     };
@@ -107,7 +102,6 @@ const getDeadlineInfo = (
 
   return {
     label: `${daysRemaining} days remaining`,
-    daysRemaining,
     style:
       "bg-slate-50 text-slate-700 border-slate-200",
   };
@@ -124,128 +118,113 @@ export default function CustomerDrawer({
 
   return (
     <div
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end z-50"
+      className="fixed inset-0 bg-black/30 flex justify-end z-50"
       onClick={onClose}
     >
       <div
-        className="h-full w-full max-w-[560px] bg-white shadow-2xl overflow-y-auto"
+        className="h-full w-[500px] bg-white shadow-2xl p-6 overflow-y-auto"
         onClick={(e) =>
           e.stopPropagation()
         }
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-200 px-7 py-6">
-          <div className="flex justify-between items-start gap-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-2">
-                Grant Opportunity
-              </p>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              {customer.grantor}
+            </h2>
 
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-                {customer.grantor}
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                {customer.opportunity_name}
-              </p>
-            </div>
-
-            <button
-              onClick={onClose}
-              className="flex-shrink-0 h-9 w-9 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
-              aria-label="Close"
-            >
-              ✕
-            </button>
+            <p className="mt-1 text-sm text-slate-500">
+              {customer.opportunity_name}
+            </p>
           </div>
+
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-black text-xl"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Content */}
-        <div className="p-7 space-y-8">
+        {/* Details */}
+        <div className="space-y-5">
 
-          {/* Opportunity Details */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-4">
-              Opportunity Details
-            </h3>
-
-            <div className="space-y-5">
-              {/* Maximum Grant */}
-              <div>
-                <div className="text-sm text-slate-500 mb-1">
-                  Maximum Grant
-                </div>
-
-                <div className="text-lg font-semibold text-slate-900">
-                  {customer.maximum_grant ||
-                    "Not specified"}
-                </div>
-              </div>
-
-              {/* Deadline Box */}
-              <div
-                className={`rounded-2xl border p-5 ${deadlineInfo.style}`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-wider opacity-70">
-                      Application Deadline
-                    </div>
-
-                    <div className="mt-2 text-xl font-bold">
-                      {customer.deadline
-                        ? new Date(
-                            `${customer.deadline}T00:00:00`
-                          ).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )
-                        : "Not set"}
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-xs font-semibold uppercase tracking-wider opacity-70">
-                      Countdown
-                    </div>
-
-                    <div className="mt-2 text-lg font-bold">
-                      {deadlineInfo.label}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Website */}
-              {customer.website_link && (
-                <div>
-                  <div className="text-sm text-slate-500 mb-2">
-                    Website
-                  </div>
-
-                  <a
-                    href={customer.website_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:underline"
-                  >
-                    Visit Opportunity Website
-                    <span>↗</span>
-                  </a>
-                </div>
-              )}
+          {/* Maximum Grant */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Maximum Grant
             </div>
-          </section>
+
+            <div className="font-medium">
+              {customer.maximum_grant ||
+                "Not specified"}
+            </div>
+          </div>
+
+          {/* Deadline */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Deadline
+            </div>
+
+            <div className="font-medium">
+              {customer.deadline
+                ? new Date(
+                    `${customer.deadline}T00:00:00`
+                  ).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )
+                : "Not set"}
+            </div>
+          </div>
+
+          {/* Website - replaces Anticipated Deadline Month */}
+          <div>
+            <div className="text-sm text-gray-500">
+              Website
+            </div>
+
+            {customer.website_link ? (
+              <a
+                href={customer.website_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-slate-700 hover:text-slate-900 hover:underline"
+              >
+                Visit Opportunity Website ↗
+              </a>
+            ) : (
+              <div className="text-slate-400">
+                Not provided
+              </div>
+            )}
+          </div>
+
+          {/* Deadline Countdown - replaces Website position */}
+          <div
+            className={`rounded-xl border p-4 ${deadlineInfo.style}`}
+          >
+            <div className="text-sm opacity-70">
+              Deadline Countdown
+            </div>
+
+            <div className="mt-1 font-semibold">
+              {deadlineInfo.label}
+            </div>
+          </div>
 
           {/* Categories */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-4">
+          <div>
+            <div className="text-sm text-gray-500 mb-2">
               Categories
-            </h3>
+            </div>
 
             {Array.isArray(
               customer.rfp_categories
@@ -256,7 +235,7 @@ export default function CustomerDrawer({
                   (category) => (
                     <span
                       key={category}
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-medium ${getCategoryStyle(
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getCategoryStyle(
                         category
                       )}`}
                     >
@@ -266,83 +245,77 @@ export default function CustomerDrawer({
                 )}
               </div>
             ) : (
-              <p className="text-sm text-slate-400">
+              <div className="text-slate-400">
                 No categories listed.
-              </p>
+              </div>
             )}
-          </section>
+          </div>
 
           {/* Abstract */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-3">
+          <div>
+            <div className="text-sm text-gray-500 mb-2">
               Abstract
-            </h3>
-
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-5">
-              <p className="text-sm leading-7 text-slate-600">
-                {customer.abstract ||
-                  "No abstract provided."}
-              </p>
             </div>
-          </section>
 
-          {/* Additional Information */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-3">
+            <div className="rounded-lg bg-slate-50 border border-slate-100 p-4 text-sm leading-6 text-slate-600">
+              {customer.abstract ||
+                "No abstract provided."}
+            </div>
+          </div>
+
+          {/* Additional Details */}
+          <div>
+            <div className="text-sm text-gray-500 mb-2">
               Additional Details
-            </h3>
-
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-5">
-              <p className="text-sm leading-7 text-slate-600 whitespace-pre-wrap">
-                {customer.additional_information ||
-                  "No additional details provided."}
-              </p>
             </div>
-          </section>
 
-          {/* Opportunity Flags */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-4">
+            <div className="rounded-lg bg-slate-50 border border-slate-100 p-4 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+              {customer.additional_information ||
+                "No additional details provided."}
+            </div>
+          </div>
+
+          {/* Opportunity Information */}
+          <div>
+            <div className="text-sm text-gray-500 mb-3">
               Opportunity Information
-            </h3>
+            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-xl border border-slate-200 p-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-slate-200 p-4">
                 <div className="text-xs text-slate-400 mb-1">
                   Limited Opportunity
                 </div>
 
-                <div className="font-semibold text-slate-700">
+                <div className="font-medium text-slate-700">
                   {customer.limited_opportunity ||
                     "Not specified"}
                 </div>
               </div>
 
-              <div className="rounded-xl border border-slate-200 p-4">
+              <div className="rounded-lg border border-slate-200 p-4">
                 <div className="text-xs text-slate-400 mb-1">
                   Fellowship Opportunity
                 </div>
 
-                <div className="font-semibold text-slate-700">
+                <div className="font-medium text-slate-700">
                   {customer.fellowship_opportunity ||
                     "Not specified"}
                 </div>
               </div>
             </div>
-          </section>
+          </div>
 
           {/* Attachments */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-4">
+          <div>
+            <div className="text-sm text-gray-500 mb-2">
               Attachments
-            </h3>
-
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-              <div className="text-sm text-slate-500">
-                No attachments available.
-              </div>
             </div>
-          </section>
+
+            <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-sm text-slate-500">
+              No attachments available.
+            </div>
+          </div>
 
         </div>
       </div>
