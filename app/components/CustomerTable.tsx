@@ -11,19 +11,43 @@ export default function CustomerTable({
   customers: Customer[];
   activeCount: number;
 }) {
-  const [selectedCustomer, setSelectedCustomer] =
-    useState<Customer | null>(null);
+  // Store only the selected customer's ID.
+  // This allows the drawer to always use the newest
+  // version of the customer from the realtime data.
+  const [selectedCustomerId, setSelectedCustomerId] =
+    useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("deadline");
 
+  // Find the currently selected customer from
+  // the latest customers array.
+  //
+  // When Supabase realtime updates the customers prop,
+  // this lookup automatically gets the updated record.
+  const selectedCustomer = useMemo(() => {
+    if (!selectedCustomerId) {
+      return null;
+    }
+
+    return (
+      customers.find(
+        (customer) =>
+          String(customer.id) ===
+          String(selectedCustomerId)
+      ) ?? null
+    );
+  }, [customers, selectedCustomerId]);
+
   const filteredCustomers = useMemo(() => {
     let result = customers.filter(
-      (customer) => customer.Category === "active"
+      (customer) =>
+        customer.Category === "active"
     );
 
     if (search.trim()) {
-      const searchTerm = search.trim().toLowerCase();
+      const searchTerm =
+        search.trim().toLowerCase();
 
       result = result.filter((customer) => {
         const searchableFields = [
@@ -50,7 +74,9 @@ export default function CustomerTable({
 
     if (sortBy === "grantor") {
       result.sort((a, b) =>
-        (a.grantor ?? "").localeCompare(b.grantor ?? "")
+        (a.grantor ?? "").localeCompare(
+          b.grantor ?? ""
+        )
       );
     }
 
@@ -125,6 +151,7 @@ export default function CustomerTable({
   };
 
   // Category colors
+  // These are unchanged.
   const getCategoryStyle = (
     category: string
   ) => {
@@ -141,7 +168,11 @@ export default function CustomerTable({
 
     let hash = 0;
 
-    for (let i = 0; i < category.length; i++) {
+    for (
+      let i = 0;
+      i < category.length;
+      i++
+    ) {
       hash =
         category.charCodeAt(i) +
         ((hash << 5) - hash);
@@ -153,8 +184,9 @@ export default function CustomerTable({
     return colors[index];
   };
 
-  // Anticipated deadline month colors
-  // These are intentionally separate from category colors.
+  // Anticipated Deadline Month colors
+  // These use a separate dusty color palette
+  // from the category colors.
   const getMonthStyle = (
     month: string
   ) => {
@@ -166,45 +198,45 @@ export default function CustomerTable({
       string
     > = {
       january:
-        "bg-slate-200 text-slate-800 border-slate-300",
+        "bg-[#D9E8F0] text-[#31566B] border-[#AFC9D8]",
 
       february:
-        "bg-stone-200 text-stone-800 border-stone-300",
+        "bg-[#E5DDF0] text-[#5B4772] border-[#C8B8DA]",
 
       march:
-        "bg-zinc-200 text-zinc-800 border-zinc-300",
+        "bg-[#DDE8D8] text-[#46613F] border-[#B8CCAF]",
 
       april:
-        "bg-neutral-200 text-neutral-800 border-neutral-300",
+        "bg-[#E9E0D3] text-[#66523D] border-[#D2C0A8]",
 
       may:
-        "bg-gray-200 text-gray-800 border-gray-300",
+        "bg-[#E8D9DF] text-[#704B5A] border-[#CEB5BF]",
 
       june:
-        "bg-slate-300 text-slate-800 border-slate-400",
+        "bg-[#D8E5E7] text-[#3F5E63] border-[#B0C9CD]",
 
       july:
-        "bg-stone-300 text-stone-800 border-stone-400",
+        "bg-[#E1DCD2] text-[#5E574B] border-[#C8BDAA]",
 
       august:
-        "bg-zinc-300 text-zinc-800 border-zinc-400",
+        "bg-[#DCDDE5] text-[#4E5265] border-[#BCBFCE]",
 
       september:
-        "bg-neutral-300 text-neutral-800 border-neutral-400",
+        "bg-[#E5DED4] text-[#62574A] border-[#CEC2B2]",
 
       october:
-        "bg-gray-300 text-gray-800 border-gray-400",
+        "bg-[#E7D9D0] text-[#694F43] border-[#CDB7A9]",
 
       november:
-        "bg-slate-400 text-slate-900 border-slate-500",
+        "bg-[#DADFE4] text-[#4B5660] border-[#B8C2CA]",
 
       december:
-        "bg-stone-400 text-stone-900 border-stone-500",
+        "bg-[#E2DDE7] text-[#5D5267] border-[#C5BBCD]",
     };
 
     return (
       monthColors[normalizedMonth] ||
-      "bg-gray-200 text-gray-800 border-gray-300"
+      "bg-[#E1E3E5] text-[#555B60] border-[#C5C8CB]"
     );
   };
 
@@ -393,12 +425,19 @@ export default function CustomerTable({
                         customer.deadline
                       );
 
+                    const isPastDeadline =
+                      customer.deadline
+                        ? new Date(
+                            `${customer.deadline}T00:00:00`
+                          ) < new Date()
+                        : false;
+
                     return (
                       <tr
                         key={customer.id}
                         onClick={() =>
-                          setSelectedCustomer(
-                            customer
+                          setSelectedCustomerId(
+                            String(customer.id)
                           )
                         }
                         className={`group cursor-pointer transition-all duration-200 ${
@@ -459,9 +498,7 @@ export default function CustomerTable({
                                   )}
                                 </span>
 
-                                {new Date(
-                                  `${customer.deadline}T00:00:00`
-                                ) < new Date() && (
+                                {isPastDeadline && (
                                   <span
                                     className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
                                   >
@@ -599,10 +636,11 @@ export default function CustomerTable({
 
         </div>
 
+        {/* Realtime-synchronized Drawer */}
         <CustomerDrawer
           customer={selectedCustomer}
           onClose={() =>
-            setSelectedCustomer(null)
+            setSelectedCustomerId(null)
           }
         />
 
