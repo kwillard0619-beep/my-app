@@ -46,29 +46,6 @@ export default function CustomerDrawer({
         </div>
 
         <div className="space-y-6">
-          {/* Grantor */}
-          <div>
-            <div className="text-sm text-gray-500">
-              Grantor
-            </div>
-
-            <div className="font-medium">
-              {customer.grantor || "Not set"}
-            </div>
-          </div>
-
-          {/* Opportunity */}
-          <div>
-            <div className="text-sm text-gray-500">
-              Opportunity
-            </div>
-
-            <div className="font-medium">
-              {customer.opportunity_name ||
-                "Not set"}
-            </div>
-          </div>
-
           {/* Maximum Grant */}
           <div>
             <div className="text-sm text-gray-500">
