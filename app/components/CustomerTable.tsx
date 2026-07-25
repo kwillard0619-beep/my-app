@@ -328,42 +328,42 @@ export default function CustomerTable({
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-[#D5E0E7] overflow-hidden">
 
           <div className="overflow-x-auto">
 
             <table className="w-full">
 
-              {/* Headers */}
-              <thead className="bg-slate-700 text-white">
+              {/* Table Header */}
+              <thead className="bg-[#AFC4D4] text-slate-800">
 
                 <tr>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Grantor
                   </th>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Opportunity
                   </th>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Maximum Grant
                   </th>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Deadline
                   </th>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Anticipated Deadline Month
                   </th>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Abstract
                   </th>
 
-                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider">
+                  <th className="text-center p-5 text-xs font-semibold uppercase tracking-wider text-slate-800">
                     Categories
                   </th>
 
@@ -394,7 +394,7 @@ export default function CustomerTable({
                           index % 2 === 0
                             ? "bg-white"
                             : "bg-slate-50"
-                        } hover:bg-blue-50`}
+                        } hover:bg-[#EEF5F8]`}
                       >
 
                         {/* Grantor */}
