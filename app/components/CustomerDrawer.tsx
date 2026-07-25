@@ -24,6 +24,78 @@ export default function CustomerDrawer({
       })
     : null;
 
+  // Calculate deadline countdown
+  const getDeadlineCountdown = () => {
+    if (!customer.deadline) {
+      return {
+        text: "No deadline set",
+        className: "text-gray-400",
+      };
+    }
+
+    const deadlineDate = new Date(
+      `${customer.deadline}T00:00:00`
+    );
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const difference =
+      deadlineDate.getTime() -
+      today.getTime();
+
+    const daysUntil = Math.ceil(
+      difference /
+        (1000 * 60 * 60 * 24)
+    );
+
+    if (daysUntil < 0) {
+      const daysAgo = Math.abs(daysUntil);
+
+      return {
+        text: `${daysAgo} ${
+          daysAgo === 1 ? "day" : "days"
+        } past deadline`,
+        className:
+          "font-medium text-gray-500",
+      };
+    }
+
+    if (daysUntil === 0) {
+      return {
+        text: "Deadline is today",
+        className:
+          "font-semibold text-red-600",
+      };
+    }
+
+    if (daysUntil === 1) {
+      return {
+        text: "1 day remaining",
+        className:
+          "font-semibold text-red-600",
+      };
+    }
+
+    if (daysUntil <= 30) {
+      return {
+        text: `${daysUntil} days remaining`,
+        className:
+          "font-semibold text-amber-600",
+      };
+    }
+
+    return {
+      text: `${daysUntil} days remaining`,
+      className:
+        "font-semibold text-emerald-600",
+    };
+  };
+
+  const deadlineCountdown =
+    getDeadlineCountdown();
+
   // Convert enum values into a consistent Yes/No display
   const formatBooleanValue = (
     value: string | null | undefined
@@ -69,7 +141,9 @@ export default function CustomerDrawer({
       {/* Drawer */}
       <div
         className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) =>
+          e.stopPropagation()
+        }
       >
         {/* Header */}
         <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-8 py-6 backdrop-blur">
@@ -132,25 +206,14 @@ export default function CustomerDrawer({
               </div>
 
               <div className="mt-2 text-xl font-bold text-slate-900">
-                {formattedDeadline || "Not set"}
+                {formattedDeadline ||
+                  "Not set"}
               </div>
             </div>
           </div>
 
           {/* Secondary Details */}
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Anticipated Deadline */}
-            <div>
-              <div className="text-sm font-medium text-gray-500">
-                Anticipated Deadline Month
-              </div>
-
-              <div className="mt-1 text-gray-900">
-                {customer.anticipated_deadline ||
-                  "Not specified"}
-              </div>
-            </div>
-
             {/* Website */}
             <div>
               <div className="text-sm font-medium text-gray-500">
@@ -193,6 +256,23 @@ export default function CustomerDrawer({
                     Not provided
                   </span>
                 )}
+              </div>
+            </div>
+
+            {/* Deadline Countdown */}
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Deadline Countdown
+              </div>
+
+              <div className="mt-1">
+                <span
+                  className={
+                    deadlineCountdown.className
+                  }
+                >
+                  {deadlineCountdown.text}
+                </span>
               </div>
             </div>
           </div>
