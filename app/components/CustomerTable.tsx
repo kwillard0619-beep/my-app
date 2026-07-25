@@ -134,38 +134,40 @@ export default function CustomerTable({
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
+            {/* Centered Column Headers */}
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Grantor
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Opportunity
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Maximum Grant
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Deadline
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Anticipated Deadline Month
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Abstract
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-center p-4">
                   Categories
                 </th>
               </tr>
             </thead>
 
+            {/* Opportunity Data */}
             <tbody>
               {filteredCustomers.map(
                 (customer) => (
