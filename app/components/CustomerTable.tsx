@@ -28,6 +28,17 @@ type AdvancedFilter = {
   values: string[];
 };
 
+type SortOption =
+  | "default"
+  | "grantor-asc"
+  | "grantor-desc"
+  | "maximum-high"
+  | "maximum-low"
+  | "deadline-asc"
+  | "deadline-desc"
+  | "anticipated-asc"
+  | "anticipated-desc";
+
 export default function CustomerTable({
   customers,
   activeCount,
@@ -61,7 +72,16 @@ export default function CustomerTable({
   // --------------------------------------------------
 
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("deadline");
+
+  // Automatic default sort:
+  // 1. Anticipated Deadline
+  // 2. Deadline
+  // 3. Maximum Grant
+  //
+  // Anticipated Deadline order:
+  // January -> December -> Rolling -> Blank
+  const [sortBy, setSortBy] =
+    useState<SortOption>("default");
 
   // --------------------------------------------------
   // Quick Filter State
@@ -109,8 +129,7 @@ export default function CustomerTable({
     useRef<HTMLDivElement | null>(null);
 
   // --------------------------------------------------
-  // Close Advanced Dropdown When Clicking Anywhere
-  // Outside Of It
+  // Close Advanced Dropdown When Clicking Outside
   // --------------------------------------------------
 
   useEffect(() => {
@@ -181,6 +200,10 @@ export default function CustomerTable({
     );
   }, [customers]);
 
+  // --------------------------------------------------
+  // Maximum Grant Parsing
+  // --------------------------------------------------
+
   const parseMaximumGrant = (
     value: string | null | undefined
   ) => {
@@ -217,6 +240,10 @@ export default function CustomerTable({
     );
   }, [customers]);
 
+  // --------------------------------------------------
+  // Available Anticipated Deadline Months
+  // --------------------------------------------------
+
   const availableMonths = useMemo(() => {
     const months = customers
       .map((customer) =>
@@ -240,21 +267,49 @@ export default function CustomerTable({
       "october",
       "november",
       "december",
+      "rolling",
     ];
 
     return Array.from(
       new Set(months)
     ).sort((a, b) => {
-      return (
+      const aIndex =
         monthOrder.indexOf(
           a.toLowerCase()
-        ) -
+        );
+
+      const bIndex =
         monthOrder.indexOf(
           b.toLowerCase()
-        )
-      );
+        );
+
+      if (
+        aIndex === -1 &&
+        bIndex === -1
+      ) {
+        return a.localeCompare(b);
+      }
+
+      if (aIndex === -1) {
+        return 1;
+      }
+
+      if (bIndex === -1) {
+        return -1;
+      }
+
+      return aIndex - bIndex;
     });
   }, [customers]);
+
+  // --------------------------------------------------
+  // Available Deadlines
+  //
+  // IMPORTANT:
+  // The type guard below guarantees this returns
+  // string[] instead of (string | null)[].
+  // This fixes the TypeScript error in options.map().
+  // --------------------------------------------------
 
   const availableDeadlines = useMemo(() => {
     return Array.from(
@@ -266,13 +321,17 @@ export default function CustomerTable({
           )
           .filter(
             (
-              value
-            ): value is string =>
-              Boolean(value)
+              deadline
+            ): deadline is string =>
+              Boolean(deadline)
           )
       )
     ).sort();
   }, [customers]);
+
+  // --------------------------------------------------
+  // Available Limited Opportunities
+  // --------------------------------------------------
 
   const availableLimitedOpportunities =
     useMemo(() => {
@@ -291,6 +350,10 @@ export default function CustomerTable({
         a.localeCompare(b)
       );
     }, [customers]);
+
+  // --------------------------------------------------
+  // Available Fellowship Opportunities
+  // --------------------------------------------------
 
   const availableFellowshipOpportunities =
     useMemo(() => {
@@ -469,7 +532,7 @@ export default function CustomerTable({
           customer.rfp_categories
         )
           ? customer.rfp_categories.map(
-              String
+              (value) => String(value)
             )
           : [];
 
@@ -539,6 +602,163 @@ export default function CustomerTable({
     }
 
     return hasMatch;
+  };
+
+  // --------------------------------------------------
+  // Automatic Sort Helpers
+  // --------------------------------------------------
+
+  const getAnticipatedMonthRank = (
+    value: string | null | undefined
+  ) => {
+    if (!value) {
+      // Blank anticipated deadlines
+      // ALWAYS go last.
+      return 999;
+    }
+
+    const normalized =
+      value.trim().toLowerCase();
+
+    const monthOrder: Record<
+      string,
+      number
+    > = {
+      january: 1,
+      february: 2,
+      march: 3,
+      april: 4,
+      may: 5,
+      june: 6,
+      july: 7,
+      august: 8,
+      september: 9,
+      october: 10,
+      november: 11,
+      december: 12,
+      rolling: 13,
+    };
+
+    return (
+      monthOrder[normalized] ??
+      14
+    );
+  };
+
+  // --------------------------------------------------
+  // Compare Actual Deadlines
+  //
+  // Blank deadlines are always placed last.
+  // --------------------------------------------------
+
+  const compareDeadlines = (
+    a: string | null | undefined,
+    b: string | null | undefined,
+    descending = false
+  ) => {
+    if (!a && !b) {
+      return 0;
+    }
+
+    if (!a) {
+      return 1;
+    }
+
+    if (!b) {
+      return -1;
+    }
+
+    const aTime = new Date(
+      `${a}T00:00:00`
+    ).getTime();
+
+    const bTime = new Date(
+      `${b}T00:00:00`
+    ).getTime();
+
+    return descending
+      ? bTime - aTime
+      : aTime - bTime;
+  };
+
+  // --------------------------------------------------
+  // Compare Anticipated Deadlines
+  //
+  // Order:
+  // January -> December -> Rolling -> Blank
+  //
+  // Blank anticipated deadlines ALWAYS go last.
+  // --------------------------------------------------
+
+  const compareAnticipatedDeadlines = (
+    a: string | null | undefined,
+    b: string | null | undefined,
+    descending = false
+  ) => {
+    const aValue = String(
+      a ?? ""
+    )
+      .trim()
+      .toLowerCase();
+
+    const bValue = String(
+      b ?? ""
+    )
+      .trim()
+      .toLowerCase();
+
+    // Blank anticipated deadlines always go last.
+    if (!aValue && !bValue) {
+      return 0;
+    }
+
+    if (!aValue) {
+      return 1;
+    }
+
+    if (!bValue) {
+      return -1;
+    }
+
+    const aRank =
+      getAnticipatedMonthRank(
+        aValue
+      );
+
+    const bRank =
+      getAnticipatedMonthRank(
+        bValue
+      );
+
+    if (aRank !== bRank) {
+      return descending
+        ? bRank - aRank
+        : aRank - bRank;
+    }
+
+    return aValue.localeCompare(
+      bValue
+    );
+  };
+
+  // --------------------------------------------------
+  // Compare Maximum Grants
+  // --------------------------------------------------
+
+  const compareMaximumGrants = (
+    a: string | null | undefined,
+    b: string | null | undefined,
+    descending = true
+  ) => {
+    const aValue =
+      parseMaximumGrant(a);
+
+    const bValue =
+      parseMaximumGrant(b);
+
+    return descending
+      ? bValue - aValue
+      : aValue - bValue;
   };
 
   // --------------------------------------------------
@@ -708,36 +928,174 @@ export default function CustomerTable({
     }
 
     // --------------------------------------------------
-    // Sort
+    // Sorting
     // --------------------------------------------------
 
-    if (
-      sortBy === "grantor"
-    ) {
-      result.sort((a, b) =>
-        (
+    result.sort((a, b) => {
+      // ----------------------------------------------
+      // Automatic Default Sort
+      //
+      // 1. Anticipated Deadline
+      //    January -> December
+      //    Rolling
+      //    Blank
+      //
+      // 2. Actual Deadline
+      //    Earliest -> Latest
+      //    Blank deadlines last
+      //
+      // 3. Maximum Grant
+      //    Highest -> Lowest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "default"
+      ) {
+        const anticipatedComparison =
+          compareAnticipatedDeadlines(
+            a.anticipated_deadline,
+            b.anticipated_deadline
+          );
+
+        if (
+          anticipatedComparison !== 0
+        ) {
+          return anticipatedComparison;
+        }
+
+        const deadlineComparison =
+          compareDeadlines(
+            a.deadline,
+            b.deadline
+          );
+
+        if (
+          deadlineComparison !== 0
+        ) {
+          return deadlineComparison;
+        }
+
+        return compareMaximumGrants(
+          a.maximum_grant,
+          b.maximum_grant,
+          true
+        );
+      }
+
+      // ----------------------------------------------
+      // Grantor A-Z
+      // ----------------------------------------------
+
+      if (
+        sortBy === "grantor-asc"
+      ) {
+        return (
           a.grantor ?? ""
         ).localeCompare(
           b.grantor ?? ""
-        )
-      );
-    }
+        );
+      }
 
-    if (
-      sortBy === "deadline"
-    ) {
-      result.sort(
-        (a, b) =>
-          new Date(
-            a.deadline ||
-              "9999-12-31"
-          ).getTime() -
-          new Date(
-            b.deadline ||
-              "9999-12-31"
-          ).getTime()
-      );
-    }
+      // ----------------------------------------------
+      // Grantor Z-A
+      // ----------------------------------------------
+
+      if (
+        sortBy === "grantor-desc"
+      ) {
+        return (
+          b.grantor ?? ""
+        ).localeCompare(
+          a.grantor ?? ""
+        );
+      }
+
+      // ----------------------------------------------
+      // Maximum Grant Highest to Lowest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "maximum-high"
+      ) {
+        return compareMaximumGrants(
+          a.maximum_grant,
+          b.maximum_grant,
+          true
+        );
+      }
+
+      // ----------------------------------------------
+      // Maximum Grant Lowest to Highest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "maximum-low"
+      ) {
+        return compareMaximumGrants(
+          a.maximum_grant,
+          b.maximum_grant,
+          false
+        );
+      }
+
+      // ----------------------------------------------
+      // Deadline Earliest to Latest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "deadline-asc"
+      ) {
+        return compareDeadlines(
+          a.deadline,
+          b.deadline,
+          false
+        );
+      }
+
+      // ----------------------------------------------
+      // Deadline Latest to Earliest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "deadline-desc"
+      ) {
+        return compareDeadlines(
+          a.deadline,
+          b.deadline,
+          true
+        );
+      }
+
+      // ----------------------------------------------
+      // Anticipated Deadline Earliest to Latest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "anticipated-asc"
+      ) {
+        return compareAnticipatedDeadlines(
+          a.anticipated_deadline,
+          b.anticipated_deadline,
+          false
+        );
+      }
+
+      // ----------------------------------------------
+      // Anticipated Deadline Latest to Earliest
+      // ----------------------------------------------
+
+      if (
+        sortBy === "anticipated-desc"
+      ) {
+        return compareAnticipatedDeadlines(
+          a.anticipated_deadline,
+          b.anticipated_deadline,
+          true
+        );
+      }
+
+      return 0;
+    });
 
     return result;
   }, [
@@ -886,28 +1244,42 @@ export default function CustomerTable({
     > = {
       january:
         "bg-[#D9E8F0] text-[#31566B] border-[#AFC9D8]",
+
       february:
         "bg-[#E5DDF0] text-[#5B4772] border-[#C8B8DA]",
+
       march:
         "bg-[#DDE8D8] text-[#46613F] border-[#B8CCAF]",
+
       april:
         "bg-[#E9E0D3] text-[#66523D] border-[#D2C0A8]",
+
       may:
         "bg-[#E8D9DF] text-[#704B5A] border-[#CEB5BF]",
+
       june:
         "bg-[#D8E5E7] text-[#3F5E63] border-[#B0C9CD]",
+
       july:
         "bg-[#E1DCD2] text-[#5E574B] border-[#C8BDAA]",
+
       august:
         "bg-[#DCDDE5] text-[#4E5265] border-[#BCBFCE]",
+
       september:
         "bg-[#E5DED4] text-[#62574A] border-[#CEC2B2]",
+
       october:
         "bg-[#E7D9D0] text-[#694F43] border-[#CDB7A9]",
+
       november:
         "bg-[#DADFE4] text-[#4B5660] border-[#B8C2CA]",
+
       december:
         "bg-[#E2DDE7] text-[#5D5267] border-[#C5BBCD]",
+
+      rolling:
+        "bg-[#E3E0D8] text-[#5D574B] border-[#C9C3B7]",
     };
 
     return (
@@ -1250,17 +1622,46 @@ export default function CustomerTable({
                   value={sortBy}
                   onChange={(e) =>
                     setSortBy(
-                      e.target.value
+                      e.target
+                        .value as SortOption
                     )
                   }
                   className="rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 >
-                  <option value="deadline">
-                    Deadline
+                  <option value="default">
+                    Automatic: Anticipated Deadline → Deadline → Maximum Grant
                   </option>
 
-                  <option value="grantor">
+                  <option value="grantor-asc">
                     Grantor A-Z
+                  </option>
+
+                  <option value="grantor-desc">
+                    Grantor Z-A
+                  </option>
+
+                  <option value="maximum-high">
+                    Maximum Grant - highest to lowest
+                  </option>
+
+                  <option value="maximum-low">
+                    Maximum Grant - lowest to highest
+                  </option>
+
+                  <option value="deadline-asc">
+                    Deadline - earliest to latest
+                  </option>
+
+                  <option value="deadline-desc">
+                    Deadline - latest to earliest
+                  </option>
+
+                  <option value="anticipated-asc">
+                    Anticipated Deadline - earliest to latest
+                  </option>
+
+                  <option value="anticipated-desc">
+                    Anticipated Deadline - latest to earliest
                   </option>
                 </select>
               </div>
@@ -1533,8 +1934,7 @@ export default function CustomerTable({
 
                     {advancedFilters.map(
                       (
-                        filter,
-                        index
+                        filter
                       ) => {
                         const options =
                           getAdvancedFilterOptions(
@@ -1553,12 +1953,10 @@ export default function CustomerTable({
                             className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-center"
                           >
 
-                            {/* Connector */}
-                            {index > 0 ? (
-                              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600">
-                                AND
-                              </div>
-                            ) : null}
+                            {/* AND */}
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-500">
+                              AND
+                            </div>
 
                             {/* Field */}
                             <select
@@ -1717,67 +2115,57 @@ export default function CustomerTable({
                                   ) : (
                                     options.map(
                                       (
-                                        option
-                                      ) => {
-                                        const optionValue =
-                                          String(
+                                        option: string
+                                      ) => (
+                                        <label
+                                          key={
                                             option
-                                          );
+                                          }
+                                          className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={filter.values.includes(
+                                              option
+                                            )}
+                                            onChange={() => {
+                                              const newValues =
+                                                filter.values.includes(
+                                                  option
+                                                )
+                                                  ? filter.values.filter(
+                                                      (
+                                                        value
+                                                      ) =>
+                                                        value !==
+                                                        option
+                                                    )
+                                                  : [
+                                                      ...filter.values,
+                                                      option,
+                                                    ];
 
-                                        const isSelected =
-                                          filter.values.includes(
-                                            optionValue
-                                          );
+                                              updateAdvancedFilter(
+                                                filter.id,
+                                                {
+                                                  values:
+                                                    newValues,
+                                                }
+                                              );
+                                            }}
+                                            className="h-4 w-4 rounded border-slate-300"
+                                          />
 
-                                        return (
-                                          <label
-                                            key={
-                                              optionValue
-                                            }
-                                            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={
-                                                isSelected
-                                              }
-                                              onChange={() => {
-                                                const newValues =
-                                                  isSelected
-                                                    ? filter.values.filter(
-                                                        (
-                                                          value
-                                                        ) =>
-                                                          value !==
-                                                          optionValue
-                                                      )
-                                                    : [
-                                                        ...filter.values,
-                                                        optionValue,
-                                                      ];
-
-                                                updateAdvancedFilter(
-                                                  filter.id,
-                                                  {
-                                                    values:
-                                                      newValues,
-                                                  }
-                                                );
-                                              }}
-                                              className="h-4 w-4 rounded border-slate-300"
-                                            />
-
-                                            <span>
-                                              {filter.field ===
-                                              "deadline"
-                                                ? formatDeadline(
-                                                    optionValue
-                                                  )
-                                                : optionValue}
-                                            </span>
-                                          </label>
-                                        );
-                                      }
+                                          <span>
+                                            {filter.field ===
+                                            "deadline"
+                                              ? formatDeadline(
+                                                  option
+                                                )
+                                              : option}
+                                          </span>
+                                        </label>
+                                      )
                                     )
                                   )}
 
