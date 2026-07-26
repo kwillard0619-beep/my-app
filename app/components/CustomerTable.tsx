@@ -4,6 +4,22 @@ import { useMemo, useState } from "react";
 import CustomerDrawer from "./CustomerDrawer";
 import type { Customer } from "../types/customer";
 
+type FilterField =
+  | "category"
+  | "grantor"
+  | "deadline"
+  | "anticipated_deadline";
+
+type FilterOperator = "is" | "is_not";
+
+type AdvancedFilter = {
+  id: number;
+  connector: "AND" | "AND NOT";
+  field: FilterField;
+  operator: FilterOperator;
+  value: string;
+};
+
 export default function CustomerTable({
   customers,
   activeCount,
@@ -11,20 +27,13 @@ export default function CustomerTable({
   customers: Customer[];
   activeCount: number;
 }) {
-  // Store only the selected customer's ID.
-  // This allows the drawer to always use the newest
-  // version of the customer from the realtime data.
+  // --------------------------------------------------
+  // Selected Customer / Realtime Drawer
+  // --------------------------------------------------
+
   const [selectedCustomerId, setSelectedCustomerId] =
     useState<string | null>(null);
 
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("deadline");
-
-  // Find the currently selected customer from
-  // the latest customers array.
-  //
-  // When Supabase realtime updates the customers prop,
-  // this lookup automatically gets the updated record.
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) {
       return null;
@@ -39,71 +48,149 @@ export default function CustomerTable({
     );
   }, [customers, selectedCustomerId]);
 
-  const filteredCustomers = useMemo(() => {
-    let result = customers.filter(
+  // --------------------------------------------------
+  // Search and Sort
+  // --------------------------------------------------
+
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("deadline");
+
+  // --------------------------------------------------
+  // Quick Filter State
+  // --------------------------------------------------
+
+  const [showQuickFilters, setShowQuickFilters] =
+    useState(false);
+
+  const [quickCategories, setQuickCategories] =
+    useState<string[]>([]);
+
+  const [quickGrantors, setQuickGrantors] =
+    useState<string[]>([]);
+
+  const [quickDeadline, setQuickDeadline] =
+    useState("all");
+
+  const [quickMonths, setQuickMonths] =
+    useState<string[]>([]);
+
+  // --------------------------------------------------
+  // Advanced Filter State
+  // --------------------------------------------------
+
+  const [showAdvancedFilters, setShowAdvancedFilters] =
+    useState(false);
+
+  const [advancedFilters, setAdvancedFilters] =
+    useState<AdvancedFilter[]>([]);
+
+  const [nextFilterId, setNextFilterId] =
+    useState(1);
+
+  // --------------------------------------------------
+  // Dynamic Filter Options
+  // --------------------------------------------------
+
+  const availableCategories = useMemo(() => {
+    const categories = customers.flatMap(
       (customer) =>
-        customer.Category === "active"
+        Array.isArray(customer.rfp_categories)
+          ? customer.rfp_categories
+          : []
     );
 
-    if (search.trim()) {
-      const searchTerm =
-        search.trim().toLowerCase();
+    return Array.from(
+      new Set(
+        categories
+          .filter(Boolean)
+          .map((category) =>
+            String(category).trim()
+          )
+      )
+    ).sort((a, b) =>
+      a.localeCompare(b)
+    );
+  }, [customers]);
 
-      result = result.filter((customer) => {
-        const searchableFields = [
-          customer.grantor,
-          customer.opportunity_name,
-          customer.maximum_grant,
-          customer.deadline,
-          customer.anticipated_deadline,
-          customer.website_link,
-          customer.abstract,
-          customer.additional_information,
-          customer.limited_opportunity,
-          customer.fellowship_opportunity,
-          ...(customer.rfp_categories ?? []),
-        ];
+  const availableGrantors = useMemo(() => {
+    return Array.from(
+      new Set(
+        customers
+          .map((customer) =>
+            String(
+              customer.grantor ?? ""
+            ).trim()
+          )
+          .filter(Boolean)
+      )
+    ).sort((a, b) =>
+      a.localeCompare(b)
+    );
+  }, [customers]);
 
-        return searchableFields.some((value) =>
-          String(value ?? "")
-            .toLowerCase()
-            .includes(searchTerm)
-        );
-      });
-    }
+  const availableMonths = useMemo(() => {
+    const months = customers
+      .map((customer) =>
+        String(
+          customer.anticipated_deadline ?? ""
+        ).trim()
+      )
+      .filter(Boolean);
 
-    if (sortBy === "grantor") {
-      result.sort((a, b) =>
-        (a.grantor ?? "").localeCompare(
-          b.grantor ?? ""
+    return Array.from(
+      new Set(months)
+    ).sort((a, b) => {
+      const monthOrder = [
+        "january",
+        "february",
+        "march",
+        "april",
+        "may",
+        "june",
+        "july",
+        "august",
+        "september",
+        "october",
+        "november",
+        "december",
+      ];
+
+      return (
+        monthOrder.indexOf(
+          a.toLowerCase()
+        ) -
+        monthOrder.indexOf(
+          b.toLowerCase()
         )
       );
-    }
+    });
+  }, [customers]);
 
-    if (sortBy === "deadline") {
-      result.sort(
-        (a, b) =>
-          new Date(
-            a.deadline || "9999-12-31"
-          ).getTime() -
-          new Date(
-            b.deadline || "9999-12-31"
-          ).getTime()
-      );
-    }
+  // --------------------------------------------------
+  // Helper Functions
+  // --------------------------------------------------
 
-    return result;
-  }, [customers, search, sortBy]);
+  const toggleArrayValue = (
+    value: string,
+    currentValues: string[],
+    setter: React.Dispatch<
+      React.SetStateAction<string[]>
+    >
+  ) => {
+    setter((current) =>
+      current.includes(value)
+        ? current.filter(
+            (item) => item !== value
+          )
+        : [...current, value]
+    );
+  };
 
-  // Deadline styling
-  const getDeadlineStyle = (
+  const getDeadlineDays = (
     deadline: string | null
   ) => {
     if (!deadline) {
-      return {
-        container:
-          "bg-slate-100 text-slate-600 border-slate-200",
-      };
+      return null;
     }
 
     const deadlineDate = new Date(
@@ -118,26 +205,349 @@ export default function CustomerTable({
       deadlineDate.getTime() -
       today.getTime();
 
-    const daysUntil = Math.ceil(
+    return Math.ceil(
       difference /
         (1000 * 60 * 60 * 24)
     );
+  };
 
-    if (daysUntil < 0) {
+  const matchesQuickDeadline = (
+    deadline: string | null
+  ) => {
+    if (
+      quickDeadline === "all"
+    ) {
+      return true;
+    }
+
+    if (
+      quickDeadline ===
+      "no-deadline"
+    ) {
+      return !deadline;
+    }
+
+    if (!deadline) {
+      return false;
+    }
+
+    const daysUntil =
+      getDeadlineDays(deadline);
+
+    if (
+      daysUntil === null ||
+      daysUntil < 0
+    ) {
+      return false;
+    }
+
+    if (
+      quickDeadline ===
+      "30"
+    ) {
+      return daysUntil <= 30;
+    }
+
+    if (
+      quickDeadline ===
+      "60"
+    ) {
+      return daysUntil <= 60;
+    }
+
+    if (
+      quickDeadline ===
+      "90"
+    ) {
+      return daysUntil <= 90;
+    }
+
+    return true;
+  };
+
+  // --------------------------------------------------
+  // Advanced Filter Matching
+  // --------------------------------------------------
+
+  const getFilterValue = (
+    customer: Customer,
+    field: FilterField
+  ) => {
+    switch (field) {
+      case "category":
+        return Array.isArray(
+          customer.rfp_categories
+        )
+          ? customer.rfp_categories
+          : [];
+
+      case "grantor":
+        return customer.grantor
+          ? [customer.grantor]
+          : [];
+
+      case "deadline":
+        return customer.deadline
+          ? [customer.deadline]
+          : [];
+
+      case "anticipated_deadline":
+        return customer.anticipated_deadline
+          ? [
+              customer.anticipated_deadline,
+            ]
+          : [];
+
+      default:
+        return [];
+    }
+  };
+
+  const matchesAdvancedFilter = (
+    customer: Customer,
+    filter: AdvancedFilter
+  ) => {
+    const values = getFilterValue(
+      customer,
+      filter.field
+    );
+
+    const normalizedFilterValue =
+      filter.value
+        .trim()
+        .toLowerCase();
+
+    const hasMatch = values.some(
+      (value) =>
+        String(value)
+          .trim()
+          .toLowerCase() ===
+        normalizedFilterValue
+    );
+
+    if (
+      filter.operator ===
+      "is_not"
+    ) {
+      return !hasMatch;
+    }
+
+    return hasMatch;
+  };
+
+  // --------------------------------------------------
+  // Filtered Customers
+  // --------------------------------------------------
+
+  const filteredCustomers = useMemo(() => {
+    let result = customers.filter(
+      (customer) =>
+        customer.Category ===
+        "active"
+    );
+
+    // Search
+    if (search.trim()) {
+      const searchTerm =
+        search
+          .trim()
+          .toLowerCase();
+
+      result = result.filter(
+        (customer) => {
+          const searchableFields = [
+            customer.grantor,
+            customer.opportunity_name,
+            customer.maximum_grant,
+            customer.deadline,
+            customer.anticipated_deadline,
+            customer.website_link,
+            customer.abstract,
+            customer.additional_information,
+            customer.limited_opportunity,
+            customer.fellowship_opportunity,
+            ...(customer.rfp_categories ??
+              []),
+          ];
+
+          return searchableFields.some(
+            (value) =>
+              String(value ?? "")
+                .toLowerCase()
+                .includes(
+                  searchTerm
+                )
+          );
+        }
+      );
+    }
+
+    // Quick Category Filter
+    if (
+      quickCategories.length > 0
+    ) {
+      result = result.filter(
+        (customer) =>
+          Array.isArray(
+            customer.rfp_categories
+          ) &&
+          quickCategories.some(
+            (selectedCategory) =>
+              customer.rfp_categories?.some(
+                (category) =>
+                  category
+                    .toLowerCase() ===
+                  selectedCategory.toLowerCase()
+              )
+          )
+      );
+    }
+
+    // Quick Grantor Filter
+    if (
+      quickGrantors.length > 0
+    ) {
+      result = result.filter(
+        (customer) =>
+          customer.grantor &&
+          quickGrantors.includes(
+            customer.grantor
+          )
+      );
+    }
+
+    // Quick Deadline Filter
+    if (
+      quickDeadline !== "all"
+    ) {
+      result = result.filter(
+        (customer) =>
+          matchesQuickDeadline(
+            customer.deadline
+          )
+      );
+    }
+
+    // Quick Month Filter
+    if (
+      quickMonths.length > 0
+    ) {
+      result = result.filter(
+        (customer) =>
+          customer.anticipated_deadline &&
+          quickMonths.some(
+            (month) =>
+              month.toLowerCase() ===
+              customer.anticipated_deadline?.toLowerCase()
+          )
+      );
+    }
+
+    // Advanced Filters
+    if (
+      advancedFilters.length > 0
+    ) {
+      result = result.filter(
+        (customer) => {
+          return advancedFilters.every(
+            (filter) =>
+              matchesAdvancedFilter(
+                customer,
+                filter
+              )
+          );
+        }
+      );
+    }
+
+    // Sort
+    if (
+      sortBy === "grantor"
+    ) {
+      result.sort((a, b) =>
+        (
+          a.grantor ?? ""
+        ).localeCompare(
+          b.grantor ?? ""
+        )
+      );
+    }
+
+    if (
+      sortBy === "deadline"
+    ) {
+      result.sort(
+        (a, b) =>
+          new Date(
+            a.deadline ||
+              "9999-12-31"
+          ).getTime() -
+          new Date(
+            b.deadline ||
+              "9999-12-31"
+          ).getTime()
+      );
+    }
+
+    return result;
+  }, [
+    customers,
+    search,
+    sortBy,
+    quickCategories,
+    quickGrantors,
+    quickDeadline,
+    quickMonths,
+    advancedFilters,
+  ]);
+
+  // --------------------------------------------------
+  // Deadline Styling
+  // --------------------------------------------------
+
+  const getDeadlineStyle = (
+    deadline: string | null
+  ) => {
+    if (!deadline) {
+      return {
+        container:
+          "bg-slate-100 text-slate-600 border-slate-200",
+      };
+    }
+
+    const daysUntil =
+      getDeadlineDays(deadline);
+
+    if (
+      daysUntil === null
+    ) {
+      return {
+        container:
+          "bg-slate-100 text-slate-600 border-slate-200",
+      };
+    }
+
+    if (
+      daysUntil < 0
+    ) {
       return {
         container:
           "bg-slate-100 text-slate-600 border-slate-300",
       };
     }
 
-    if (daysUntil === 0) {
+    if (
+      daysUntil === 0
+    ) {
       return {
         container:
           "bg-red-100 text-red-800 border-red-300",
       };
     }
 
-    if (daysUntil <= 30) {
+    if (
+      daysUntil <= 30
+    ) {
       return {
         container:
           "bg-amber-100 text-amber-800 border-amber-300",
@@ -150,8 +560,10 @@ export default function CustomerTable({
     };
   };
 
-  // Category colors
-  // These are unchanged.
+  // --------------------------------------------------
+  // Category Colors
+  // --------------------------------------------------
+
   const getCategoryStyle = (
     category: string
   ) => {
@@ -179,19 +591,23 @@ export default function CustomerTable({
     }
 
     const index =
-      Math.abs(hash) % colors.length;
+      Math.abs(hash) %
+      colors.length;
 
     return colors[index];
   };
 
-  // Anticipated Deadline Month colors
-  // These use a separate dusty color palette
-  // from the category colors.
+  // --------------------------------------------------
+  // Anticipated Deadline Month Colors
+  // --------------------------------------------------
+
   const getMonthStyle = (
     month: string
   ) => {
     const normalizedMonth =
-      month.trim().toLowerCase();
+      month
+        .trim()
+        .toLowerCase();
 
     const monthColors: Record<
       string,
@@ -235,10 +651,88 @@ export default function CustomerTable({
     };
 
     return (
-      monthColors[normalizedMonth] ||
+      monthColors[
+        normalizedMonth
+      ] ||
       "bg-[#E1E3E5] text-[#555B60] border-[#C5C8CB]"
     );
   };
+
+  // --------------------------------------------------
+  // Advanced Filter Functions
+  // --------------------------------------------------
+
+  const addAdvancedFilter = () => {
+    setAdvancedFilters(
+      (current) => [
+        ...current,
+        {
+          id: nextFilterId,
+          connector:
+            current.length === 0
+              ? "AND"
+              : "AND",
+          field: "category",
+          operator: "is",
+          value:
+            availableCategories[0] ??
+            "",
+        },
+      ]
+    );
+
+    setNextFilterId(
+      (current) =>
+        current + 1
+    );
+  };
+
+  const updateAdvancedFilter = (
+    id: number,
+    updates: Partial<AdvancedFilter>
+  ) => {
+    setAdvancedFilters(
+      (current) =>
+        current.map(
+          (filter) =>
+            filter.id === id
+              ? {
+                  ...filter,
+                  ...updates,
+                }
+              : filter
+        )
+    );
+  };
+
+  const removeAdvancedFilter = (
+    id: number
+  ) => {
+    setAdvancedFilters(
+      (current) =>
+        current.filter(
+          (filter) =>
+            filter.id !== id
+        )
+    );
+  };
+
+  const clearAllFilters = () => {
+    setQuickCategories([]);
+    setQuickGrantors([]);
+    setQuickDeadline("all");
+    setQuickMonths([]);
+    setAdvancedFilters([]);
+  };
+
+  const activeFilterCount =
+    quickCategories.length +
+    quickGrantors.length +
+    (quickDeadline !== "all"
+      ? 1
+      : 0) +
+    quickMonths.length +
+    advancedFilters.length;
 
   return (
     <div className="min-h-screen bg-slate-100 py-2">
@@ -259,7 +753,7 @@ export default function CustomerTable({
               </div>
 
               <p className="text-sm font-semibold uppercase tracking-[0.15em] text-slate-600 mb-2">
-                Funding Opportunities
+                Private Grant Funding
               </p>
 
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
@@ -267,9 +761,9 @@ export default function CustomerTable({
               </h1>
 
               <p className="mt-3 text-slate-700 max-w-2xl leading-6">
-                Explore current funding opportunities
-                and discover grants aligned with your
-                organization's goals and interests.
+                Discover active funding opportunities and find
+                grants that align with your organization's
+                mission, priorities, and goals.
               </p>
             </div>
 
@@ -279,9 +773,9 @@ export default function CustomerTable({
 
                 <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-white/30 -translate-y-8 translate-x-8" />
 
-                <div className="relative">
+                <div className="relative text-center">
                   <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                    Active Opportunities
+                    Active RFPs
                   </div>
 
                   <div className="mt-1 text-4xl font-bold text-slate-900">
@@ -296,10 +790,10 @@ export default function CustomerTable({
             </div>
           </div>
 
-          {/* Search and Sort */}
+          {/* Search and Filters */}
           <div className="mt-8 pt-6 border-t border-[#91AFC2]">
 
-            <div className="flex flex-col md:flex-row gap-3">
+            <div className="flex flex-col xl:flex-row gap-3">
 
               {/* Search */}
               <div className="relative flex-1">
@@ -326,11 +820,47 @@ export default function CustomerTable({
                   placeholder="Search grants, organizations, categories, key words..."
                   value={search}
                   onChange={(e) =>
-                    setSearch(e.target.value)
+                    setSearch(
+                      e.target.value
+                    )
                   }
                   className="w-full rounded-xl border border-[#91AFC2] bg-white/70 py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-500 outline-none transition focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 />
               </div>
+
+              {/* Quick Filter Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  setShowQuickFilters(
+                    (current) =>
+                      !current
+                  )
+                }
+                className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+              >
+                Quick Filter
+                {activeFilterCount >
+                  0 && (
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Advanced Filter Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  setShowAdvancedFilters(
+                    (current) =>
+                      !current
+                  )
+                }
+                className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+              >
+                Advanced Filters
+              </button>
 
               {/* Sort */}
               <div className="flex items-center gap-3">
@@ -341,7 +871,9 @@ export default function CustomerTable({
                 <select
                   value={sortBy}
                   onChange={(e) =>
-                    setSortBy(e.target.value)
+                    setSortBy(
+                      e.target.value
+                    )
                   }
                   className="rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 >
@@ -356,13 +888,647 @@ export default function CustomerTable({
               </div>
             </div>
 
-            {search.trim() && (
+            {/* Quick Filter Panel */}
+            {showQuickFilters && (
+              <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
+
+                  {/* Category */}
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      Category
+                    </label>
+
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                      {availableCategories.map(
+                        (category) => (
+                          <label
+                            key={category}
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={quickCategories.includes(
+                                category
+                              )}
+                              onChange={() =>
+                                toggleArrayValue(
+                                  category,
+                                  quickCategories,
+                                  setQuickCategories
+                                )
+                              }
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+
+                            <span>
+                              {category}
+                            </span>
+                          </label>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Grantor */}
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      Grantor
+                    </label>
+
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                      {availableGrantors.map(
+                        (grantor) => (
+                          <label
+                            key={grantor}
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={quickGrantors.includes(
+                                grantor
+                              )}
+                              onChange={() =>
+                                toggleArrayValue(
+                                  grantor,
+                                  quickGrantors,
+                                  setQuickGrantors
+                                )
+                              }
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+
+                            <span>
+                              {grantor}
+                            </span>
+                          </label>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Deadline */}
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      Deadline
+                    </label>
+
+                    <select
+                      value={quickDeadline}
+                      onChange={(e) =>
+                        setQuickDeadline(
+                          e.target.value
+                        )
+                      }
+                      className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/40"
+                    >
+                      <option value="all">
+                        All Deadlines
+                      </option>
+
+                      <option value="30">
+                        Due within 30 days
+                      </option>
+
+                      <option value="60">
+                        Due within 60 days
+                      </option>
+
+                      <option value="90">
+                        Due within 90 days
+                      </option>
+
+                      <option value="no-deadline">
+                        No specific deadline
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* Anticipated Deadline */}
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      Anticipated Deadline Month
+                    </label>
+
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                      {availableMonths.map(
+                        (month) => (
+                          <label
+                            key={month}
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={quickMonths.includes(
+                                month
+                              )}
+                              onChange={() =>
+                                toggleArrayValue(
+                                  month,
+                                  quickMonths,
+                                  setQuickMonths
+                                )
+                              }
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+
+                            <span>
+                              {month}
+                            </span>
+                          </label>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={
+                      clearAllFilters
+                    }
+                    className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Advanced Filter Panel */}
+            {showAdvancedFilters && (
+              <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">
+                      Advanced Filters
+                    </h3>
+
+                    <p className="mt-1 text-sm text-slate-600">
+                      Build a custom filter using
+                      AND and AND NOT rules.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={
+                      addAdvancedFilter
+                    }
+                    className="rounded-xl bg-[#6F91A8] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5F829B]"
+                  >
+                    + Add Filter
+                  </button>
+                </div>
+
+                {advancedFilters.length ===
+                0 ? (
+                  <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
+                    <p className="text-sm text-slate-500">
+                      No advanced filters added yet.
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-400">
+                      Click "Add Filter" to create
+                      your first rule.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-5 space-y-3">
+
+                    {advancedFilters.map(
+                      (
+                        filter,
+                        index
+                      ) => (
+                        <div
+                          key={
+                            filter.id
+                          }
+                          className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-center"
+                        >
+
+                          <select
+                            value={
+                              filter.connector
+                            }
+                            onChange={(
+                              e
+                            ) =>
+                              updateAdvancedFilter(
+                                filter.id,
+                                {
+                                  connector:
+                                    e
+                                      .target
+                                      .value as
+                                      | "AND"
+                                      | "AND NOT",
+                                }
+                              )
+                            }
+                            disabled={
+                              index ===
+                              0
+                            }
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 disabled:bg-slate-100 disabled:text-slate-400"
+                          >
+                            <option value="AND">
+                              AND
+                            </option>
+
+                            <option value="AND NOT">
+                              AND NOT
+                            </option>
+                          </select>
+
+                          <select
+                            value={
+                              filter.field
+                            }
+                            onChange={(
+                              e
+                            ) => {
+                              const field =
+                                e.target
+                                  .value as FilterField;
+
+                              const defaultValue =
+                                field ===
+                                "category"
+                                  ? availableCategories[0] ??
+                                    ""
+                                  : field ===
+                                    "grantor"
+                                  ? availableGrantors[0] ??
+                                    ""
+                                  : field ===
+                                    "anticipated_deadline"
+                                  ? availableMonths[0] ??
+                                    ""
+                                  : "";
+
+                              updateAdvancedFilter(
+                                filter.id,
+                                {
+                                  field,
+                                  value:
+                                    defaultValue,
+                                }
+                              );
+                            }}
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                          >
+                            <option value="category">
+                              Category
+                            </option>
+
+                            <option value="grantor">
+                              Grantor
+                            </option>
+
+                            <option value="deadline">
+                              Deadline
+                            </option>
+
+                            <option value="anticipated_deadline">
+                              Anticipated Deadline
+                            </option>
+                          </select>
+
+                          <select
+                            value={
+                              filter.operator
+                            }
+                            onChange={(
+                              e
+                            ) =>
+                              updateAdvancedFilter(
+                                filter.id,
+                                {
+                                  operator:
+                                    e
+                                      .target
+                                      .value as FilterOperator,
+                                }
+                              )
+                            }
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                          >
+                            <option value="is">
+                              is
+                            </option>
+
+                            <option value="is_not">
+                              is not
+                            </option>
+                          </select>
+
+                          <select
+                            value={
+                              filter.value
+                            }
+                            onChange={(
+                              e
+                            ) =>
+                              updateAdvancedFilter(
+                                filter.id,
+                                {
+                                  value:
+                                    e.target
+                                      .value,
+                                }
+                              )
+                            }
+                            className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                          >
+                            {filter.field ===
+                            "category"
+                              ? availableCategories.map(
+                                  (
+                                    category
+                                  ) => (
+                                    <option
+                                      key={
+                                        category
+                                      }
+                                      value={
+                                        category
+                                      }
+                                    >
+                                      {
+                                        category
+                                      }
+                                    </option>
+                                  )
+                                )
+                              : filter.field ===
+                                "grantor"
+                              ? availableGrantors.map(
+                                  (
+                                    grantor
+                                  ) => (
+                                    <option
+                                      key={
+                                        grantor
+                                      }
+                                      value={
+                                        grantor
+                                      }
+                                    >
+                                      {
+                                        grantor
+                                      }
+                                    </option>
+                                  )
+                                )
+                              : filter.field ===
+                                "anticipated_deadline"
+                              ? availableMonths.map(
+                                  (
+                                    month
+                                  ) => (
+                                    <option
+                                      key={
+                                        month
+                                      }
+                                      value={
+                                        month
+                                      }
+                                    >
+                                      {
+                                        month
+                                      }
+                                    </option>
+                                  )
+                                )
+                              : (
+                                  <>
+                                    <option value="">
+                                      No specific
+                                      deadline
+                                    </option>
+
+                                    {customers
+                                      .map(
+                                        (
+                                          customer
+                                        ) =>
+                                          customer.deadline
+                                      )
+                                      .filter(
+                                        Boolean
+                                      )
+                                      .filter(
+                                        (
+                                          value,
+                                          valueIndex,
+                                          array
+                                        ) =>
+                                          array.indexOf(
+                                            value
+                                          ) ===
+                                          valueIndex
+                                      )
+                                      .sort()
+                                      .map(
+                                        (
+                                          deadline
+                                        ) => (
+                                          <option
+                                            key={
+                                              deadline
+                                            }
+                                            value={
+                                              deadline!
+                                            }
+                                          >
+                                            {new Date(
+                                              `${deadline}T00:00:00`
+                                            ).toLocaleDateString(
+                                              "en-US",
+                                              {
+                                                year: "numeric",
+                                                month:
+                                                  "short",
+                                                day: "numeric",
+                                              }
+                                            )}
+                                          </option>
+                                        )
+                                      )}
+                                  </>
+                                )}
+                          </select>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeAdvancedFilter(
+                                filter.id
+                              )
+                            }
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-5 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAdvancedFilters(
+                        []
+                      )
+                    }
+                    className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    Clear Advanced Filters
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Active Filter Chips */}
+            {activeFilterCount >
+              0 && (
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+
+                <span className="text-sm font-semibold text-slate-700">
+                  Active filters:
+                </span>
+
+                {quickCategories.map(
+                  (category) => (
+                    <button
+                      key={`category-${category}`}
+                      type="button"
+                      onClick={() =>
+                        toggleArrayValue(
+                          category,
+                          quickCategories,
+                          setQuickCategories
+                        )
+                      }
+                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                    >
+                      Category:{" "}
+                      {category} ×
+                    </button>
+                  )
+                )}
+
+                {quickGrantors.map(
+                  (grantor) => (
+                    <button
+                      key={`grantor-${grantor}`}
+                      type="button"
+                      onClick={() =>
+                        toggleArrayValue(
+                          grantor,
+                          quickGrantors,
+                          setQuickGrantors
+                        )
+                      }
+                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                    >
+                      Grantor:{" "}
+                      {grantor} ×
+                    </button>
+                  )
+                )}
+
+                {quickDeadline !==
+                  "all" && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setQuickDeadline(
+                        "all"
+                      )
+                    }
+                    className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                  >
+                    Deadline:{" "}
+                    {quickDeadline ===
+                    "no-deadline"
+                      ? "No specific deadline"
+                      : `Within ${quickDeadline} days`}{" "}
+                    ×
+                  </button>
+                )}
+
+                {quickMonths.map(
+                  (month) => (
+                    <button
+                      key={`month-${month}`}
+                      type="button"
+                      onClick={() =>
+                        toggleArrayValue(
+                          month,
+                          quickMonths,
+                          setQuickMonths
+                        )
+                      }
+                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                    >
+                      Month:{" "}
+                      {month} ×
+                    </button>
+                  )
+                )}
+
+                {advancedFilters.length >
+                  0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAdvancedFilters(
+                        []
+                      )
+                    }
+                    className="rounded-full border border-[#91AFC2] bg-[#E7EFF4] px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-[#DCE8EF]"
+                  >
+                    Advanced filters:{" "}
+                    {
+                      advancedFilters.length
+                    }{" "}
+                    ×
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={
+                    clearAllFilters
+                  }
+                  className="ml-1 text-xs font-semibold text-slate-600 underline underline-offset-2 hover:text-slate-900"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
+            {/* Search Result Count */}
+            {(search.trim() ||
+              activeFilterCount >
+                0) && (
               <div className="mt-4 flex items-center gap-2 text-sm text-slate-700">
                 <span className="inline-block h-2 w-2 rounded-full bg-[#6F91A8]" />
 
                 Showing{" "}
                 <span className="font-semibold text-slate-900">
-                  {filteredCustomers.length}
+                  {
+                    filteredCustomers.length
+                  }
                 </span>{" "}
                 matching opportunities
               </div>
@@ -418,7 +1584,10 @@ export default function CustomerTable({
               <tbody className="divide-y divide-slate-200">
 
                 {filteredCustomers.map(
-                  (customer, index) => {
+                  (
+                    customer,
+                    index
+                  ) => {
 
                     const deadlineStyle =
                       getDeadlineStyle(
@@ -429,19 +1598,26 @@ export default function CustomerTable({
                       customer.deadline
                         ? new Date(
                             `${customer.deadline}T00:00:00`
-                          ) < new Date()
+                          ) <
+                          new Date()
                         : false;
 
                     return (
                       <tr
-                        key={customer.id}
+                        key={
+                          customer.id
+                        }
                         onClick={() =>
                           setSelectedCustomerId(
-                            String(customer.id)
+                            String(
+                              customer.id
+                            )
                           )
                         }
                         className={`group cursor-pointer transition-all duration-200 ${
-                          index % 2 === 0
+                          index %
+                            2 ===
+                          0
                             ? "bg-white"
                             : "bg-slate-50"
                         } hover:bg-[#EEF5F8]`}
@@ -484,7 +1660,6 @@ export default function CustomerTable({
 
                             {customer.deadline ? (
                               <>
-
                                 <span className="font-semibold text-slate-800">
                                   {new Date(
                                     `${customer.deadline}T00:00:00`
@@ -559,18 +1734,25 @@ export default function CustomerTable({
                               customer.rfp_categories
                             ) &&
                             customer.rfp_categories
-                              .length > 0 ? (
+                              .length >
+                              0 ? (
 
                               customer.rfp_categories.map(
-                                (category) => (
+                                (
+                                  category
+                                ) => (
 
                                   <span
-                                    key={category}
+                                    key={
+                                      category
+                                    }
                                     className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
                                       category
                                     )}`}
                                   >
-                                    {category}
+                                    {
+                                      category
+                                    }
                                   </span>
 
                                 )
@@ -600,7 +1782,8 @@ export default function CustomerTable({
           </div>
 
           {/* Empty State */}
-          {filteredCustomers.length === 0 && (
+          {filteredCustomers.length ===
+            0 && (
             <div className="py-20 px-6 text-center bg-slate-50">
 
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-slate-300 text-slate-400 shadow-sm">
@@ -627,8 +1810,9 @@ export default function CustomerTable({
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                Try adjusting your search to find
-                matching funding opportunities.
+                Try adjusting your search or
+                filters to find matching funding
+                opportunities.
               </p>
 
             </div>
@@ -638,9 +1822,13 @@ export default function CustomerTable({
 
         {/* Realtime-synchronized Drawer */}
         <CustomerDrawer
-          customer={selectedCustomer}
+          customer={
+            selectedCustomer
+          }
           onClose={() =>
-            setSelectedCustomerId(null)
+            setSelectedCustomerId(
+              null
+            )
           }
         />
 
