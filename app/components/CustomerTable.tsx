@@ -3129,25 +3129,22 @@ export default function CustomerTable({
 
                     return (
 
-                      <tr
-                        key={
-                          customer.id
-                        }
-                        onClick={() =>
-                          setSelectedCustomerId(
-                            String(
-                              customer.id
+                        <tr
+                          key={customer.id}
+                          onClick={() =>
+                            setSelectedCustomerId(
+                              String(customer.id)
                             )
-                          )
-                        }
-                        className={`group cursor-pointer transition-all duration-200 ${
-                          index %
-                            2 ===
-                          0
-                            ? "bg-white"
-                            : "bg-slate-50"
-                        } hover:bg-[#EEF5F8]`}
-                      >
+                          }
+                          className={`group cursor-pointer transition-all duration-200 ${
+                            String(selectedCustomerId) ===
+                            String(customer.id)
+                              ? "bg-[#E8C96A] hover:bg-[#E2C15C] shadow-[inset_6px_0_0_#DC2626]"
+                              : index % 2 === 0
+                                ? "bg-white hover:bg-[#EEF5F8]"
+                                : "bg-slate-50 hover:bg-[#EEF5F8]"
+                          }`}
+                        >
 
                         {/* Grantor */}
 
