@@ -34,14 +34,23 @@ type SortField =
   | "deadline"
   | "anticipated_deadline";
 
-type SortDirection =
-  | "asc"
-  | "desc";
+type SortDirection = "asc" | "desc";
 
 type SortRule = {
   id: number;
   field: SortField;
   direction: SortDirection;
+};
+
+const SORT_FIELD_LABELS: Record<
+  SortField,
+  string
+> = {
+  grantor: "Grantor",
+  maximum_grant: "Maximum Grant",
+  deadline: "Deadline",
+  anticipated_deadline:
+    "Anticipated Deadline",
 };
 
 export default function CustomerTable({
@@ -79,39 +88,40 @@ export default function CustomerTable({
   const [search, setSearch] = useState("");
 
   // --------------------------------------------------
-  // Stacked Sorting
-  //
-  // Default:
-  // 1. Anticipated Deadline - earliest to latest
-  // 2. Deadline - earliest to latest
-  // 3. Maximum Grant - highest to lowest
-  //
-  // The first rule has the highest priority.
+  // Stackable Sort State
   // --------------------------------------------------
 
-  const [sortRules, setSortRules] = useState<SortRule[]>([
-    {
-      id: 1,
-      field: "anticipated_deadline",
-      direction: "asc",
-    },
-    {
-      id: 2,
-      field: "deadline",
-      direction: "asc",
-    },
-    {
-      id: 3,
-      field: "maximum_grant",
-      direction: "desc",
-    },
-  ]);
+  const [sortRules, setSortRules] =
+    useState<SortRule[]>([
+      {
+        id: 1,
+        field: "anticipated_deadline",
+        direction: "asc",
+      },
+      {
+        id: 2,
+        field: "deadline",
+        direction: "asc",
+      },
+      {
+        id: 3,
+        field: "maximum_grant",
+        direction: "desc",
+      },
+    ]);
 
-  const [nextSortRuleId, setNextSortRuleId] =
+  const [nextSortId, setNextSortId] =
     useState(4);
+
+  // --------------------------------------------------
+  // Sort Dropdown State
+  // --------------------------------------------------
 
   const [showSortOptions, setShowSortOptions] =
     useState(false);
+
+  const sortDropdownRef =
+    useRef<HTMLDivElement | null>(null);
 
   // --------------------------------------------------
   // Quick Filter State
@@ -159,17 +169,29 @@ export default function CustomerTable({
     useRef<HTMLDivElement | null>(null);
 
   // --------------------------------------------------
-  // Close Advanced Dropdown When Clicking Outside
+  // Close Dropdowns When Clicking Outside
   // --------------------------------------------------
 
   useEffect(() => {
     const handleOutsideClick = (
       event: MouseEvent
     ) => {
+      const target =
+        event.target as Node;
+
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(
+          target
+        )
+      ) {
+        setShowSortOptions(false);
+      }
+
       if (
         advancedDropdownRef.current &&
         !advancedDropdownRef.current.contains(
-          event.target as Node
+          target
         )
       ) {
         setOpenAdvancedDropdownId(null);
@@ -196,7 +218,9 @@ export default function CustomerTable({
   const availableCategories = useMemo(() => {
     const categories = customers.flatMap(
       (customer) =>
-        Array.isArray(customer.rfp_categories)
+        Array.isArray(
+          customer.rfp_categories
+        )
           ? customer.rfp_categories
           : []
     );
@@ -231,9 +255,17 @@ export default function CustomerTable({
   }, [customers]);
 
   const parseMaximumGrant = (
-    value: string | null | undefined
+    value:
+      | string
+      | number
+      | null
+      | undefined
   ) => {
-    if (!value) {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
       return 0;
     }
 
@@ -324,23 +356,35 @@ export default function CustomerTable({
     });
   }, [customers]);
 
-  const availableDeadlines = useMemo(() => {
-    return Array.from(
-      new Set(
-        customers
-          .map(
-            (customer) =>
+  // --------------------------------------------------
+  // FIXED:
+  // availableDeadlines is explicitly guaranteed
+  // to be a string[] instead of (string | null)[]
+  // --------------------------------------------------
+
+  const availableDeadlines = useMemo(
+    (): string[] => {
+      return Array.from(
+        new Set(
+          customers
+            .map((customer) =>
               customer.deadline
-          )
-          .filter(
-            (
-              deadline
-            ): deadline is string =>
-              Boolean(deadline)
-          )
-      )
-    ).sort();
-  }, [customers]);
+                ? String(
+                    customer.deadline
+                  ).trim()
+                : ""
+            )
+            .filter(
+              (
+                deadline
+              ): deadline is string =>
+                Boolean(deadline)
+            )
+        )
+      ).sort();
+    },
+    [customers]
+  );
 
   const availableLimitedOpportunities =
     useMemo(() => {
@@ -614,10 +658,15 @@ export default function CustomerTable({
   // --------------------------------------------------
 
   const getAnticipatedMonthRank = (
-    value: string | null | undefined
+    value:
+      | string
+      | null
+      | undefined
   ) => {
-    if (!value) {
-      // Blank anticipated deadlines always last.
+    if (
+      !value ||
+      !value.trim()
+    ) {
       return 999;
     }
 
@@ -640,8 +689,6 @@ export default function CustomerTable({
       october: 10,
       november: 11,
       december: 12,
-
-      // Rolling comes after December.
       rolling: 13,
     };
 
@@ -651,60 +698,35 @@ export default function CustomerTable({
     );
   };
 
-  const compareGrantors = (
-    a: string | null | undefined,
-    b: string | null | undefined,
-    descending = false
-  ) => {
-    const aValue =
-      String(a ?? "").trim();
-
-    const bValue =
-      String(b ?? "").trim();
-
-    // Blank grantors go last.
-    if (!aValue && !bValue) {
-      return 0;
-    }
-
-    if (!aValue) {
-      return 1;
-    }
-
-    if (!bValue) {
-      return -1;
-    }
-
-    const comparison =
-      aValue.localeCompare(
-        bValue,
-        undefined,
-        {
-          sensitivity: "base",
-        }
-      );
-
-    return descending
-      ? -comparison
-      : comparison;
-  };
-
   const compareDeadlines = (
-    a: string | null | undefined,
-    b: string | null | undefined,
+    a:
+      | string
+      | null
+      | undefined,
+    b:
+      | string
+      | null
+      | undefined,
     descending = false
   ) => {
-    // Blank deadlines always go last,
-    // regardless of ascending/descending.
-    if (!a && !b) {
+    const aBlank =
+      !a || !a.trim();
+
+    const bBlank =
+      !b || !b.trim();
+
+    if (
+      aBlank &&
+      bBlank
+    ) {
       return 0;
     }
 
-    if (!a) {
+    if (aBlank) {
       return 1;
     }
 
-    if (!b) {
+    if (bBlank) {
       return -1;
     }
 
@@ -716,29 +738,20 @@ export default function CustomerTable({
       `${b}T00:00:00`
     ).getTime();
 
-    if (
-      Number.isNaN(aTime) &&
-      Number.isNaN(bTime)
-    ) {
-      return 0;
-    }
-
-    if (Number.isNaN(aTime)) {
-      return 1;
-    }
-
-    if (Number.isNaN(bTime)) {
-      return -1;
-    }
-
     return descending
       ? bTime - aTime
       : aTime - bTime;
   };
 
   const compareAnticipatedDeadlines = (
-    a: string | null | undefined,
-    b: string | null | undefined,
+    a:
+      | string
+      | null
+      | undefined,
+    b:
+      | string
+      | null
+      | undefined,
     descending = false
   ) => {
     const aRank =
@@ -747,28 +760,53 @@ export default function CustomerTable({
     const bRank =
       getAnticipatedMonthRank(b);
 
-    if (aRank !== bRank) {
+    if (
+      aRank !== bRank
+    ) {
       return descending
         ? bRank - aRank
         : aRank - bRank;
     }
 
-    if (!a && !b) {
+    const aBlank =
+      !a || !a.trim();
+
+    const bBlank =
+      !b || !b.trim();
+
+    if (
+      aBlank &&
+      bBlank
+    ) {
       return 0;
     }
 
-    return String(a ?? "").localeCompare(
-      String(b ?? ""),
-      undefined,
-      {
-        sensitivity: "base",
-      }
-    );
+    if (aBlank) {
+      return 1;
+    }
+
+    if (bBlank) {
+      return -1;
+    }
+
+    return descending
+      ? String(b).localeCompare(
+          String(a)
+        )
+      : String(a).localeCompare(
+          String(b)
+        );
   };
 
   const compareMaximumGrants = (
-    a: string | null | undefined,
-    b: string | null | undefined,
+    a:
+      | string
+      | null
+      | undefined,
+    b:
+      | string
+      | null
+      | undefined,
     descending = true
   ) => {
     const aValue =
@@ -777,13 +815,50 @@ export default function CustomerTable({
     const bValue =
       parseMaximumGrant(b);
 
-    if (aValue === bValue) {
-      return 0;
-    }
-
     return descending
       ? bValue - aValue
       : aValue - bValue;
+  };
+
+  const compareGrantors = (
+    a:
+      | string
+      | null
+      | undefined,
+    b:
+      | string
+      | null
+      | undefined,
+    descending = false
+  ) => {
+    const aBlank =
+      !a || !a.trim();
+
+    const bBlank =
+      !b || !b.trim();
+
+    if (
+      aBlank &&
+      bBlank
+    ) {
+      return 0;
+    }
+
+    if (aBlank) {
+      return 1;
+    }
+
+    if (bBlank) {
+      return -1;
+    }
+
+    return descending
+      ? String(b).localeCompare(
+          String(a)
+        )
+      : String(a).localeCompare(
+          String(b)
+        );
   };
 
   const compareBySortRule = (
@@ -829,170 +904,6 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Sort Rule Helpers
-  // --------------------------------------------------
-
-  const updateSortRule = (
-    id: number,
-    updates: Partial<SortRule>
-  ) => {
-    setSortRules((current) =>
-      current.map((rule) =>
-        rule.id === id
-          ? {
-              ...rule,
-              ...updates,
-            }
-          : rule
-      )
-    );
-  };
-
-  const removeSortRule = (
-    id: number
-  ) => {
-    setSortRules((current) =>
-      current.filter(
-        (rule) => rule.id !== id
-      )
-    );
-  };
-
-  const addSortRule = () => {
-    const usedFields =
-      sortRules.map(
-        (rule) => rule.field
-      );
-
-    const availableFields: SortField[] = [
-      "anticipated_deadline",
-      "deadline",
-      "maximum_grant",
-      "grantor",
-    ];
-
-    const nextAvailableField =
-      availableFields.find(
-        (field) =>
-          !usedFields.includes(field)
-      ) ?? "grantor";
-
-    setSortRules((current) => [
-      ...current,
-      {
-        id: nextSortRuleId,
-        field: nextAvailableField,
-        direction:
-          nextAvailableField ===
-          "maximum_grant"
-            ? "desc"
-            : "asc",
-      },
-    ]);
-
-    setNextSortRuleId(
-      (current) => current + 1
-    );
-  };
-
-  const moveSortRuleUp = (
-    index: number
-  ) => {
-    if (index === 0) {
-      return;
-    }
-
-    setSortRules((current) => {
-      const updated = [
-        ...current,
-      ];
-
-      [
-        updated[index - 1],
-        updated[index],
-      ] = [
-        updated[index],
-        updated[index - 1],
-      ];
-
-      return updated;
-    });
-  };
-
-  const moveSortRuleDown = (
-    index: number
-  ) => {
-    setSortRules((current) => {
-      if (
-        index ===
-        current.length - 1
-      ) {
-        return current;
-      }
-
-      const updated = [
-        ...current,
-      ];
-
-      [
-        updated[index],
-        updated[index + 1],
-      ] = [
-        updated[index + 1],
-        updated[index],
-      ];
-
-      return updated;
-    });
-  };
-
-  const getSortFieldLabel = (
-    field: SortField
-  ) => {
-    switch (field) {
-      case "grantor":
-        return "Grantor";
-
-      case "maximum_grant":
-        return "Maximum Grant";
-
-      case "deadline":
-        return "Deadline";
-
-      case "anticipated_deadline":
-        return "Anticipated Deadline";
-
-      default:
-        return "";
-    }
-  };
-
-  const getSortDirectionLabel = (
-    field: SortField,
-    direction: SortDirection
-  ) => {
-    if (
-      field === "grantor"
-    ) {
-      return direction === "asc"
-        ? "A-Z"
-        : "Z-A";
-    }
-
-    if (
-      field === "maximum_grant"
-    ) {
-      return direction === "asc"
-        ? "Lowest to highest"
-        : "Highest to lowest";
-    }
-
-    return direction === "asc"
-      ? "Earliest to latest"
-      : "Latest to earliest";
-  };
-
-  // --------------------------------------------------
   // Filtered Customers
   // --------------------------------------------------
 
@@ -1003,9 +914,7 @@ export default function CustomerTable({
         "active"
     );
 
-    // --------------------------------------------------
     // Search
-    // --------------------------------------------------
 
     if (search.trim()) {
       const searchTerm =
@@ -1042,9 +951,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Grantor Filter
-    // --------------------------------------------------
 
     if (
       quickGrantors.length > 0
@@ -1058,9 +965,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Maximum Grant Filter
-    // --------------------------------------------------
 
     if (
       quickMaximumGrants.length >
@@ -1077,9 +982,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Deadline Filter
-    // --------------------------------------------------
 
     if (
       quickDeadline !== "all"
@@ -1092,9 +995,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Anticipated Deadline Filter
-    // --------------------------------------------------
 
     if (
       quickMonths.length > 0
@@ -1110,9 +1011,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Category Filter
-    // --------------------------------------------------
 
     if (
       quickCategories.length > 0
@@ -1137,9 +1036,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Advanced Filters
-    // --------------------------------------------------
 
     if (
       advancedFilters.length > 0
@@ -1158,12 +1055,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
-    // Stacked Sorting
-    //
-    // Each sort rule is evaluated in order.
-    // The first rule has the highest priority.
-    // --------------------------------------------------
+    // Stackable Sorting
 
     result.sort((a, b) => {
       for (const rule of sortRules) {
@@ -1196,6 +1088,123 @@ export default function CustomerTable({
     quickCategories,
     advancedFilters,
   ]);
+
+  // --------------------------------------------------
+  // Sort Functions
+  // --------------------------------------------------
+
+  const addSortRule = () => {
+    const usedFields =
+      sortRules.map(
+        (rule) => rule.field
+      );
+
+    const availableField =
+      (
+        Object.keys(
+          SORT_FIELD_LABELS
+        ) as SortField[]
+      ).find(
+        (field) =>
+          !usedFields.includes(field)
+      );
+
+    if (!availableField) {
+      return;
+    }
+
+    setSortRules((current) => [
+      ...current,
+      {
+        id: nextSortId,
+        field: availableField,
+        direction:
+          availableField ===
+          "maximum_grant"
+            ? "desc"
+            : "asc",
+      },
+    ]);
+
+    setNextSortId(
+      (current) =>
+        current + 1
+    );
+  };
+
+  const updateSortRule = (
+    id: number,
+    updates: Partial<SortRule>
+  ) => {
+    setSortRules((current) =>
+      current.map((rule) =>
+        rule.id === id
+          ? {
+              ...rule,
+              ...updates,
+            }
+          : rule
+      )
+    );
+  };
+
+  const removeSortRule = (
+    id: number
+  ) => {
+    setSortRules((current) =>
+      current.filter(
+        (rule) =>
+          rule.id !== id
+      )
+    );
+  };
+
+  const resetSortRules = () => {
+    setSortRules([
+      {
+        id: 1,
+        field: "anticipated_deadline",
+        direction: "asc",
+      },
+      {
+        id: 2,
+        field: "deadline",
+        direction: "asc",
+      },
+      {
+        id: 3,
+        field: "maximum_grant",
+        direction: "desc",
+      },
+    ]);
+
+    setNextSortId(4);
+  };
+
+  const getSortDirectionLabel = (
+    field: SortField,
+    direction: SortDirection
+  ) => {
+    if (
+      field === "grantor"
+    ) {
+      return direction === "asc"
+        ? "A-Z"
+        : "Z-A";
+    }
+
+    if (
+      field === "maximum_grant"
+    ) {
+      return direction === "desc"
+        ? "Highest to lowest"
+        : "Lowest to highest";
+    }
+
+    return direction === "asc"
+      ? "Earliest to latest"
+      : "Latest to earliest";
+  };
 
   // --------------------------------------------------
   // Deadline Styling
@@ -1331,40 +1340,28 @@ export default function CustomerTable({
     > = {
       january:
         "bg-[#D9E8F0] text-[#31566B] border-[#AFC9D8]",
-
       february:
         "bg-[#E5DDF0] text-[#5B4772] border-[#C8B8DA]",
-
       march:
         "bg-[#DDE8D8] text-[#46613F] border-[#B8CCAF]",
-
       april:
         "bg-[#E9E0D3] text-[#66523D] border-[#D2C0A8]",
-
       may:
         "bg-[#E8D9DF] text-[#704B5A] border-[#CEB5BF]",
-
       june:
         "bg-[#D8E5E7] text-[#3F5E63] border-[#B0C9CD]",
-
       july:
         "bg-[#E1DCD2] text-[#5E574B] border-[#C8BDAA]",
-
       august:
         "bg-[#DCDDE5] text-[#4E5265] border-[#BCBFCE]",
-
       september:
         "bg-[#E5DED4] text-[#62574A] border-[#CEC2B2]",
-
       october:
         "bg-[#E7D9D0] text-[#694F43] border-[#CDB7A9]",
-
       november:
         "bg-[#DADFE4] text-[#4B5660] border-[#B8C2CA]",
-
       december:
         "bg-[#E2DDE7] text-[#5D5267] border-[#C5BBCD]",
-
       rolling:
         "bg-[#E3E0D8] text-[#5D574B] border-[#C9C3B7]",
     };
@@ -1437,6 +1434,28 @@ export default function CustomerTable({
     );
   };
 
+  const removeAdvancedFilterValue = (
+    filterId: number,
+    value: string
+  ) => {
+    setAdvancedFilters(
+      (current) =>
+        current.map(
+          (filter) =>
+            filter.id === filterId
+              ? {
+                  ...filter,
+                  values:
+                    filter.values.filter(
+                      (item) =>
+                        item !== value
+                    ),
+                }
+              : filter
+        )
+    );
+  };
+
   // --------------------------------------------------
   // Quick Filter Activation
   // --------------------------------------------------
@@ -1463,8 +1482,17 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Active Filter Count
+  // Active Filter Counts
   // --------------------------------------------------
+
+  const activeQuickFilterCount =
+    quickGrantors.length +
+    quickMaximumGrants.length +
+    (quickDeadline !== "all"
+      ? 1
+      : 0) +
+    quickMonths.length +
+    quickCategories.length;
 
   const activeAdvancedFilterCount =
     advancedFilters.filter(
@@ -1472,14 +1500,8 @@ export default function CustomerTable({
         filter.values.length > 0
     ).length;
 
-  const activeFilterCount =
-    quickGrantors.length +
-    quickMaximumGrants.length +
-    (quickDeadline !== "all"
-      ? 1
-      : 0) +
-    quickMonths.length +
-    quickCategories.length +
+  const totalActiveFilterCount =
+    activeQuickFilterCount +
     activeAdvancedFilterCount;
 
   // --------------------------------------------------
@@ -1578,15 +1600,20 @@ export default function CustomerTable({
       <div className="mx-auto max-w-[1800px]">
 
         {/* Dashboard Header */}
-        <div className="relative z-30 mb-6 overflow-visible rounded-2xl border border-[#9FB7C8] bg-[#AFC4D4] p-8 text-slate-800 shadow-lg">
+        <div className="relative mb-6 overflow-visible rounded-2xl border border-[#9FB7C8] bg-[#AFC4D4] p-8 text-slate-800 shadow-lg">
 
           <div className="absolute left-0 top-0 h-1 w-full rounded-t-2xl bg-gradient-to-r from-[#7E9FB5] via-[#91AFC2] to-[#AFC4D4]" />
 
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
 
             <div>
-              <div className="mb-6 flex h-14 w-48 items-center">
-                {/* Logo goes here */}
+              {/* Logo */}
+              <div className="mb-6 flex h-20 w-64 items-center">
+                <img
+                  src="/lg-listings-logo.png"
+                  alt="LG Listings"
+                  className="h-full w-auto max-w-full object-contain object-left"
+                />
               </div>
 
               <p className="mb-2 text-sm font-semibold uppercase tracking-[0.15em] text-slate-600">
@@ -1675,10 +1702,10 @@ export default function CustomerTable({
               >
                 Quick Filter
 
-                {activeFilterCount >
+                {activeQuickFilterCount >
                   0 && (
                   <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
-                    {activeFilterCount}
+                    {activeQuickFilterCount}
                   </span>
                 )}
               </button>
@@ -1695,238 +1722,236 @@ export default function CustomerTable({
                 className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
               >
                 Advanced Filters
-              </button>
 
-              {/* Sort Button */}
-              <button
-                type="button"
-                onClick={() =>
-                  setShowSortOptions(
-                    (current) =>
-                      !current
-                  )
-                }
-                className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
-              >
-                Sort
-                <span className="ml-2 rounded-full bg-[#6F91A8] px-2 py-0.5 text-xs text-white">
-                  {sortRules.length}
-                </span>
-              </button>
-            </div>
-
-            {/* Stacked Sort Panel */}
-            {showSortOptions && (
-              <div className="relative z-50 mt-5 rounded-2xl border border-[#91AFC2] bg-white/90 p-6 shadow-xl backdrop-blur-sm">
-
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-900">
-                      Sort Opportunities
-                    </h3>
-
-                    <p className="mt-1 text-sm text-slate-600">
-                      Sort rules are applied from top to bottom.
-                      The first rule has the highest priority.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={
-                      addSortRule
-                    }
-                    disabled={
-                      sortRules.length >= 4
-                    }
-                    className="rounded-xl bg-[#6F91A8] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5F829B] disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    + Add Sort Level
-                  </button>
-                </div>
-
-                <div className="mt-5 space-y-3">
-
-                  {sortRules.map(
-                    (
-                      rule,
-                      index
-                    ) => (
-                      <div
-                        key={
-                          rule.id
-                        }
-                        className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-center"
-                      >
-
-                        <div className="flex h-9 min-w-9 items-center justify-center rounded-lg bg-[#E7EFF4] text-sm font-bold text-[#5F829B]">
-                          {index + 1}
-                        </div>
-
-                        <div className="flex flex-1 flex-col gap-3 md:flex-row">
-
-                          <select
-                            value={
-                              rule.field
-                            }
-                            onChange={(
-                              e
-                            ) =>
-                              updateSortRule(
-                                rule.id,
-                                {
-                                  field:
-                                    e
-                                      .target
-                                      .value as SortField,
-                                }
-                              )
-                            }
-                            className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#6F91A8] focus:ring-2 focus:ring-[#AFC4D4]/40"
-                          >
-                            <option value="anticipated_deadline">
-                              Anticipated Deadline
-                            </option>
-
-                            <option value="deadline">
-                              Deadline
-                            </option>
-
-                            <option value="maximum_grant">
-                              Maximum Grant
-                            </option>
-
-                            <option value="grantor">
-                              Grantor
-                            </option>
-                          </select>
-
-                          <select
-                            value={
-                              rule.direction
-                            }
-                            onChange={(
-                              e
-                            ) =>
-                              updateSortRule(
-                                rule.id,
-                                {
-                                  direction:
-                                    e
-                                      .target
-                                      .value as SortDirection,
-                                }
-                              )
-                            }
-                            className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#6F91A8] focus:ring-2 focus:ring-[#AFC4D4]/40"
-                          >
-                            <option value="asc">
-                              {getSortFieldLabel(
-                                rule.field
-                              )}{" "}
-                              —{" "}
-                              {getSortDirectionLabel(
-                                rule.field,
-                                "asc"
-                              )}
-                            </option>
-
-                            <option value="desc">
-                              {getSortFieldLabel(
-                                rule.field
-                              )}{" "}
-                              —{" "}
-                              {getSortDirectionLabel(
-                                rule.field,
-                                "desc"
-                              )}
-                            </option>
-                          </select>
-
-                        </div>
-
-                        <div className="flex items-center gap-2">
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              moveSortRuleUp(
-                                index
-                              )
-                            }
-                            disabled={
-                              index === 0
-                            }
-                            title="Move sort level up"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
-                          >
-                            ↑
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              moveSortRuleDown(
-                                index
-                              )
-                            }
-                            disabled={
-                              index ===
-                              sortRules.length -
-                                1
-                            }
-                            title="Move sort level down"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
-                          >
-                            ↓
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeSortRule(
-                                rule.id
-                              )
-                            }
-                            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
-
-                        </div>
-
-                      </div>
-                    )
-                  )}
-
-                </div>
-
-                {sortRules.length ===
+                {activeAdvancedFilterCount >
                   0 && (
-                  <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-                    <p className="text-sm text-slate-500">
-                      No sorting rules are active.
-                    </p>
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                    {activeAdvancedFilterCount}
+                  </span>
+                )}
+              </button>
 
-                    <button
-                      type="button"
-                      onClick={
-                        addSortRule
-                      }
-                      className="mt-3 text-sm font-semibold text-[#5F829B] underline underline-offset-2"
-                    >
-                      Add a sort level
-                    </button>
+              {/* Stackable Sort */}
+              <div
+                ref={sortDropdownRef}
+                className="relative"
+              >
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowSortOptions(
+                      (current) =>
+                        !current
+                    )
+                  }
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition hover:bg-white xl:min-w-[280px]"
+                >
+                  <span>
+                    Sort by
+                  </span>
+
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className={`h-4 w-4 transition-transform ${
+                      showSortOptions
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                    />
+                  </svg>
+                </button>
+
+                {showSortOptions && (
+                  <div className="absolute right-0 top-full z-[100] mt-2 w-[380px] max-w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+
+                    <div className="mb-4 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900">
+                          Sort by
+                        </h3>
+
+                        <p className="mt-1 text-xs text-slate-500">
+                          Sorts are applied from top to bottom.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={
+                          resetSortRules
+                        }
+                        className="text-xs font-semibold text-[#5F829B] underline underline-offset-2 hover:text-[#456A82]"
+                      >
+                        Reset
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {sortRules.map(
+                        (
+                          rule,
+                          index
+                        ) => (
+                          <div
+                            key={
+                              rule.id
+                            }
+                            className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                          >
+                            <div className="mb-2 flex items-center justify-between">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Sort level{" "}
+                                {index +
+                                  1}
+                              </span>
+
+                              {sortRules.length >
+                                1 && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeSortRule(
+                                      rule.id
+                                    )
+                                  }
+                                  className="text-xs font-semibold text-slate-500 hover:text-red-600"
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                              <select
+                                value={
+                                  rule.field
+                                }
+                                onChange={(
+                                  e
+                                ) =>
+                                  updateSortRule(
+                                    rule.id,
+                                    {
+                                      field:
+                                        e
+                                          .target
+                                          .value as SortField,
+                                    }
+                                  )
+                                }
+                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#6F91A8]"
+                              >
+                                {(
+                                  Object.keys(
+                                    SORT_FIELD_LABELS
+                                  ) as SortField[]
+                                ).map(
+                                  (
+                                    field
+                                  ) => {
+                                    const usedByAnotherRule =
+                                      sortRules.some(
+                                        (
+                                          otherRule
+                                        ) =>
+                                          otherRule.id !==
+                                            rule.id &&
+                                          otherRule.field ===
+                                            field
+                                      );
+
+                                    return (
+                                      <option
+                                        key={
+                                          field
+                                        }
+                                        value={
+                                          field
+                                        }
+                                        disabled={
+                                          usedByAnotherRule
+                                        }
+                                      >
+                                        {
+                                          SORT_FIELD_LABELS[
+                                            field
+                                          ]
+                                        }
+                                      </option>
+                                    );
+                                  }
+                                )}
+                              </select>
+
+                              <select
+                                value={
+                                  rule.direction
+                                }
+                                onChange={(
+                                  e
+                                ) =>
+                                  updateSortRule(
+                                    rule.id,
+                                    {
+                                      direction:
+                                        e
+                                          .target
+                                          .value as SortDirection,
+                                    }
+                                  )
+                                }
+                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#6F91A8]"
+                              >
+                                <option value="asc">
+                                  {getSortDirectionLabel(
+                                    rule.field,
+                                    "asc"
+                                  )}
+                                </option>
+
+                                <option value="desc">
+                                  {getSortDirectionLabel(
+                                    rule.field,
+                                    "desc"
+                                  )}
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    {sortRules.length <
+                      4 && (
+                      <button
+                        type="button"
+                        onClick={
+                          addSortRule
+                        }
+                        className="mt-4 w-full rounded-xl border border-dashed border-[#91AFC2] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#5F829B] transition hover:bg-[#E7F0F5]"
+                      >
+                        + Add Sort Level
+                      </button>
+                    )}
+
                   </div>
                 )}
-
               </div>
-            )}
+            </div>
 
             {/* Quick Filter Panel */}
             {showQuickFilters && (
-              <div className="relative z-40 mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+              <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
 
@@ -1940,7 +1965,9 @@ export default function CustomerTable({
                       {availableGrantors.map(
                         (grantor) => (
                           <label
-                            key={grantor}
+                            key={
+                              grantor
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -1980,7 +2007,9 @@ export default function CustomerTable({
                       {availableMaximumGrants.map(
                         (amount) => (
                           <label
-                            key={amount}
+                            key={
+                              amount
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -2017,12 +2046,16 @@ export default function CustomerTable({
                     </label>
 
                     <select
-                      value={quickDeadline}
+                      value={
+                        quickDeadline
+                      }
                       onChange={(e) =>
                         activateQuickFilter(
                           () =>
                             setQuickDeadline(
-                              e.target.value
+                              e
+                                .target
+                                .value
                             )
                         )
                       }
@@ -2060,7 +2093,9 @@ export default function CustomerTable({
                       {availableMonths.map(
                         (month) => (
                           <label
-                            key={month}
+                            key={
+                              month
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -2100,7 +2135,9 @@ export default function CustomerTable({
                       {availableCategories.map(
                         (category) => (
                           <label
-                            key={category}
+                            key={
+                              category
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -2148,7 +2185,7 @@ export default function CustomerTable({
 
             {/* Advanced Filter Panel */}
             {showAdvancedFilters && (
-              <div className="relative z-[100] mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-xl">
+              <div className="relative z-[90] mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
 
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -2206,11 +2243,11 @@ export default function CustomerTable({
                             key={
                               filter.id
                             }
-                            className="relative z-[101] flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-center"
+                            className="relative flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-start"
                           >
 
                             {/* AND */}
-                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-500">
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-500 lg:mt-0">
                               AND
                             </div>
 
@@ -2360,8 +2397,47 @@ export default function CustomerTable({
                                 </svg>
                               </button>
 
+                              {/* Selected Options */}
+                              {filter.values.length >
+                                0 && (
+                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                  {filter.values.map(
+                                    (
+                                      value
+                                    ) => (
+                                      <button
+                                        key={
+                                          value
+                                        }
+                                        type="button"
+                                        onClick={() =>
+                                          removeAdvancedFilterValue(
+                                            filter.id,
+                                            value
+                                          )
+                                        }
+                                        className="inline-flex items-center gap-1 rounded-full border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-[#DCEAF1]"
+                                      >
+                                        <span className="max-w-[180px] truncate">
+                                          {filter.field ===
+                                          "deadline"
+                                            ? formatDeadline(
+                                                value
+                                              )
+                                            : value}
+                                        </span>
+
+                                        <span className="font-bold text-slate-500">
+                                          ×
+                                        </span>
+                                      </button>
+                                    )
+                                  )}
+                                </div>
+                              )}
+
                               {dropdownIsOpen && (
-                                <div className="absolute left-0 top-full z-[9999] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-2xl">
+                                <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-2xl">
 
                                   {options.length ===
                                   0 ? (
@@ -2463,7 +2539,7 @@ export default function CustomerTable({
             )}
 
             {/* Active Filter Chips */}
-            {activeFilterCount >
+            {totalActiveFilterCount >
               0 && (
               <div className="mt-5 flex flex-wrap items-center gap-2">
 
@@ -2471,6 +2547,7 @@ export default function CustomerTable({
                   Active filters:
                 </span>
 
+                {/* Quick Grantors */}
                 {quickGrantors.map(
                   (grantor) => (
                     <button
@@ -2491,6 +2568,7 @@ export default function CustomerTable({
                   )
                 )}
 
+                {/* Quick Maximum Grants */}
                 {quickMaximumGrants.map(
                   (amount) => (
                     <button
@@ -2511,6 +2589,7 @@ export default function CustomerTable({
                   )
                 )}
 
+                {/* Quick Deadline */}
                 {quickDeadline !==
                   "all" && (
                   <button
@@ -2531,6 +2610,7 @@ export default function CustomerTable({
                   </button>
                 )}
 
+                {/* Quick Months */}
                 {quickMonths.map(
                   (month) => (
                     <button
@@ -2551,6 +2631,7 @@ export default function CustomerTable({
                   )
                 )}
 
+                {/* Quick Categories */}
                 {quickCategories.map(
                   (category) => (
                     <button
@@ -2571,6 +2652,7 @@ export default function CustomerTable({
                   )
                 )}
 
+                {/* Advanced Filter Summary */}
                 {activeAdvancedFilterCount >
                   0 && (
                   <button
@@ -2602,7 +2684,7 @@ export default function CustomerTable({
 
             {/* Search Result Count */}
             {(search.trim() ||
-              activeFilterCount >
+              totalActiveFilterCount >
                 0) && (
               <div className="mt-4 flex items-center gap-2 text-sm text-slate-700">
                 <span className="inline-block h-2 w-2 rounded-full bg-[#6F91A8]" />
@@ -2620,7 +2702,7 @@ export default function CustomerTable({
         </div>
 
         {/* Table */}
-        <div className="relative z-10 overflow-visible rounded-2xl border border-[#D5E0E7] bg-white shadow-lg">
+        <div className="relative z-0 overflow-hidden rounded-2xl border border-[#D5E0E7] bg-white shadow-lg">
 
           <div className="overflow-x-auto">
 
@@ -2788,7 +2870,7 @@ export default function CustomerTable({
 
                         {/* Abstract */}
                         <td className="p-5 align-top text-left">
-                          <div className="max-w-xl whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                          <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-slate-700">
                             {customer.abstract ||
                               "No abstract provided."}
                           </div>
