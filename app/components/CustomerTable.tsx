@@ -6,8 +6,14 @@ import {
   useRef,
   useState,
 } from "react";
+
 import CustomerDrawer from "./CustomerDrawer";
 import type { Customer } from "../types/customer";
+
+import {
+  createCategoryColorMap,
+  getCategoryStyle,
+} from "./categoryColors";
 
 type FilterField =
   | "grantor"
@@ -238,6 +244,16 @@ export default function CustomerTable({
     );
   }, [customers]);
 
+  // --------------------------------------------------
+  // Shared Category Color Map
+  // --------------------------------------------------
+
+  const categoryColorMap = useMemo(() => {
+    return createCategoryColorMap(
+      availableCategories
+    );
+  }, [availableCategories]);
+
   const availableGrantors = useMemo(() => {
     return Array.from(
       new Set(
@@ -357,9 +373,7 @@ export default function CustomerTable({
   }, [customers]);
 
   // --------------------------------------------------
-  // FIXED:
-  // availableDeadlines is explicitly guaranteed
-  // to be a string[] instead of (string | null)[]
+  // Available Deadlines
   // --------------------------------------------------
 
   const availableDeadlines = useMemo(
@@ -1266,63 +1280,6 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Unique Category Colors
-  // --------------------------------------------------
-
-  const categoryColors = [
-    "bg-blue-100 text-blue-800 border-blue-300",
-    "bg-purple-100 text-purple-800 border-purple-300",
-    "bg-emerald-100 text-emerald-800 border-emerald-300",
-    "bg-amber-100 text-amber-800 border-amber-300",
-    "bg-rose-100 text-rose-800 border-rose-300",
-    "bg-cyan-100 text-cyan-800 border-cyan-300",
-    "bg-indigo-100 text-indigo-800 border-indigo-300",
-    "bg-orange-100 text-orange-800 border-orange-300",
-    "bg-pink-100 text-pink-800 border-pink-300",
-    "bg-teal-100 text-teal-800 border-teal-300",
-    "bg-lime-100 text-lime-800 border-lime-300",
-    "bg-violet-100 text-violet-800 border-violet-300",
-    "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300",
-    "bg-sky-100 text-sky-800 border-sky-300",
-    "bg-yellow-100 text-yellow-800 border-yellow-300",
-    "bg-stone-100 text-stone-800 border-stone-300",
-    "bg-slate-100 text-slate-800 border-slate-300",
-    "bg-red-100 text-red-800 border-red-300",
-  ];
-
-  const categoryColorMap = useMemo(() => {
-    const map = new Map<
-      string,
-      string
-    >();
-
-    availableCategories.forEach(
-      (category, index) => {
-        map.set(
-          category,
-          categoryColors[
-            index %
-              categoryColors.length
-          ]
-        );
-      }
-    );
-
-    return map;
-  }, [availableCategories]);
-
-  const getCategoryStyle = (
-    category: string
-  ) => {
-    return (
-      categoryColorMap.get(
-        category
-      ) ||
-      "bg-slate-100 text-slate-800 border-slate-300"
-    );
-  };
-
-  // --------------------------------------------------
   // Anticipated Deadline Month Colors
   // --------------------------------------------------
 
@@ -1600,6 +1557,7 @@ export default function CustomerTable({
       <div className="mx-auto max-w-[1800px]">
 
         {/* Dashboard Header */}
+
         <div className="relative mb-6 overflow-visible rounded-2xl border border-[#9FB7C8] bg-[#AFC4D4] p-8 text-slate-800 shadow-lg">
 
           <div className="absolute left-0 top-0 h-1 w-full rounded-t-2xl bg-gradient-to-r from-[#7E9FB5] via-[#91AFC2] to-[#AFC4D4]" />
@@ -1607,7 +1565,9 @@ export default function CustomerTable({
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
 
             <div>
+
               {/* Logo */}
+
               <div className="mb-6 flex h-20 w-64 items-center">
                 <img
                   src="/lg-listings-logo.png"
@@ -1625,17 +1585,20 @@ export default function CustomerTable({
               </h1>
 
               <p className="mt-3 max-w-2xl leading-6 text-slate-700">
-                Discover active funding opportunities and find
-                grants that align with your organization's
-                mission, priorities, and goals.
+                Explore current funding opportunities and discover grants that
+                align with your research, programs, and academic priorities.
               </p>
+
             </div>
 
             <div className="flex-shrink-0">
+
               <div className="relative min-w-[200px] overflow-hidden rounded-2xl border border-[#91AFC2] bg-white/50 px-7 py-5 shadow-sm">
+
                 <div className="absolute right-0 top-0 h-20 w-20 -translate-y-8 translate-x-8 rounded-full bg-white/30" />
 
                 <div className="relative text-center">
+
                   <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                     Active RFPs
                   </div>
@@ -1647,19 +1610,27 @@ export default function CustomerTable({
                   <div className="mt-1 text-xs text-slate-600">
                     Currently available
                   </div>
+
                 </div>
+
               </div>
+
             </div>
+
           </div>
 
           {/* Search and Filters */}
+
           <div className="mt-8 border-t border-[#91AFC2] pt-6">
 
             <div className="flex flex-col gap-3 xl:flex-row">
 
               {/* Search */}
+
               <div className="relative flex-1">
+
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
+
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -1674,6 +1645,7 @@ export default function CustomerTable({
                       d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61Z"
                     />
                   </svg>
+
                 </div>
 
                 <input
@@ -1687,9 +1659,11 @@ export default function CustomerTable({
                   }
                   className="w-full rounded-xl border border-[#91AFC2] bg-white/70 py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 />
+
               </div>
 
               {/* Quick Filter Button */}
+
               <button
                 type="button"
                 onClick={() =>
@@ -1711,6 +1685,7 @@ export default function CustomerTable({
               </button>
 
               {/* Advanced Filter Button */}
+
               <button
                 type="button"
                 onClick={() =>
@@ -1732,10 +1707,12 @@ export default function CustomerTable({
               </button>
 
               {/* Stackable Sort */}
+
               <div
                 ref={sortDropdownRef}
                 className="relative"
               >
+
                 <button
                   type="button"
                   onClick={() =>
@@ -1746,6 +1723,7 @@ export default function CustomerTable({
                   }
                   className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition hover:bg-white xl:min-w-[280px]"
                 >
+
                   <span>
                     Sort by
                   </span>
@@ -1768,13 +1746,16 @@ export default function CustomerTable({
                       d="m19.5 8.25-7.5 7.5-7.5-7.5"
                     />
                   </svg>
+
                 </button>
 
                 {showSortOptions && (
                   <div className="absolute right-0 top-full z-[100] mt-2 w-[380px] max-w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
 
                     <div className="mb-4 flex items-center justify-between">
+
                       <div>
+
                         <h3 className="text-sm font-semibold text-slate-900">
                           Sort by
                         </h3>
@@ -1782,6 +1763,7 @@ export default function CustomerTable({
                         <p className="mt-1 text-xs text-slate-500">
                           Sorts are applied from top to bottom.
                         </p>
+
                       </div>
 
                       <button
@@ -1793,9 +1775,11 @@ export default function CustomerTable({
                       >
                         Reset
                       </button>
+
                     </div>
 
                     <div className="space-y-3">
+
                       {sortRules.map(
                         (
                           rule,
@@ -1807,7 +1791,9 @@ export default function CustomerTable({
                             }
                             className="rounded-xl border border-slate-200 bg-slate-50 p-3"
                           >
+
                             <div className="mb-2 flex items-center justify-between">
+
                               <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                 Sort level{" "}
                                 {index +
@@ -1828,9 +1814,11 @@ export default function CustomerTable({
                                   Remove
                                 </button>
                               )}
+
                             </div>
 
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
                               <select
                                 value={
                                   rule.field
@@ -1850,6 +1838,7 @@ export default function CustomerTable({
                                 }
                                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#6F91A8]"
                               >
+
                                 {(
                                   Object.keys(
                                     SORT_FIELD_LABELS
@@ -1858,6 +1847,7 @@ export default function CustomerTable({
                                   (
                                     field
                                   ) => {
+
                                     const usedByAnotherRule =
                                       sortRules.some(
                                         (
@@ -1888,8 +1878,10 @@ export default function CustomerTable({
                                         }
                                       </option>
                                     );
+
                                   }
                                 )}
+
                               </select>
 
                               <select
@@ -1911,6 +1903,7 @@ export default function CustomerTable({
                                 }
                                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#6F91A8]"
                               >
+
                                 <option value="asc">
                                   {getSortDirectionLabel(
                                     rule.field,
@@ -1924,11 +1917,15 @@ export default function CustomerTable({
                                     "desc"
                                   )}
                                 </option>
+
                               </select>
+
                             </div>
+
                           </div>
                         )
                       )}
+
                     </div>
 
                     {sortRules.length <
@@ -1946,22 +1943,28 @@ export default function CustomerTable({
 
                   </div>
                 )}
+
               </div>
+
             </div>
 
             {/* Quick Filter Panel */}
+
             {showQuickFilters && (
               <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
 
                   {/* Grantor */}
+
                   <div>
+
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                       Grantor
                     </label>
 
                     <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+
                       {availableGrantors.map(
                         (grantor) => (
                           <label
@@ -1970,6 +1973,7 @@ export default function CustomerTable({
                             }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
+
                             <input
                               type="checkbox"
                               checked={quickGrantors.includes(
@@ -1991,19 +1995,25 @@ export default function CustomerTable({
                             <span>
                               {grantor}
                             </span>
+
                           </label>
                         )
                       )}
+
                     </div>
+
                   </div>
 
                   {/* Maximum Grant */}
+
                   <div>
+
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                       Maximum Grant
                     </label>
 
                     <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+
                       {availableMaximumGrants.map(
                         (amount) => (
                           <label
@@ -2012,6 +2022,7 @@ export default function CustomerTable({
                             }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
+
                             <input
                               type="checkbox"
                               checked={quickMaximumGrants.includes(
@@ -2033,14 +2044,19 @@ export default function CustomerTable({
                             <span>
                               {amount}
                             </span>
+
                           </label>
                         )
                       )}
+
                     </div>
+
                   </div>
 
                   {/* Deadline */}
+
                   <div>
+
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                       Deadline
                     </label>
@@ -2061,6 +2077,7 @@ export default function CustomerTable({
                       }
                       className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/40"
                     >
+
                       <option value="all">
                         All Deadlines
                       </option>
@@ -2080,16 +2097,21 @@ export default function CustomerTable({
                       <option value="no-deadline">
                         No specific deadline
                       </option>
+
                     </select>
+
                   </div>
 
                   {/* Anticipated Deadline */}
+
                   <div>
+
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                       Anticipated Deadline
                     </label>
 
                     <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+
                       {availableMonths.map(
                         (month) => (
                           <label
@@ -2098,6 +2120,7 @@ export default function CustomerTable({
                             }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
+
                             <input
                               type="checkbox"
                               checked={quickMonths.includes(
@@ -2119,19 +2142,25 @@ export default function CustomerTable({
                             <span>
                               {month}
                             </span>
+
                           </label>
                         )
                       )}
+
                     </div>
+
                   </div>
 
                   {/* Categories */}
+
                   <div>
+
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                       Categories
                     </label>
 
                     <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+
                       {availableCategories.map(
                         (category) => (
                           <label
@@ -2140,6 +2169,7 @@ export default function CustomerTable({
                             }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
+
                             <input
                               type="checkbox"
                               checked={quickCategories.includes(
@@ -2161,15 +2191,19 @@ export default function CustomerTable({
                             <span>
                               {category}
                             </span>
+
                           </label>
                         )
                       )}
+
                     </div>
+
                   </div>
 
                 </div>
 
                 <div className="mt-5 flex justify-end">
+
                   <button
                     type="button"
                     onClick={
@@ -2179,16 +2213,21 @@ export default function CustomerTable({
                   >
                     Clear Filters
                   </button>
+
                 </div>
+
               </div>
             )}
 
             {/* Advanced Filter Panel */}
+
             {showAdvancedFilters && (
               <div className="relative z-[90] mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
 
                 <div className="flex items-center justify-between gap-4">
+
                   <div>
+
                     <h3 className="text-base font-semibold text-slate-900">
                       Advanced Filters
                     </h3>
@@ -2197,6 +2236,7 @@ export default function CustomerTable({
                       Build a custom filter using
                       multiple AND rules.
                     </p>
+
                   </div>
 
                   <button
@@ -2208,11 +2248,14 @@ export default function CustomerTable({
                   >
                     + Add Filter
                   </button>
+
                 </div>
 
                 {advancedFilters.length ===
                 0 ? (
+
                   <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
+
                     <p className="text-sm text-slate-500">
                       No advanced filters added yet.
                     </p>
@@ -2221,14 +2264,18 @@ export default function CustomerTable({
                       Click "Add Filter" to create
                       your first rule.
                     </p>
+
                   </div>
+
                 ) : (
+
                   <div className="mt-5 space-y-3">
 
                     {advancedFilters.map(
                       (
                         filter
                       ) => {
+
                         const options =
                           getAdvancedFilterOptions(
                             filter.field
@@ -2247,11 +2294,13 @@ export default function CustomerTable({
                           >
 
                             {/* AND */}
+
                             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-500 lg:mt-0">
                               AND
                             </div>
 
                             {/* Field */}
+
                             <select
                               value={
                                 filter.field
@@ -2259,6 +2308,7 @@ export default function CustomerTable({
                               onChange={(
                                 e
                               ) => {
+
                                 const field =
                                   e
                                     .target
@@ -2276,9 +2326,11 @@ export default function CustomerTable({
                                 setOpenAdvancedDropdownId(
                                   null
                                 );
+
                               }}
                               className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
                             >
+
                               <option value="grantor">
                                 Grantor
                               </option>
@@ -2306,9 +2358,11 @@ export default function CustomerTable({
                               <option value="fellowship_opportunity">
                                 Fellowship Opportunity
                               </option>
+
                             </select>
 
                             {/* Operator */}
+
                             <select
                               value={
                                 filter.operator
@@ -2328,6 +2382,7 @@ export default function CustomerTable({
                               }
                               className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
                             >
+
                               <option value="is">
                                 is
                               </option>
@@ -2335,9 +2390,11 @@ export default function CustomerTable({
                               <option value="is_not">
                                 is not
                               </option>
+
                             </select>
 
                             {/* Multi-Select Dropdown */}
+
                             <div
                               ref={
                                 dropdownIsOpen
@@ -2346,6 +2403,7 @@ export default function CustomerTable({
                               }
                               className="relative min-w-0 flex-1"
                             >
+
                               <button
                                 type="button"
                                 onClick={() =>
@@ -2357,6 +2415,7 @@ export default function CustomerTable({
                                 }
                                 className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm"
                               >
+
                                 <span
                                   className={
                                     filter.values
@@ -2366,6 +2425,7 @@ export default function CustomerTable({
                                       : "text-slate-700"
                                   }
                                 >
+
                                   {filter.values
                                     .length ===
                                   0
@@ -2373,6 +2433,7 @@ export default function CustomerTable({
                                         filter.field
                                       ).toLowerCase()}`
                                     : `${filter.values.length} selected`}
+
                                 </span>
 
                                 <svg
@@ -2389,22 +2450,29 @@ export default function CustomerTable({
                                       : ""
                                   }`}
                                 >
+
                                   <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     d="m19.5 8.25-7.5 7.5-7.5-7.5"
                                   />
+
                                 </svg>
+
                               </button>
 
                               {/* Selected Options */}
+
                               {filter.values.length >
                                 0 && (
+
                                 <div className="mt-2 flex flex-wrap gap-1.5">
+
                                   {filter.values.map(
                                     (
                                       value
                                     ) => (
+
                                       <button
                                         key={
                                           value
@@ -2418,49 +2486,63 @@ export default function CustomerTable({
                                         }
                                         className="inline-flex items-center gap-1 rounded-full border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-[#DCEAF1]"
                                       >
+
                                         <span className="max-w-[180px] truncate">
+
                                           {filter.field ===
                                           "deadline"
                                             ? formatDeadline(
                                                 value
                                               )
                                             : value}
+
                                         </span>
 
                                         <span className="font-bold text-slate-500">
                                           ×
                                         </span>
+
                                       </button>
+
                                     )
                                   )}
+
                                 </div>
+
                               )}
 
                               {dropdownIsOpen && (
+
                                 <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-2xl">
 
                                   {options.length ===
                                   0 ? (
+
                                     <div className="px-3 py-4 text-center text-sm text-slate-400">
                                       No options available
                                     </div>
+
                                   ) : (
+
                                     options.map(
                                       (
                                         option
                                       ) => (
+
                                         <label
                                           key={
                                             option
                                           }
                                           className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
                                         >
+
                                           <input
                                             type="checkbox"
                                             checked={filter.values.includes(
                                               option
                                             )}
                                             onChange={() => {
+
                                               const newValues =
                                                 filter.values.includes(
                                                   option
@@ -2484,28 +2566,37 @@ export default function CustomerTable({
                                                     newValues,
                                                 }
                                               );
+
                                             }}
                                             className="h-4 w-4 rounded border-slate-300"
                                           />
 
                                           <span>
+
                                             {filter.field ===
                                             "deadline"
                                               ? formatDeadline(
                                                   option
                                                 )
                                               : option}
+
                                           </span>
+
                                         </label>
+
                                       )
                                     )
+
                                   )}
 
                                 </div>
+
                               )}
+
                             </div>
 
                             {/* Remove */}
+
                             <button
                               type="button"
                               onClick={() =>
@@ -2517,14 +2608,19 @@ export default function CustomerTable({
                             >
                               Remove
                             </button>
+
                           </div>
                         );
+
                       }
                     )}
+
                   </div>
+
                 )}
 
                 <div className="mt-5 flex justify-end gap-3">
+
                   <button
                     type="button"
                     onClick={
@@ -2534,13 +2630,17 @@ export default function CustomerTable({
                   >
                     Clear Advanced Filters
                   </button>
+
                 </div>
+
               </div>
             )}
 
             {/* Active Filter Chips */}
+
             {totalActiveFilterCount >
               0 && (
+
               <div className="mt-5 flex flex-wrap items-center gap-2">
 
                 <span className="text-sm font-semibold text-slate-700">
@@ -2548,8 +2648,10 @@ export default function CustomerTable({
                 </span>
 
                 {/* Quick Grantors */}
+
                 {quickGrantors.map(
                   (grantor) => (
+
                     <button
                       key={`grantor-${grantor}`}
                       type="button"
@@ -2565,12 +2667,15 @@ export default function CustomerTable({
                       Grantor:{" "}
                       {grantor} ×
                     </button>
+
                   )
                 )}
 
                 {/* Quick Maximum Grants */}
+
                 {quickMaximumGrants.map(
                   (amount) => (
+
                     <button
                       key={`maximum-${amount}`}
                       type="button"
@@ -2586,12 +2691,15 @@ export default function CustomerTable({
                       Maximum Grant:{" "}
                       {amount} ×
                     </button>
+
                   )
                 )}
 
                 {/* Quick Deadline */}
+
                 {quickDeadline !==
                   "all" && (
+
                   <button
                     type="button"
                     onClick={() =>
@@ -2608,11 +2716,14 @@ export default function CustomerTable({
                       : `Within ${quickDeadline} days`}{" "}
                     ×
                   </button>
+
                 )}
 
                 {/* Quick Months */}
+
                 {quickMonths.map(
                   (month) => (
+
                     <button
                       key={`month-${month}`}
                       type="button"
@@ -2628,12 +2739,15 @@ export default function CustomerTable({
                       Anticipated:{" "}
                       {month} ×
                     </button>
+
                   )
                 )}
 
                 {/* Quick Categories */}
+
                 {quickCategories.map(
                   (category) => (
+
                     <button
                       key={`category-${category}`}
                       type="button"
@@ -2649,12 +2763,15 @@ export default function CustomerTable({
                       Category:{" "}
                       {category} ×
                     </button>
+
                   )
                 )}
 
                 {/* Advanced Filter Summary */}
+
                 {activeAdvancedFilterCount >
                   0 && (
+
                   <button
                     type="button"
                     onClick={
@@ -2668,6 +2785,7 @@ export default function CustomerTable({
                     }{" "}
                     ×
                   </button>
+
                 )}
 
                 <button
@@ -2679,29 +2797,41 @@ export default function CustomerTable({
                 >
                   Clear all
                 </button>
+
               </div>
+
             )}
 
             {/* Search Result Count */}
+
             {(search.trim() ||
               totalActiveFilterCount >
                 0) && (
+
               <div className="mt-4 flex items-center gap-2 text-sm text-slate-700">
+
                 <span className="inline-block h-2 w-2 rounded-full bg-[#6F91A8]" />
 
                 Showing{" "}
+
                 <span className="font-semibold text-slate-900">
                   {
                     filteredCustomers.length
                   }
                 </span>{" "}
+
                 matching opportunities
+
               </div>
+
             )}
+
           </div>
+
         </div>
 
         {/* Table */}
+
         <div className="relative z-0 overflow-hidden rounded-2xl border border-[#D5E0E7] bg-white shadow-lg">
 
           <div className="overflow-x-auto">
@@ -2709,6 +2839,7 @@ export default function CustomerTable({
             <table className="w-full">
 
               <thead className="bg-[#AFC4D4] text-slate-800">
+
                 <tr>
 
                   <th className="p-5 text-left text-xs font-semibold uppercase tracking-wider">
@@ -2740,6 +2871,7 @@ export default function CustomerTable({
                   </th>
 
                 </tr>
+
               </thead>
 
               <tbody className="divide-y divide-slate-200">
@@ -2764,6 +2896,7 @@ export default function CustomerTable({
                         : false;
 
                     return (
+
                       <tr
                         key={
                           customer.id
@@ -2785,36 +2918,50 @@ export default function CustomerTable({
                       >
 
                         {/* Grantor */}
+
                         <td className="p-5 align-top text-left">
+
                           <span className="font-semibold text-slate-800">
                             {customer.grantor ||
                               "-"}
                           </span>
+
                         </td>
 
                         {/* Opportunity */}
+
                         <td className="p-5 align-top text-left">
+
                           <div className="font-semibold text-slate-900">
                             {customer.opportunity_name ||
                               "-"}
                           </div>
+
                         </td>
 
                         {/* Maximum Grant */}
+
                         <td className="p-5 align-top text-center">
+
                           <span className="inline-flex rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-800">
                             {customer.maximum_grant ||
                               "Not specified"}
                           </span>
+
                         </td>
 
                         {/* Deadline */}
+
                         <td className="p-5 align-top">
+
                           <div className="flex flex-col items-center gap-2">
 
                             {customer.deadline ? (
+
                               <>
+
                                 <span className="font-semibold text-slate-800">
+
                                   {new Date(
                                     `${customer.deadline}T00:00:00`
                                   ).toLocaleDateString(
@@ -2826,31 +2973,41 @@ export default function CustomerTable({
                                       day: "numeric",
                                     }
                                   )}
+
                                 </span>
 
                                 {isPastDeadline && (
+
                                   <span
                                     className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
                                   >
                                     Past deadline
                                   </span>
+
                                 )}
+
                               </>
+
                             ) : (
+
                               <span
                                 className={`rounded-full border px-2.5 py-1 text-xs font-medium ${deadlineStyle.container}`}
                               >
                                 Not set
                               </span>
+
                             )}
 
                           </div>
+
                         </td>
 
                         {/* Anticipated Deadline */}
+
                         <td className="p-5 align-top text-center">
 
                           {customer.anticipated_deadline ? (
+
                             <span
                               className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
                                 customer.anticipated_deadline
@@ -2860,23 +3017,30 @@ export default function CustomerTable({
                                 customer.anticipated_deadline
                               }
                             </span>
+
                           ) : (
+
                             <span className="text-slate-400">
                               —
                             </span>
+
                           )}
 
                         </td>
 
                         {/* Abstract */}
+
                         <td className="p-5 align-top text-left">
+
                           <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-slate-700">
                             {customer.abstract ||
                               "No abstract provided."}
                           </div>
+
                         </td>
 
                         {/* Categories */}
+
                         <td className="p-5 align-top">
 
                           <div className="flex flex-wrap justify-center gap-2">
@@ -2887,28 +3051,35 @@ export default function CustomerTable({
                             customer.rfp_categories
                               .length >
                               0 ? (
+
                               customer.rfp_categories.map(
                                 (
                                   category
                                 ) => (
+
                                   <span
                                     key={
                                       category
                                     }
                                     className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
-                                      category
+                                      category,
+                                      categoryColorMap
                                     )}`}
                                   >
                                     {
                                       category
                                     }
                                   </span>
+
                                 )
                               )
+
                             ) : (
+
                               <span className="text-slate-400">
                                 —
                               </span>
+
                             )}
 
                           </div>
@@ -2916,18 +3087,23 @@ export default function CustomerTable({
                         </td>
 
                       </tr>
+
                     );
+
                   }
                 )}
 
               </tbody>
 
             </table>
+
           </div>
 
           {/* Empty State */}
+
           {filteredCustomers.length ===
             0 && (
+
             <div className="bg-slate-50 px-6 py-20 text-center">
 
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-400 shadow-sm">
@@ -2940,11 +3116,13 @@ export default function CustomerTable({
                   stroke="currentColor"
                   className="h-7 w-7"
                 >
+
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61Z"
                   />
+
                 </svg>
 
               </div>
@@ -2960,14 +3138,19 @@ export default function CustomerTable({
               </p>
 
             </div>
+
           )}
 
         </div>
 
         {/* Realtime-synchronized Drawer */}
+
         <CustomerDrawer
           customer={
             selectedCustomer
+          }
+          availableCategories={
+            availableCategories
           }
           onClose={() =>
             setSelectedCustomerId(
