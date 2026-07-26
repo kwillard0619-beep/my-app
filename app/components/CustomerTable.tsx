@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import CustomerDrawer from "./CustomerDrawer";
 import type { Customer } from "../types/customer";
 
@@ -21,6 +26,21 @@ type AdvancedFilter = {
   operator: FilterOperator;
   values: string[];
 };
+
+const monthOrder = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
 
 export default function CustomerTable({
   customers,
@@ -64,9 +84,6 @@ export default function CustomerTable({
   const [showQuickFilters, setShowQuickFilters] =
     useState(false);
 
-  const [quickCategories, setQuickCategories] =
-    useState<string[]>([]);
-
   const [quickGrantors, setQuickGrantors] =
     useState<string[]>([]);
 
@@ -77,6 +94,9 @@ export default function CustomerTable({
     useState("all");
 
   const [quickMonths, setQuickMonths] =
+    useState<string[]>([]);
+
+  const [quickCategories, setQuickCategories] =
     useState<string[]>([]);
 
   // --------------------------------------------------
@@ -92,19 +112,11 @@ export default function CustomerTable({
   const [nextFilterId, setNextFilterId] =
     useState(1);
 
-  // --------------------------------------------------
-  // Advanced Filter Dropdown State
-  // --------------------------------------------------
-
-  const [openAdvancedDropdown, setOpenAdvancedDropdown] =
-    useState<number | null>(null);
-
-  const advancedDropdownRef =
+  const advancedFilterRef =
     useRef<HTMLDivElement | null>(null);
 
   // --------------------------------------------------
-  // Close Advanced Dropdown When Clicking Anywhere
-  // Outside the Dropdown
+  // Close Advanced Filters When Clicking Elsewhere
   // --------------------------------------------------
 
   useEffect(() => {
@@ -112,19 +124,21 @@ export default function CustomerTable({
       event: MouseEvent
     ) => {
       if (
-        advancedDropdownRef.current &&
-        !advancedDropdownRef.current.contains(
+        advancedFilterRef.current &&
+        !advancedFilterRef.current.contains(
           event.target as Node
         )
       ) {
-        setOpenAdvancedDropdown(null);
+        setShowAdvancedFilters(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    if (showAdvancedFilters) {
+      document.addEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    }
 
     return () => {
       document.removeEventListener(
@@ -132,7 +146,7 @@ export default function CustomerTable({
         handleClickOutside
       );
     };
-  }, []);
+  }, [showAdvancedFilters]);
 
   // --------------------------------------------------
   // Dynamic Filter Options
@@ -153,6 +167,7 @@ export default function CustomerTable({
           .map((category) =>
             String(category).trim()
           )
+          .filter(Boolean)
       )
     ).sort((a, b) =>
       a.localeCompare(b)
@@ -175,53 +190,6 @@ export default function CustomerTable({
     );
   }, [customers]);
 
-  // --------------------------------------------------
-  // Maximum Grant Sorting
-  // Largest to Smallest
-  // --------------------------------------------------
-
-  const getNumericGrantValue = (
-    value: string | null | undefined
-  ) => {
-    if (!value) {
-      return 0;
-    }
-
-    const numericValue =
-      String(value)
-        .replace(/[^0-9.-]/g, "");
-
-    const parsed =
-      Number(numericValue);
-
-    return Number.isNaN(parsed)
-      ? 0
-      : parsed;
-  };
-
-  const availableMaximumGrants =
-    useMemo(() => {
-      return Array.from(
-        new Set(
-          customers
-            .map((customer) =>
-              String(
-                customer.maximum_grant ?? ""
-              ).trim()
-            )
-            .filter(Boolean)
-        )
-      ).sort(
-        (a, b) =>
-          getNumericGrantValue(b) -
-          getNumericGrantValue(a)
-      );
-    }, [customers]);
-
-  // --------------------------------------------------
-  // Available Months
-  // --------------------------------------------------
-
   const availableMonths = useMemo(() => {
     const months = customers
       .map((customer) =>
@@ -234,35 +202,71 @@ export default function CustomerTable({
     return Array.from(
       new Set(months)
     ).sort((a, b) => {
-      const monthOrder = [
-        "january",
-        "february",
-        "march",
-        "april",
-        "may",
-        "june",
-        "july",
-        "august",
-        "september",
-        "october",
-        "november",
-        "december",
-      ];
-
-      return (
+      const aIndex =
         monthOrder.indexOf(
           a.toLowerCase()
-        ) -
+        );
+
+      const bIndex =
         monthOrder.indexOf(
           b.toLowerCase()
-        )
-      );
+        );
+
+      if (
+        aIndex === -1 &&
+        bIndex === -1
+      ) {
+        return a.localeCompare(b);
+      }
+
+      if (aIndex === -1) {
+        return 1;
+      }
+
+      if (bIndex === -1) {
+        return -1;
+      }
+
+      return aIndex - bIndex;
     });
   }, [customers]);
 
-  // --------------------------------------------------
-  // Available Deadlines
-  // --------------------------------------------------
+  const availableMaximumGrants = useMemo(() => {
+    const values = Array.from(
+      new Set(
+        customers
+          .map((customer) =>
+            String(
+              customer.maximum_grant ?? ""
+            ).trim()
+          )
+          .filter(Boolean)
+      )
+    );
+
+    const parseAmount = (
+      value: string
+    ) => {
+      const cleaned = value
+        .replace(/[$,\s]/g, "")
+        .replace(/[^\d.-]/g, "");
+
+      const numericValue =
+        Number(cleaned);
+
+      return Number.isFinite(
+        numericValue
+      )
+        ? numericValue
+        : -1;
+    };
+
+    return values.sort(
+      (a, b) =>
+        parseAmount(b) -
+        parseAmount(a)
+    );
+  }, [customers]);
 
   const availableDeadlines = useMemo(() => {
     return Array.from(
@@ -272,80 +276,27 @@ export default function CustomerTable({
             (customer) =>
               customer.deadline
           )
-          .filter(Boolean)
+          .filter(
+            (
+              value
+            ): value is string =>
+              Boolean(value)
+          )
       )
-    ).sort((a, b) => {
-      return (
+    ).sort(
+      (a, b) =>
         new Date(
           `${a}T00:00:00`
         ).getTime() -
         new Date(
           `${b}T00:00:00`
         ).getTime()
-      );
-    });
+    );
   }, [customers]);
-
-  // --------------------------------------------------
-  // Limited Opportunity Options
-  // --------------------------------------------------
-
-  const availableLimitedOpportunity =
-    useMemo(() => {
-      return Array.from(
-        new Set(
-          customers
-            .map((customer) =>
-              String(
-                customer.limited_opportunity ??
-                  ""
-              ).trim()
-            )
-            .filter(Boolean)
-        )
-      ).sort((a, b) =>
-        a.localeCompare(b)
-      );
-    }, [customers]);
-
-  // --------------------------------------------------
-  // Fellowship Opportunity Options
-  // --------------------------------------------------
-
-  const availableFellowshipOpportunity =
-    useMemo(() => {
-      return Array.from(
-        new Set(
-          customers
-            .map((customer) =>
-              String(
-                customer.fellowship_opportunity ??
-                  ""
-              ).trim()
-            )
-            .filter(Boolean)
-        )
-      ).sort((a, b) =>
-        a.localeCompare(b)
-      );
-    }, [customers]);
 
   // --------------------------------------------------
   // Helper Functions
   // --------------------------------------------------
-
-  const clearQuickFilters = () => {
-    setQuickCategories([]);
-    setQuickGrantors([]);
-    setQuickMaximumGrants([]);
-    setQuickDeadline("all");
-    setQuickMonths([]);
-  };
-
-  const clearAdvancedFilters = () => {
-    setAdvancedFilters([]);
-    setOpenAdvancedDropdown(null);
-  };
 
   const toggleArrayValue = (
     value: string,
@@ -354,13 +305,6 @@ export default function CustomerTable({
       React.SetStateAction<string[]>
     >
   ) => {
-    // Any use of a Quick Filter clears Advanced Filters
-    if (
-      advancedFilters.length > 0
-    ) {
-      clearAdvancedFilters();
-    }
-
     setter((current) =>
       current.includes(value)
         ? current.filter(
@@ -395,10 +339,6 @@ export default function CustomerTable({
     );
   };
 
-  // --------------------------------------------------
-  // Quick Deadline Filter
-  // --------------------------------------------------
-
   const matchesQuickDeadline = (
     deadline: string | null
   ) => {
@@ -430,19 +370,22 @@ export default function CustomerTable({
     }
 
     if (
-      quickDeadline === "30"
+      quickDeadline ===
+      "30"
     ) {
       return daysUntil <= 30;
     }
 
     if (
-      quickDeadline === "60"
+      quickDeadline ===
+      "60"
     ) {
       return daysUntil <= 60;
     }
 
     if (
-      quickDeadline === "90"
+      quickDeadline ===
+      "90"
     ) {
       return daysUntil <= 90;
     }
@@ -450,11 +393,129 @@ export default function CustomerTable({
     return true;
   };
 
+  const parseMaximumGrant = (
+    value: string | null
+  ) => {
+    if (!value) {
+      return null;
+    }
+
+    const cleaned = value
+      .replace(/[$,\s]/g, "")
+      .replace(/[^\d.-]/g, "");
+
+    const number =
+      Number(cleaned);
+
+    return Number.isFinite(number)
+      ? number
+      : null;
+  };
+
+  const getBooleanValue = (
+    value:
+      | string
+      | boolean
+      | null
+      | undefined
+  ) => {
+    if (
+      typeof value ===
+      "boolean"
+    ) {
+      return value;
+    }
+
+    if (
+      typeof value !==
+      "string"
+    ) {
+      return false;
+    }
+
+    const normalized =
+      value
+        .trim()
+        .toLowerCase();
+
+    return (
+      normalized === "true" ||
+      normalized === "yes" ||
+      normalized === "y"
+    );
+  };
+
   // --------------------------------------------------
-  // Advanced Filter Values
+  // Advanced Filter Helpers
   // --------------------------------------------------
 
-  const getAdvancedFilterValues = (
+  const getAdvancedFilterOptions = (
+    field: FilterField
+  ): string[] => {
+    switch (field) {
+      case "grantor":
+        return availableGrantors;
+
+      case "maximum_grant":
+        return availableMaximumGrants;
+
+      case "deadline":
+        return availableDeadlines;
+
+      case "anticipated_deadline":
+        return availableMonths;
+
+      case "category":
+        return availableCategories;
+
+      case "limited_opportunity":
+        return [
+          "Yes",
+          "No",
+        ];
+
+      case "fellowship_opportunity":
+        return [
+          "Yes",
+          "No",
+        ];
+
+      default:
+        return [];
+    }
+  };
+
+  const getFilterLabel = (
+    field: FilterField
+  ) => {
+    switch (field) {
+      case "grantor":
+        return "Grantor";
+
+      case "maximum_grant":
+        return "Maximum Grant";
+
+      case "deadline":
+        return "Deadline";
+
+      case "anticipated_deadline":
+        return "Anticipated Deadline";
+
+      case "category":
+        return "Categories";
+
+      case "limited_opportunity":
+        return "Limited Opportunity";
+
+      case "fellowship_opportunity":
+        return "Fellowship Opportunity";
+
+      default:
+        return "";
+    }
+  };
+
+  const getFilterValues = (
     customer: Customer,
     field: FilterField
   ): string[] => {
@@ -466,7 +527,9 @@ export default function CustomerTable({
 
       case "maximum_grant":
         return customer.maximum_grant
-          ? [customer.maximum_grant]
+          ? [
+              customer.maximum_grant,
+            ]
           : [];
 
       case "deadline":
@@ -489,55 +552,58 @@ export default function CustomerTable({
           : [];
 
       case "limited_opportunity":
-        return customer.limited_opportunity
-          ? [
-              customer.limited_opportunity,
-            ]
-          : [];
+        return [
+          getBooleanValue(
+            customer.limited_opportunity
+          )
+            ? "Yes"
+            : "No",
+        ];
 
       case "fellowship_opportunity":
-        return customer.fellowship_opportunity
-          ? [
-              customer.fellowship_opportunity,
-            ]
-          : [];
+        return [
+          getBooleanValue(
+            customer.fellowship_opportunity
+          )
+            ? "Yes"
+            : "No",
+        ];
 
       default:
         return [];
     }
   };
 
-  // --------------------------------------------------
-  // Advanced Filter Matching
-  // --------------------------------------------------
+  const normalizeFilterValue = (
+    value: string
+  ) => {
+    return value
+      .trim()
+      .toLowerCase();
+  };
 
   const matchesAdvancedFilter = (
     customer: Customer,
     filter: AdvancedFilter
   ) => {
-    // If no values have been selected,
-    // do not filter the customer out.
     if (
-      filter.values.length === 0
+      filter.values.length ===
+      0
     ) {
       return true;
     }
 
     const customerValues =
-      getAdvancedFilterValues(
+      getFilterValues(
         customer,
         filter.field
-      ).map((value) =>
-        String(value)
-          .trim()
-          .toLowerCase()
+      ).map(
+        normalizeFilterValue
       );
 
     const selectedValues =
-      filter.values.map((value) =>
-        String(value)
-          .trim()
-          .toLowerCase()
+      filter.values.map(
+        normalizeFilterValue
       );
 
     const hasMatch =
@@ -558,21 +624,60 @@ export default function CustomerTable({
     return hasMatch;
   };
 
+  const toggleAdvancedValue = (
+    filterId: number,
+    value: string
+  ) => {
+    setAdvancedFilters(
+      (current) =>
+        current.map(
+          (filter) => {
+            if (
+              filter.id !==
+              filterId
+            ) {
+              return filter;
+            }
+
+            const alreadySelected =
+              filter.values.includes(
+                value
+              );
+
+            return {
+              ...filter,
+              values:
+                alreadySelected
+                  ? filter.values.filter(
+                      (
+                        selectedValue
+                      ) =>
+                        selectedValue !==
+                        value
+                    )
+                  : [
+                      ...filter.values,
+                      value,
+                    ],
+            };
+          }
+        )
+    );
+  };
+
   // --------------------------------------------------
   // Filtered Customers
   // --------------------------------------------------
 
   const filteredCustomers = useMemo(() => {
-    let result = customers.filter(
-      (customer) =>
-        customer.Category ===
-        "active"
-    );
+    let result =
+      customers.filter(
+        (customer) =>
+          customer.Category ===
+          "active"
+      );
 
-    // --------------------------------------------------
     // Search
-    // --------------------------------------------------
-
     if (search.trim()) {
       const searchTerm =
         search
@@ -608,34 +713,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
-    // Quick Category Filter
-    // --------------------------------------------------
-
-    if (
-      quickCategories.length > 0
-    ) {
-      result = result.filter(
-        (customer) =>
-          Array.isArray(
-            customer.rfp_categories
-          ) &&
-          quickCategories.some(
-            (selectedCategory) =>
-              customer.rfp_categories?.some(
-                (category) =>
-                  category
-                    .toLowerCase() ===
-                  selectedCategory.toLowerCase()
-              )
-          )
-      );
-    }
-
-    // --------------------------------------------------
     // Quick Grantor Filter
-    // --------------------------------------------------
-
     if (
       quickGrantors.length > 0
     ) {
@@ -648,12 +726,10 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Maximum Grant Filter
-    // --------------------------------------------------
-
     if (
-      quickMaximumGrants.length > 0
+      quickMaximumGrants.length >
+      0
     ) {
       result = result.filter(
         (customer) =>
@@ -664,10 +740,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Quick Deadline Filter
-    // --------------------------------------------------
-
     if (
       quickDeadline !== "all"
     ) {
@@ -679,10 +752,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
-    // Quick Month Filter
-    // --------------------------------------------------
-
+    // Quick Anticipated Deadline Filter
     if (
       quickMonths.length > 0
     ) {
@@ -697,12 +767,35 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
-    // Advanced Filters
-    // --------------------------------------------------
-
+    // Quick Category Filter
     if (
-      advancedFilters.length > 0
+      quickCategories.length >
+      0
+    ) {
+      result = result.filter(
+        (customer) =>
+          Array.isArray(
+            customer.rfp_categories
+          ) &&
+          quickCategories.some(
+            (selectedCategory) =>
+              customer.rfp_categories?.some(
+                (category) =>
+                  category
+                    .trim()
+                    .toLowerCase() ===
+                  selectedCategory
+                    .trim()
+                    .toLowerCase()
+              )
+          )
+      );
+    }
+
+    // Advanced Filters
+    if (
+      advancedFilters.length >
+      0
     ) {
       result = result.filter(
         (customer) =>
@@ -716,10 +809,7 @@ export default function CustomerTable({
       );
     }
 
-    // --------------------------------------------------
     // Sort
-    // --------------------------------------------------
-
     if (
       sortBy === "grantor"
     ) {
@@ -753,11 +843,11 @@ export default function CustomerTable({
     customers,
     search,
     sortBy,
-    quickCategories,
     quickGrantors,
     quickMaximumGrants,
     quickDeadline,
     quickMonths,
+    quickCategories,
     advancedFilters,
   ]);
 
@@ -821,52 +911,69 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Category Colors
-  // Each category receives a unique HSL color
-  // based on its position in the complete category list.
+  // Unique Category Colors
   // --------------------------------------------------
+
+  const categoryColorPalette = [
+    "bg-blue-100 text-blue-800 border-blue-300",
+    "bg-purple-100 text-purple-800 border-purple-300",
+    "bg-emerald-100 text-emerald-800 border-emerald-300",
+    "bg-amber-100 text-amber-800 border-amber-300",
+    "bg-rose-100 text-rose-800 border-rose-300",
+    "bg-cyan-100 text-cyan-800 border-cyan-300",
+    "bg-indigo-100 text-indigo-800 border-indigo-300",
+    "bg-orange-100 text-orange-800 border-orange-300",
+    "bg-teal-100 text-teal-800 border-teal-300",
+    "bg-pink-100 text-pink-800 border-pink-300",
+    "bg-lime-100 text-lime-800 border-lime-300",
+    "bg-sky-100 text-sky-800 border-sky-300",
+    "bg-violet-100 text-violet-800 border-violet-300",
+    "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300",
+    "bg-yellow-100 text-yellow-800 border-yellow-300",
+    "bg-stone-100 text-stone-800 border-stone-300",
+    "bg-slate-200 text-slate-800 border-slate-300",
+    "bg-zinc-100 text-zinc-800 border-zinc-300",
+    "bg-red-100 text-red-800 border-red-300",
+    "bg-green-100 text-green-800 border-green-300",
+  ];
 
   const categoryColorMap =
     useMemo(() => {
-      const map: Record<
-        string,
-        string
-      > = {};
+      const map =
+        new Map<
+          string,
+          string
+        >();
 
       availableCategories.forEach(
-        (category, index) => {
-          const hue =
-            Math.round(
-              (index * 360) /
-                Math.max(
-                  availableCategories.length,
-                  1
-                )
-            );
-
-          map[category] =
-            `hsl(${hue}, 70%, 92%)`;
+        (
+          category,
+          index
+        ) => {
+          map.set(
+            category,
+            categoryColorPalette[
+              index %
+                categoryColorPalette.length
+            ]
+          );
         }
       );
 
       return map;
-    }, [availableCategories]);
+    }, [
+      availableCategories,
+    ]);
 
   const getCategoryStyle = (
     category: string
   ) => {
-    const backgroundColor =
-      categoryColorMap[
+    return (
+      categoryColorMap.get(
         category
-      ] ||
-      "hsl(210, 20%, 92%)";
-
-    return {
-      backgroundColor,
-      color: "hsl(210, 25%, 30%)",
-      borderColor:
-        "hsl(210, 20%, 75%)",
-    };
+      ) ||
+      "bg-slate-100 text-slate-700 border-slate-300"
+    );
   };
 
   // --------------------------------------------------
@@ -931,19 +1038,39 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Advanced Filter Functions
+  // Filter Functions
   // --------------------------------------------------
 
-  const addAdvancedFilter = () => {
-    // Adding an Advanced Filter clears Quick Filters
+  const clearQuickFilters = () => {
+    setQuickGrantors([]);
+    setQuickMaximumGrants([]);
+    setQuickDeadline("all");
+    setQuickMonths([]);
+    setQuickCategories([]);
+  };
+
+  const clearAdvancedFilters = () => {
+    setAdvancedFilters([]);
+  };
+
+  const clearAllFilters = () => {
     clearQuickFilters();
+    clearAdvancedFilters();
+  };
+
+  const addAdvancedFilter = () => {
+    // Adding an advanced filter clears all quick filters
+    clearQuickFilters();
+
+    setShowQuickFilters(false);
+    setShowAdvancedFilters(true);
 
     setAdvancedFilters(
       (current) => [
         ...current,
         {
           id: nextFilterId,
-          field: "category",
+          field: "grantor",
           operator: "is",
           values: [],
         },
@@ -960,6 +1087,9 @@ export default function CustomerTable({
     id: number,
     updates: Partial<AdvancedFilter>
   ) => {
+    // Any advanced filter change clears quick filters
+    clearQuickFilters();
+
     setAdvancedFilters(
       (current) =>
         current.map(
@@ -984,129 +1114,45 @@ export default function CustomerTable({
             filter.id !== id
         )
     );
-
-    setOpenAdvancedDropdown(
-      null
-    );
   };
 
-  const toggleAdvancedValue = (
-    filterId: number,
-    value: string
-  ) => {
-    setAdvancedFilters(
-      (current) =>
-        current.map(
-          (filter) => {
-            if (
-              filter.id !==
-              filterId
-            ) {
-              return filter;
-            }
-
-            const alreadySelected =
-              filter.values.includes(
-                value
-              );
-
-            return {
-              ...filter,
-              values:
-                alreadySelected
-                  ? filter.values.filter(
-                      (item) =>
-                        item !== value
-                    )
-                  : [
-                      ...filter.values,
-                      value,
-                    ],
-            };
-          }
-        )
-    );
-  };
-
-  const getAdvancedOptions = (
-    field: FilterField
-  ) => {
-    switch (field) {
-      case "grantor":
-        return availableGrantors;
-
-      case "maximum_grant":
-        return availableMaximumGrants;
-
-      case "deadline":
-        return availableDeadlines;
-
-      case "anticipated_deadline":
-        return availableMonths;
-
-      case "category":
-        return availableCategories;
-
-      case "limited_opportunity":
-        return availableLimitedOpportunity;
-
-      case "fellowship_opportunity":
-        return availableFellowshipOpportunity;
-
-      default:
-        return [];
+  const activateQuickFilter = () => {
+    // Using quick filters clears advanced filters
+    if (
+      advancedFilters.length >
+      0
+    ) {
+      setAdvancedFilters([]);
     }
-  };
 
-  const getAdvancedFieldLabel = (
-    field: FilterField
-  ) => {
-    switch (field) {
-      case "grantor":
-        return "Grantor";
-
-      case "maximum_grant":
-        return "Maximum Grant";
-
-      case "deadline":
-        return "Deadline";
-
-      case "anticipated_deadline":
-        return "Anticipated Deadline";
-
-      case "category":
-        return "Categories";
-
-      case "limited_opportunity":
-        return "Limited Opportunity";
-
-      case "fellowship_opportunity":
-        return "Fellowship Opportunity";
-
-      default:
-        return "";
-    }
-  };
-
-  const clearAllFilters = () => {
-    clearQuickFilters();
-    clearAdvancedFilters();
+    setShowAdvancedFilters(false);
+    setShowQuickFilters(true);
   };
 
   const activeFilterCount =
-    quickCategories.length +
     quickGrantors.length +
     quickMaximumGrants.length +
     (quickDeadline !== "all"
       ? 1
       : 0) +
     quickMonths.length +
+    quickCategories.length +
     advancedFilters.reduce(
-      (total, filter) =>
+      (
+        total,
+        filter
+      ) =>
         total +
-        filter.values.length,
+        (filter.values.length >
+        0
+          ? 1
+          : 0),
       0
     );
+
+  // --------------------------------------------------
+  // Render
+  // --------------------------------------------------
 
   return (
     <div className="min-h-screen bg-slate-100 py-2">
@@ -1115,6 +1161,7 @@ export default function CustomerTable({
         {/* Dashboard Header */}
         <div className="relative overflow-hidden bg-[#AFC4D4] rounded-2xl shadow-lg border border-[#9FB7C8] p-8 mb-6 text-slate-800">
 
+          {/* Accent Line */}
           <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-[#7E9FB5] via-[#91AFC2] to-[#AFC4D4]" />
 
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
@@ -1204,12 +1251,17 @@ export default function CustomerTable({
               {/* Quick Filter Button */}
               <button
                 type="button"
-                onClick={() =>
-                  setShowQuickFilters(
-                    (current) =>
-                      !current
-                  )
-                }
+                onClick={() => {
+                  if (
+                    !showQuickFilters
+                  ) {
+                    activateQuickFilter();
+                  } else {
+                    setShowQuickFilters(
+                      false
+                    );
+                  }
+                }}
                 className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
               >
                 Quick Filter
@@ -1223,18 +1275,42 @@ export default function CustomerTable({
               </button>
 
               {/* Advanced Filter Button */}
-              <button
-                type="button"
-                onClick={() =>
-                  setShowAdvancedFilters(
-                    (current) =>
-                      !current
-                  )
+              <div
+                ref={
+                  advancedFilterRef
                 }
-                className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+                className="relative"
               >
-                Advanced Filters
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      !showAdvancedFilters
+                    ) {
+                      setAdvancedFilters(
+                        []
+                      );
+
+                      clearQuickFilters();
+
+                      setShowQuickFilters(
+                        false
+                      );
+
+                      setShowAdvancedFilters(
+                        true
+                      );
+                    } else {
+                      setShowAdvancedFilters(
+                        false
+                      );
+                    }
+                  }}
+                  className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+                >
+                  Advanced Filters
+                </button>
+              </div>
 
               {/* Sort */}
               <div className="flex items-center gap-3">
@@ -1278,7 +1354,9 @@ export default function CustomerTable({
                       {availableGrantors.map(
                         (grantor) => (
                           <label
-                            key={grantor}
+                            key={
+                              grantor
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -1313,28 +1391,34 @@ export default function CustomerTable({
 
                     <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
                       {availableMaximumGrants.map(
-                        (grant) => (
+                        (maximumGrant) => (
                           <label
-                            key={grant}
+                            key={
+                              maximumGrant
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
                               type="checkbox"
                               checked={quickMaximumGrants.includes(
-                                grant
+                                maximumGrant
                               )}
-                              onChange={() =>
+                              onChange={() => {
+                                clearAdvancedFilters();
+
                                 toggleArrayValue(
-                                  grant,
+                                  maximumGrant,
                                   quickMaximumGrants,
                                   setQuickMaximumGrants
-                                )
-                              }
+                                );
+                              }}
                               className="h-4 w-4 rounded border-slate-300"
                             />
 
                             <span>
-                              {grant}
+                              {
+                                maximumGrant
+                              }
                             </span>
                           </label>
                         )
@@ -1349,7 +1433,9 @@ export default function CustomerTable({
                     </label>
 
                     <select
-                      value={quickDeadline}
+                      value={
+                        quickDeadline
+                      }
                       onChange={(e) => {
                         clearAdvancedFilters();
 
@@ -1391,7 +1477,9 @@ export default function CustomerTable({
                       {availableMonths.map(
                         (month) => (
                           <label
-                            key={month}
+                            key={
+                              month
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -1399,13 +1487,15 @@ export default function CustomerTable({
                               checked={quickMonths.includes(
                                 month
                               )}
-                              onChange={() =>
+                              onChange={() => {
+                                clearAdvancedFilters();
+
                                 toggleArrayValue(
                                   month,
                                   quickMonths,
                                   setQuickMonths
-                                )
-                              }
+                                );
+                              }}
                               className="h-4 w-4 rounded border-slate-300"
                             />
 
@@ -1428,7 +1518,9 @@ export default function CustomerTable({
                       {availableCategories.map(
                         (category) => (
                           <label
-                            key={category}
+                            key={
+                              category
+                            }
                             className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <input
@@ -1436,13 +1528,15 @@ export default function CustomerTable({
                               checked={quickCategories.includes(
                                 category
                               )}
-                              onChange={() =>
+                              onChange={() => {
+                                clearAdvancedFilters();
+
                                 toggleArrayValue(
                                   category,
                                   quickCategories,
                                   setQuickCategories
-                                )
-                              }
+                                );
+                              }}
                               className="h-4 w-4 rounded border-slate-300"
                             />
 
@@ -1472,7 +1566,12 @@ export default function CustomerTable({
 
             {/* Advanced Filter Panel */}
             {showAdvancedFilters && (
-              <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+              <div
+                ref={
+                  advancedFilterRef
+                }
+                className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm"
+              >
 
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -1481,7 +1580,9 @@ export default function CustomerTable({
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-600">
-                      Create one or more rules to narrow down your opportunities.
+                      Build custom filters using
+                      multiple values with
+                      "is" or "is not."
                     </p>
                   </div>
 
@@ -1504,217 +1605,255 @@ export default function CustomerTable({
                     </p>
 
                     <p className="mt-1 text-xs text-slate-400">
-                      Click "Add Filter" to create your first rule.
+                      Click "Add Filter" to create
+                      your first rule.
                     </p>
                   </div>
                 ) : (
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-5 space-y-4">
 
                     {advancedFilters.map(
                       (
                         filter
-                      ) => (
-                        <div
-                          key={
-                            filter.id
-                          }
-                          className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-start"
-                        >
+                      ) => {
+                        const options =
+                          getAdvancedFilterOptions(
+                            filter.field
+                          );
 
-                          {/* Field */}
-                          <select
-                            value={
-                              filter.field
+                        return (
+                          <div
+                            key={
+                              filter.id
                             }
-                            onChange={(
-                              e
-                            ) => {
-                              updateAdvancedFilter(
-                                filter.id,
-                                {
-                                  field:
-                                    e.target
-                                      .value as FilterField,
-                                  values:
-                                    [],
-                                }
-                              );
-
-                              setOpenAdvancedDropdown(
-                                null
-                              );
-                            }}
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                            className="rounded-xl border border-slate-200 bg-white p-4"
                           >
-                            <option value="grantor">
-                              Grantor
-                            </option>
 
-                            <option value="maximum_grant">
-                              Maximum Grant
-                            </option>
+                            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
 
-                            <option value="deadline">
-                              Deadline
-                            </option>
-
-                            <option value="anticipated_deadline">
-                              Anticipated Deadline
-                            </option>
-
-                            <option value="category">
-                              Categories
-                            </option>
-
-                            <option value="limited_opportunity">
-                              Limited Opportunity
-                            </option>
-
-                            <option value="fellowship_opportunity">
-                              Fellowship Opportunity
-                            </option>
-                          </select>
-
-                          {/* Operator */}
-                          <select
-                            value={
-                              filter.operator
-                            }
-                            onChange={(
-                              e
-                            ) =>
-                              updateAdvancedFilter(
-                                filter.id,
-                                {
-                                  operator:
+                              {/* Field */}
+                              <select
+                                value={
+                                  filter.field
+                                }
+                                onChange={(
+                                  e
+                                ) => {
+                                  const field =
                                     e
                                       .target
-                                      .value as FilterOperator,
+                                      .value as FilterField;
+
+                                  clearQuickFilters();
+
+                                  updateAdvancedFilter(
+                                    filter.id,
+                                    {
+                                      field,
+                                      values:
+                                        [],
+                                    }
+                                  );
+                                }}
+                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                              >
+                                <option value="grantor">
+                                  Grantor
+                                </option>
+
+                                <option value="maximum_grant">
+                                  Maximum Grant
+                                </option>
+
+                                <option value="deadline">
+                                  Deadline
+                                </option>
+
+                                <option value="anticipated_deadline">
+                                  Anticipated Deadline
+                                </option>
+
+                                <option value="category">
+                                  Categories
+                                </option>
+
+                                <option value="limited_opportunity">
+                                  Limited Opportunity
+                                </option>
+
+                                <option value="fellowship_opportunity">
+                                  Fellowship Opportunity
+                                </option>
+                              </select>
+
+                              {/* Operator */}
+                              <select
+                                value={
+                                  filter.operator
                                 }
-                              )
-                            }
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
-                          >
-                            <option value="is">
-                              is
-                            </option>
+                                onChange={(
+                                  e
+                                ) => {
+                                  clearQuickFilters();
 
-                            <option value="is_not">
-                              is not
-                            </option>
-                          </select>
+                                  updateAdvancedFilter(
+                                    filter.id,
+                                    {
+                                      operator:
+                                        e
+                                          .target
+                                          .value as FilterOperator,
+                                    }
+                                  );
+                                }}
+                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                              >
+                                <option value="is">
+                                  is
+                                </option>
 
-                          {/* Multi-Select Dropdown */}
-                          <div
-                            ref={
-                              openAdvancedDropdown ===
-                              filter.id
-                                ? advancedDropdownRef
-                                : null
-                            }
-                            className="relative flex-1"
-                          >
+                                <option value="is_not">
+                                  is not
+                                </option>
+                              </select>
 
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setOpenAdvancedDropdown(
-                                  (
-                                    current
-                                  ) =>
-                                    current ===
+                              {/* Remove */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeAdvancedFilter(
                                     filter.id
-                                      ? null
-                                      : filter.id
-                                )
-                              }
-                              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700"
-                            >
-                              {filter.values.length >
-                              0
-                                ? `${filter.values.length} selected`
-                                : "Select options..."}
-                            </button>
+                                  )
+                                }
+                                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700 lg:ml-auto"
+                              >
+                                Remove
+                              </button>
+                            </div>
 
-                            {openAdvancedDropdown ===
-                              filter.id && (
-                              <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                            {/* Multi-select Options */}
+                            <div className="mt-4">
 
-                                {getAdvancedOptions(
+                              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                Select{" "}
+                                {getFilterLabel(
                                   filter.field
-                                ).length ===
+                                )}
+                              </div>
+
+                              <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-3">
+
+                                {options.length >
                                 0 ? (
-                                  <div className="px-3 py-3 text-sm text-slate-500">
-                                    No options available.
+                                  <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2 xl:grid-cols-3">
+
+                                    {options.map(
+                                      (
+                                        option
+                                      ) => (
+                                        <label
+                                          key={
+                                            option
+                                          }
+                                          className="flex cursor-pointer items-center gap-3 rounded-lg bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={
+                                              filter.values.includes(
+                                                option
+                                              )
+                                            }
+                                            onChange={() =>
+                                              toggleAdvancedValue(
+                                                filter.id,
+                                                option
+                                              )
+                                            }
+                                            className="h-4 w-4 rounded border-slate-300"
+                                          />
+
+                                          <span>
+                                            {filter.field ===
+                                              "deadline"
+                                              ? new Date(
+                                                  `${option}T00:00:00`
+                                                ).toLocaleDateString(
+                                                  "en-US",
+                                                  {
+                                                    year: "numeric",
+                                                    month:
+                                                      "short",
+                                                    day: "numeric",
+                                                  }
+                                                )
+                                              : option}
+                                          </span>
+                                        </label>
+                                      )
+                                    )}
+
                                   </div>
                                 ) : (
-                                  getAdvancedOptions(
-                                    filter.field
-                                  ).map(
-                                    (
-                                      option
-                                    ) => (
-                                      <label
-                                        key={
-                                          option
-                                        }
-                                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          checked={filter.values.includes(
-                                            option
-                                          )}
-                                          onChange={() =>
-                                            toggleAdvancedValue(
-                                              filter.id,
-                                              option
-                                            )
-                                          }
-                                          className="h-4 w-4 rounded border-slate-300"
-                                        />
-
-                                        <span>
-                                          {filter.field ===
-                                          "deadline"
-                                            ? new Date(
-                                                `${option}T00:00:00`
-                                              ).toLocaleDateString(
-                                                "en-US",
-                                                {
-                                                  year: "numeric",
-                                                  month:
-                                                    "short",
-                                                  day: "numeric",
-                                                }
-                                              )
-                                            : option}
-                                        </span>
-                                      </label>
-                                    )
-                                  )
+                                  <div className="py-5 text-center text-sm text-slate-500">
+                                    No options available.
+                                  </div>
                                 )}
 
                               </div>
-                            )}
+
+                              {filter.values.length >
+                                0 && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {filter.values.map(
+                                    (
+                                      value
+                                    ) => (
+                                      <span
+                                        key={
+                                          value
+                                        }
+                                        className="inline-flex items-center rounded-full border border-[#91AFC2] bg-[#E7EFF4] px-3 py-1.5 text-xs font-semibold text-slate-700"
+                                      >
+                                        {filter.field ===
+                                        "deadline"
+                                          ? new Date(
+                                              `${value}T00:00:00`
+                                            ).toLocaleDateString(
+                                              "en-US",
+                                              {
+                                                year: "numeric",
+                                                month:
+                                                  "short",
+                                                day: "numeric",
+                                              }
+                                            )
+                                          : value}
+
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            toggleAdvancedValue(
+                                              filter.id,
+                                              value
+                                            )
+                                          }
+                                          className="ml-2 text-slate-500 hover:text-slate-900"
+                                          aria-label={`Remove ${value}`}
+                                        >
+                                          ×
+                                        </button>
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              )}
+
+                            </div>
 
                           </div>
-
-                          {/* Remove */}
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeAdvancedFilter(
-                                filter.id
-                              )
-                            }
-                            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
-
-                        </div>
-                      )
+                        );
+                      }
                     )}
 
                   </div>
@@ -1731,7 +1870,6 @@ export default function CustomerTable({
                     Clear Advanced Filters
                   </button>
                 </div>
-
               </div>
             )}
 
@@ -1743,26 +1881,6 @@ export default function CustomerTable({
                 <span className="text-sm font-semibold text-slate-700">
                   Active filters:
                 </span>
-
-                {quickCategories.map(
-                  (category) => (
-                    <button
-                      key={`category-${category}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          category,
-                          quickCategories,
-                          setQuickCategories
-                        )
-                      }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Category:{" "}
-                      {category} ×
-                    </button>
-                  )
-                )}
 
                 {quickGrantors.map(
                   (grantor) => (
@@ -1785,13 +1903,15 @@ export default function CustomerTable({
                 )}
 
                 {quickMaximumGrants.map(
-                  (grant) => (
+                  (
+                    maximumGrant
+                  ) => (
                     <button
-                      key={`grant-${grant}`}
+                      key={`maximum-grant-${maximumGrant}`}
                       type="button"
                       onClick={() =>
                         toggleArrayValue(
-                          grant,
+                          maximumGrant,
                           quickMaximumGrants,
                           setQuickMaximumGrants
                         )
@@ -1799,7 +1919,7 @@ export default function CustomerTable({
                       className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                     >
                       Maximum Grant:{" "}
-                      {grant} ×
+                      {maximumGrant} ×
                     </button>
                   )
                 )}
@@ -1844,6 +1964,26 @@ export default function CustomerTable({
                   )
                 )}
 
+                {quickCategories.map(
+                  (category) => (
+                    <button
+                      key={`category-${category}`}
+                      type="button"
+                      onClick={() =>
+                        toggleArrayValue(
+                          category,
+                          quickCategories,
+                          setQuickCategories
+                        )
+                      }
+                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                    >
+                      Category:{" "}
+                      {category} ×
+                    </button>
+                  )
+                )}
+
                 {advancedFilters.map(
                   (filter) =>
                     filter.values.length >
@@ -1858,7 +1998,7 @@ export default function CustomerTable({
                         }
                         className="rounded-full border border-[#91AFC2] bg-[#E7EFF4] px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-[#DCE8EF]"
                       >
-                        {getAdvancedFieldLabel(
+                        {getFilterLabel(
                           filter.field
                         )}{" "}
                         {filter.operator ===
@@ -1883,7 +2023,6 @@ export default function CustomerTable({
                 >
                   Clear all
                 </button>
-
               </div>
             )}
 
@@ -1903,7 +2042,6 @@ export default function CustomerTable({
                 matching opportunities
               </div>
             )}
-
           </div>
         </div>
 
@@ -2051,6 +2189,7 @@ export default function CustomerTable({
                                     Past deadline
                                   </span>
                                 )}
+
                               </>
                             ) : (
                               <span
@@ -2110,34 +2249,22 @@ export default function CustomerTable({
                               customer.rfp_categories.map(
                                 (
                                   category
-                                ) => {
+                                ) => (
 
-                                  const categoryStyle =
-                                    getCategoryStyle(
+                                  <span
+                                    key={
                                       category
-                                    );
+                                    }
+                                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                                      category
+                                    )}`}
+                                  >
+                                    {
+                                      category
+                                    }
+                                  </span>
 
-                                  return (
-                                    <span
-                                      key={
-                                        category
-                                      }
-                                      style={{
-                                        backgroundColor:
-                                          categoryStyle.backgroundColor,
-                                        color:
-                                          categoryStyle.color,
-                                        borderColor:
-                                          categoryStyle.borderColor,
-                                      }}
-                                      className="inline-flex rounded-full border px-3 py-1 text-xs font-semibold"
-                                    >
-                                      {
-                                        category
-                                      }
-                                    </span>
-                                  );
-                                }
+                                )
                               )
 
                             ) : (
