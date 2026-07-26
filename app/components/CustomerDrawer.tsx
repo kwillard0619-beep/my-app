@@ -5,15 +5,76 @@ import type { Customer } from "../types/customer";
 type Props = {
   customer: Customer | null;
   availableCategories?: string[];
+  navigationCustomers?: Customer[];
+  onNavigate?: (customerId: number) => void;
   onClose: () => void;
 };
 
 export default function CustomerDrawer({
   customer,
   availableCategories = [],
+  navigationCustomers = [],
+  onNavigate,
   onClose,
 }: Props) {
   if (!customer) return null;
+
+  // --------------------------------------------------
+  // Navigation
+  // --------------------------------------------------
+
+  const currentIndex = navigationCustomers.findIndex(
+    (item) =>
+      String(item.id) === String(customer.id)
+  );
+
+  const hasPrevious =
+    currentIndex > 0;
+
+  const hasNext =
+    currentIndex !== -1 &&
+    currentIndex <
+      navigationCustomers.length - 1;
+
+  const handlePrevious = () => {
+    if (
+      !hasPrevious ||
+      !onNavigate
+    ) {
+      return;
+    }
+
+    const previousCustomer =
+      navigationCustomers[
+        currentIndex - 1
+      ];
+
+    if (previousCustomer) {
+      onNavigate(
+        Number(previousCustomer.id)
+      );
+    }
+  };
+
+  const handleNext = () => {
+    if (
+      !hasNext ||
+      !onNavigate
+    ) {
+      return;
+    }
+
+    const nextCustomer =
+      navigationCustomers[
+        currentIndex + 1
+      ];
+
+    if (nextCustomer) {
+      onNavigate(
+        Number(nextCustomer.id)
+      );
+    }
+  };
 
   // --------------------------------------------------
   // Format Deadline
@@ -149,8 +210,6 @@ export default function CustomerDrawer({
 
   // --------------------------------------------------
   // Category Colors
-  // Uses the same category ordering as the
-  // availableCategories list from CustomerTable
   // --------------------------------------------------
 
   const getCategoryStyle = (
@@ -182,8 +241,6 @@ export default function CustomerDrawer({
       ];
     }
 
-    // Fallback for categories that are not
-    // included in availableCategories
     let hash = 0;
 
     for (
@@ -208,7 +265,7 @@ export default function CustomerDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex justify-end bg-black/40"
       onClick={onClose}
     >
       {/* Drawer */}
@@ -239,29 +296,93 @@ export default function CustomerDrawer({
               </h2>
             </div>
 
-            {/* Close Button */}
+            {/* Navigation + Close Buttons */}
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close opportunity details"
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition hover:bg-white hover:text-slate-900"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.8}
-                stroke="currentColor"
-                className="h-6 w-6"
+            <div className="flex flex-shrink-0 items-center gap-2">
+              {/* Previous Opportunity */}
+
+              <button
+                type="button"
+                onClick={handlePrevious}
+                disabled={!hasPrevious}
+                aria-label="Previous opportunity"
+                title="Previous opportunity"
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition ${
+                  hasPrevious
+                    ? "hover:bg-white hover:text-slate-900"
+                    : "cursor-not-allowed opacity-30"
+                }`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.8}
+                  stroke="currentColor"
+                  className="h-6 w-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m6 15 6-6 6 6"
+                  />
+                </svg>
+              </button>
+
+              {/* Next Opportunity */}
+
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={!hasNext}
+                aria-label="Next opportunity"
+                title="Next opportunity"
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition ${
+                  hasNext
+                    ? "hover:bg-white hover:text-slate-900"
+                    : "cursor-not-allowed opacity-30"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.8}
+                  stroke="currentColor"
+                  className="h-6 w-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </button>
+
+              {/* Close Button */}
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close opportunity details"
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition hover:bg-white hover:text-slate-900"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.8}
+                  stroke="currentColor"
+                  className="h-6 w-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
