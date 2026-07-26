@@ -5,10 +5,13 @@ import CustomerDrawer from "./CustomerDrawer";
 import type { Customer } from "../types/customer";
 
 type FilterField =
-  | "category"
   | "grantor"
+  | "maximum_grant"
   | "deadline"
-  | "anticipated_deadline";
+  | "anticipated_deadline"
+  | "category"
+  | "limited_opportunity"
+  | "fellowship_opportunity";
 
 type FilterOperator = "is" | "is_not";
 
@@ -17,7 +20,7 @@ type AdvancedFilter = {
   connector: "AND" | "AND NOT";
   field: FilterField;
   operator: FilterOperator;
-  value: string;
+  values: string[];
 };
 
 export default function CustomerTable({
@@ -66,6 +69,9 @@ export default function CustomerTable({
     useState<string[]>([]);
 
   const [quickGrantors, setQuickGrantors] =
+    useState<string[]>([]);
+
+  const [quickMaximumAmounts, setQuickMaximumAmounts] =
     useState<string[]>([]);
 
   const [quickDeadline, setQuickDeadline] =
@@ -128,6 +134,22 @@ export default function CustomerTable({
     );
   }, [customers]);
 
+  const availableMaximumAmounts = useMemo(() => {
+    return Array.from(
+      new Set(
+        customers
+          .map((customer) =>
+            String(
+              customer.maximum_grant ?? ""
+            ).trim()
+          )
+          .filter(Boolean)
+      )
+    ).sort((a, b) =>
+      a.localeCompare(b)
+    );
+  }, [customers]);
+
   const availableMonths = useMemo(() => {
     const months = customers
       .map((customer) =>
@@ -165,6 +187,58 @@ export default function CustomerTable({
       );
     });
   }, [customers]);
+
+  const availableDeadlines = useMemo(() => {
+    return Array.from(
+      new Set(
+        customers
+          .map((customer) =>
+            customer.deadline
+              ? String(
+                  customer.deadline
+                ).trim()
+              : ""
+          )
+          .filter(Boolean)
+      )
+    ).sort();
+  }, [customers]);
+
+  const availableLimitedOpportunities =
+    useMemo(() => {
+      return Array.from(
+        new Set(
+          customers
+            .map((customer) =>
+              String(
+                customer.limited_opportunity ??
+                  ""
+              ).trim()
+            )
+            .filter(Boolean)
+        )
+      ).sort((a, b) =>
+        a.localeCompare(b)
+      );
+    }, [customers]);
+
+  const availableFellowshipOpportunities =
+    useMemo(() => {
+      return Array.from(
+        new Set(
+          customers
+            .map((customer) =>
+              String(
+                customer.fellowship_opportunity ??
+                  ""
+              ).trim()
+            )
+            .filter(Boolean)
+        )
+      ).sort((a, b) =>
+        a.localeCompare(b)
+      );
+    }, [customers]);
 
   // --------------------------------------------------
   // Helper Functions
@@ -266,35 +340,125 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
+  // Clear Quick Filters
+  // --------------------------------------------------
+
+  const clearQuickFilters = () => {
+    setQuickCategories([]);
+    setQuickGrantors([]);
+    setQuickMaximumAmounts([]);
+    setQuickDeadline("all");
+    setQuickMonths([]);
+  };
+
+  // --------------------------------------------------
+  // Clear Advanced Filters
+  // --------------------------------------------------
+
+  const clearAdvancedFilters = () => {
+    setAdvancedFilters([]);
+  };
+
+  // --------------------------------------------------
+  // Activate Quick Filter Mode
+  // --------------------------------------------------
+
+  const activateQuickFilterMode = () => {
+    if (
+      advancedFilters.length > 0
+    ) {
+      clearAdvancedFilters();
+    }
+  };
+
+  // --------------------------------------------------
+  // Activate Advanced Filter Mode
+  // --------------------------------------------------
+
+  const activateAdvancedFilterMode = () => {
+    const hasQuickFilters =
+      quickCategories.length > 0 ||
+      quickGrantors.length > 0 ||
+      quickMaximumAmounts.length > 0 ||
+      quickDeadline !== "all" ||
+      quickMonths.length > 0;
+
+    if (hasQuickFilters) {
+      clearQuickFilters();
+    }
+  };
+
+  // --------------------------------------------------
   // Advanced Filter Matching
   // --------------------------------------------------
 
-  const getFilterValue = (
+  const getFilterValues = (
     customer: Customer,
     field: FilterField
-  ) => {
+  ): string[] => {
     switch (field) {
       case "category":
         return Array.isArray(
           customer.rfp_categories
         )
           ? customer.rfp_categories
+              .filter(Boolean)
+              .map((value) =>
+                String(value).trim()
+              )
           : [];
 
       case "grantor":
         return customer.grantor
-          ? [customer.grantor]
+          ? [
+              String(
+                customer.grantor
+              ).trim(),
+            ]
+          : [];
+
+      case "maximum_grant":
+        return customer.maximum_grant
+          ? [
+              String(
+                customer.maximum_grant
+              ).trim(),
+            ]
           : [];
 
       case "deadline":
         return customer.deadline
-          ? [customer.deadline]
+          ? [
+              String(
+                customer.deadline
+              ).trim(),
+            ]
           : [];
 
       case "anticipated_deadline":
         return customer.anticipated_deadline
           ? [
-              customer.anticipated_deadline,
+              String(
+                customer.anticipated_deadline
+              ).trim(),
+            ]
+          : [];
+
+      case "limited_opportunity":
+        return customer.limited_opportunity
+          ? [
+              String(
+                customer.limited_opportunity
+              ).trim(),
+            ]
+          : [];
+
+      case "fellowship_opportunity":
+        return customer.fellowship_opportunity
+          ? [
+              String(
+                customer.fellowship_opportunity
+              ).trim(),
             ]
           : [];
 
@@ -307,23 +471,34 @@ export default function CustomerTable({
     customer: Customer,
     filter: AdvancedFilter
   ) => {
-    const values = getFilterValue(
-      customer,
-      filter.field
-    );
+    const customerValues =
+      getFilterValues(
+        customer,
+        filter.field
+      ).map((value) =>
+        value.toLowerCase()
+      );
 
-    const normalizedFilterValue =
-      filter.value
-        .trim()
-        .toLowerCase();
-
-    const hasMatch = values.some(
-      (value) =>
-        String(value)
+    const selectedValues =
+      filter.values.map((value) =>
+        value
           .trim()
-          .toLowerCase() ===
-        normalizedFilterValue
-    );
+          .toLowerCase()
+      );
+
+    // Multi-select behavior:
+    // "is" = customer must match at least
+    // one selected value.
+    //
+    // "is not" = customer cannot match
+    // any selected value.
+    const hasMatch =
+      selectedValues.some(
+        (selectedValue) =>
+          customerValues.includes(
+            selectedValue
+          )
+      );
 
     if (
       filter.operator ===
@@ -346,7 +521,10 @@ export default function CustomerTable({
         "active"
     );
 
+    // --------------------------------------------------
     // Search
+    // --------------------------------------------------
+
     if (search.trim()) {
       const searchTerm =
         search
@@ -382,7 +560,10 @@ export default function CustomerTable({
       );
     }
 
+    // --------------------------------------------------
     // Quick Category Filter
+    // --------------------------------------------------
+
     if (
       quickCategories.length > 0
     ) {
@@ -403,7 +584,10 @@ export default function CustomerTable({
       );
     }
 
+    // --------------------------------------------------
     // Quick Grantor Filter
+    // --------------------------------------------------
+
     if (
       quickGrantors.length > 0
     ) {
@@ -416,7 +600,26 @@ export default function CustomerTable({
       );
     }
 
+    // --------------------------------------------------
+    // Quick Maximum Amount Filter
+    // --------------------------------------------------
+
+    if (
+      quickMaximumAmounts.length > 0
+    ) {
+      result = result.filter(
+        (customer) =>
+          customer.maximum_grant &&
+          quickMaximumAmounts.includes(
+            customer.maximum_grant
+          )
+      );
+    }
+
+    // --------------------------------------------------
     // Quick Deadline Filter
+    // --------------------------------------------------
+
     if (
       quickDeadline !== "all"
     ) {
@@ -428,7 +631,10 @@ export default function CustomerTable({
       );
     }
 
-    // Quick Month Filter
+    // --------------------------------------------------
+    // Quick Anticipated Deadline Month Filter
+    // --------------------------------------------------
+
     if (
       quickMonths.length > 0
     ) {
@@ -443,24 +649,45 @@ export default function CustomerTable({
       );
     }
 
+    // --------------------------------------------------
     // Advanced Filters
+    // --------------------------------------------------
+
     if (
       advancedFilters.length > 0
     ) {
       result = result.filter(
         (customer) => {
           return advancedFilters.every(
-            (filter) =>
-              matchesAdvancedFilter(
-                customer,
-                filter
-              )
+            (filter, index) => {
+              const matches =
+                matchesAdvancedFilter(
+                  customer,
+                  filter
+                );
+
+              if (index === 0) {
+                return matches;
+              }
+
+              if (
+                filter.connector ===
+                "AND NOT"
+              ) {
+                return !matches;
+              }
+
+              return matches;
+            }
           );
         }
       );
     }
 
+    // --------------------------------------------------
     // Sort
+    // --------------------------------------------------
+
     if (
       sortBy === "grantor"
     ) {
@@ -496,6 +723,7 @@ export default function CustomerTable({
     sortBy,
     quickCategories,
     quickGrantors,
+    quickMaximumAmounts,
     quickDeadline,
     quickMonths,
     advancedFilters,
@@ -662,7 +890,51 @@ export default function CustomerTable({
   // Advanced Filter Functions
   // --------------------------------------------------
 
+  const getDefaultValuesForField = (
+    field: FilterField
+  ): string[] => {
+    switch (field) {
+      case "category":
+        return availableCategories
+          .slice(0, 1);
+
+      case "grantor":
+        return availableGrantors
+          .slice(0, 1);
+
+      case "maximum_grant":
+        return availableMaximumAmounts
+          .slice(0, 1);
+
+      case "deadline":
+        return availableDeadlines
+          .slice(0, 1);
+
+      case "anticipated_deadline":
+        return availableMonths
+          .slice(0, 1);
+
+      case "limited_opportunity":
+        return availableLimitedOpportunities
+          .slice(0, 1);
+
+      case "fellowship_opportunity":
+        return availableFellowshipOpportunities
+          .slice(0, 1);
+
+      default:
+        return [];
+    }
+  };
+
   const addAdvancedFilter = () => {
+    // Adding an advanced filter clears
+    // all quick filters.
+    activateAdvancedFilterMode();
+
+    const defaultField: FilterField =
+      "category";
+
     setAdvancedFilters(
       (current) => [
         ...current,
@@ -672,11 +944,12 @@ export default function CustomerTable({
             current.length === 0
               ? "AND"
               : "AND",
-          field: "category",
+          field: defaultField,
           operator: "is",
-          value:
-            availableCategories[0] ??
-            "",
+          values:
+            getDefaultValuesForField(
+              defaultField
+            ),
         },
       ]
     );
@@ -717,22 +990,73 @@ export default function CustomerTable({
     );
   };
 
-  const clearAllFilters = () => {
-    setQuickCategories([]);
-    setQuickGrantors([]);
-    setQuickDeadline("all");
-    setQuickMonths([]);
-    setAdvancedFilters([]);
+  const getAdvancedFilterOptions = (
+    field: FilterField
+  ) => {
+    switch (field) {
+      case "category":
+        return availableCategories;
+
+      case "grantor":
+        return availableGrantors;
+
+      case "maximum_grant":
+        return availableMaximumAmounts;
+
+      case "deadline":
+        return availableDeadlines;
+
+      case "anticipated_deadline":
+        return availableMonths;
+
+      case "limited_opportunity":
+        return availableLimitedOpportunities;
+
+      case "fellowship_opportunity":
+        return availableFellowshipOpportunities;
+
+      default:
+        return [];
+    }
   };
 
+  const clearAllFilters = () => {
+    clearQuickFilters();
+    clearAdvancedFilters();
+  };
+
+  const hasQuickFilters =
+    quickCategories.length > 0 ||
+    quickGrantors.length > 0 ||
+    quickMaximumAmounts.length > 0 ||
+    quickDeadline !== "all" ||
+    quickMonths.length > 0;
+
   const activeFilterCount =
-    quickCategories.length +
-    quickGrantors.length +
-    (quickDeadline !== "all"
-      ? 1
-      : 0) +
-    quickMonths.length +
-    advancedFilters.length;
+    hasQuickFilters
+      ? quickCategories.length +
+        quickGrantors.length +
+        quickMaximumAmounts.length +
+        (quickDeadline !==
+        "all"
+          ? 1
+          : 0) +
+        quickMonths.length
+      : advancedFilters.length;
+
+  const handleQuickFilterChange = (
+    callback: () => void
+  ) => {
+    // Selecting any quick filter clears
+    // advanced filters first.
+    if (
+      advancedFilters.length > 0
+    ) {
+      clearAdvancedFilters();
+    }
+
+    callback();
+  };
 
   return (
     <div className="min-h-screen bg-slate-100 py-2">
@@ -840,8 +1164,8 @@ export default function CustomerTable({
                 className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
               >
                 Quick Filter
-                {activeFilterCount >
-                  0 && (
+
+                {hasQuickFilters && (
                   <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
                     {activeFilterCount}
                   </span>
@@ -860,6 +1184,13 @@ export default function CustomerTable({
                 className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
               >
                 Advanced Filters
+
+                {advancedFilters.length >
+                  0 && (
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                    {advancedFilters.length}
+                  </span>
+                )}
               </button>
 
               {/* Sort */}
@@ -892,44 +1223,7 @@ export default function CustomerTable({
             {showQuickFilters && (
               <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
-
-                  {/* Category */}
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                      Category
-                    </label>
-
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
-                      {availableCategories.map(
-                        (category) => (
-                          <label
-                            key={category}
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={quickCategories.includes(
-                                category
-                              )}
-                              onChange={() =>
-                                toggleArrayValue(
-                                  category,
-                                  quickCategories,
-                                  setQuickCategories
-                                )
-                              }
-                              className="h-4 w-4 rounded border-slate-300"
-                            />
-
-                            <span>
-                              {category}
-                            </span>
-                          </label>
-                        )
-                      )}
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
 
                   {/* Grantor */}
                   <div>
@@ -950,10 +1244,13 @@ export default function CustomerTable({
                                 grantor
                               )}
                               onChange={() =>
-                                toggleArrayValue(
-                                  grantor,
-                                  quickGrantors,
-                                  setQuickGrantors
+                                handleQuickFilterChange(
+                                  () =>
+                                    toggleArrayValue(
+                                      grantor,
+                                      quickGrantors,
+                                      setQuickGrantors
+                                    )
                                 )
                               }
                               className="h-4 w-4 rounded border-slate-300"
@@ -961,6 +1258,46 @@ export default function CustomerTable({
 
                             <span>
                               {grantor}
+                            </span>
+                          </label>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Maximum Amount */}
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      Maximum Amount
+                    </label>
+
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                      {availableMaximumAmounts.map(
+                        (amount) => (
+                          <label
+                            key={amount}
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={quickMaximumAmounts.includes(
+                                amount
+                              )}
+                              onChange={() =>
+                                handleQuickFilterChange(
+                                  () =>
+                                    toggleArrayValue(
+                                      amount,
+                                      quickMaximumAmounts,
+                                      setQuickMaximumAmounts
+                                    )
+                                )
+                              }
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+
+                            <span>
+                              {amount}
                             </span>
                           </label>
                         )
@@ -976,11 +1313,14 @@ export default function CustomerTable({
 
                     <select
                       value={quickDeadline}
-                      onChange={(e) =>
-                        setQuickDeadline(
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => {
+                        handleQuickFilterChange(
+                          () =>
+                            setQuickDeadline(
+                              e.target.value
+                            )
+                        );
+                      }}
                       className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/40"
                     >
                       <option value="all">
@@ -1008,7 +1348,7 @@ export default function CustomerTable({
                   {/* Anticipated Deadline */}
                   <div>
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                      Anticipated Deadline Month
+                      Anticipated Deadline
                     </label>
 
                     <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
@@ -1024,10 +1364,13 @@ export default function CustomerTable({
                                 month
                               )}
                               onChange={() =>
-                                toggleArrayValue(
-                                  month,
-                                  quickMonths,
-                                  setQuickMonths
+                                handleQuickFilterChange(
+                                  () =>
+                                    toggleArrayValue(
+                                      month,
+                                      quickMonths,
+                                      setQuickMonths
+                                    )
                                 )
                               }
                               className="h-4 w-4 rounded border-slate-300"
@@ -1041,17 +1384,57 @@ export default function CustomerTable({
                       )}
                     </div>
                   </div>
+
+                  {/* Categories */}
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      Categories
+                    </label>
+
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                      {availableCategories.map(
+                        (category) => (
+                          <label
+                            key={category}
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={quickCategories.includes(
+                                category
+                              )}
+                              onChange={() =>
+                                handleQuickFilterChange(
+                                  () =>
+                                    toggleArrayValue(
+                                      category,
+                                      quickCategories,
+                                      setQuickCategories
+                                    )
+                                )
+                              }
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+
+                            <span>
+                              {category}
+                            </span>
+                          </label>
+                        )
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-5 flex justify-end">
                   <button
                     type="button"
                     onClick={
-                      clearAllFilters
+                      clearQuickFilters
                     }
                     className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                   >
-                    Clear Filters
+                    Clear Quick Filters
                   </button>
                 </div>
               </div>
@@ -1068,8 +1451,10 @@ export default function CustomerTable({
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-600">
-                      Build a custom filter using
-                      AND and AND NOT rules.
+                      Build custom filters using
+                      AND and AND NOT rules. You
+                      can select multiple values
+                      within each filter.
                     </p>
                   </div>
 
@@ -1097,297 +1482,269 @@ export default function CustomerTable({
                     </p>
                   </div>
                 ) : (
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-5 space-y-4">
 
                     {advancedFilters.map(
                       (
                         filter,
                         index
-                      ) => (
-                        <div
-                          key={
-                            filter.id
-                          }
-                          className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-center"
-                        >
+                      ) => {
 
-                          <select
-                            value={
-                              filter.connector
+                        const options =
+                          getAdvancedFilterOptions(
+                            filter.field
+                          );
+
+                        return (
+                          <div
+                            key={
+                              filter.id
                             }
-                            onChange={(
-                              e
-                            ) =>
-                              updateAdvancedFilter(
-                                filter.id,
-                                {
-                                  connector:
-                                    e
-                                      .target
-                                      .value as
-                                      | "AND"
-                                      | "AND NOT",
-                                }
-                              )
-                            }
-                            disabled={
-                              index ===
-                              0
-                            }
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 disabled:bg-slate-100 disabled:text-slate-400"
+                            className="rounded-xl border border-slate-200 bg-white p-4"
                           >
-                            <option value="AND">
-                              AND
-                            </option>
 
-                            <option value="AND NOT">
-                              AND NOT
-                            </option>
-                          </select>
+                            <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
 
-                          <select
-                            value={
-                              filter.field
-                            }
-                            onChange={(
-                              e
-                            ) => {
-                              const field =
-                                e.target
-                                  .value as FilterField;
-
-                              const defaultValue =
-                                field ===
-                                "category"
-                                  ? availableCategories[0] ??
-                                    ""
-                                  : field ===
-                                    "grantor"
-                                  ? availableGrantors[0] ??
-                                    ""
-                                  : field ===
-                                    "anticipated_deadline"
-                                  ? availableMonths[0] ??
-                                    ""
-                                  : "";
-
-                              updateAdvancedFilter(
-                                filter.id,
-                                {
-                                  field,
-                                  value:
-                                    defaultValue,
+                              {/* Connector */}
+                              <select
+                                value={
+                                  filter.connector
                                 }
-                              );
-                            }}
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
-                          >
-                            <option value="category">
-                              Category
-                            </option>
-
-                            <option value="grantor">
-                              Grantor
-                            </option>
-
-                            <option value="deadline">
-                              Deadline
-                            </option>
-
-                            <option value="anticipated_deadline">
-                              Anticipated Deadline
-                            </option>
-                          </select>
-
-                          <select
-                            value={
-                              filter.operator
-                            }
-                            onChange={(
-                              e
-                            ) =>
-                              updateAdvancedFilter(
-                                filter.id,
-                                {
-                                  operator:
-                                    e
-                                      .target
-                                      .value as FilterOperator,
+                                onChange={(
+                                  e
+                                ) =>
+                                  updateAdvancedFilter(
+                                    filter.id,
+                                    {
+                                      connector:
+                                        e
+                                          .target
+                                          .value as
+                                          | "AND"
+                                          | "AND NOT",
+                                    }
+                                  )
                                 }
-                              )
-                            }
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
-                          >
-                            <option value="is">
-                              is
-                            </option>
+                                disabled={
+                                  index ===
+                                  0
+                                }
+                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 disabled:bg-slate-100 disabled:text-slate-400"
+                              >
+                                <option value="AND">
+                                  AND
+                                </option>
 
-                            <option value="is_not">
-                              is not
-                            </option>
-                          </select>
+                                <option value="AND NOT">
+                                  AND NOT
+                                </option>
+                              </select>
 
-                          <select
-                            value={
-                              filter.value
-                            }
-                            onChange={(
-                              e
-                            ) =>
-                              updateAdvancedFilter(
-                                filter.id,
-                                {
-                                  value:
+                              {/* Field */}
+                              <select
+                                value={
+                                  filter.field
+                                }
+                                onChange={(
+                                  e
+                                ) => {
+                                  const field =
                                     e.target
-                                      .value,
-                                }
-                              )
-                            }
-                            className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
-                          >
-                            {filter.field ===
-                            "category"
-                              ? availableCategories.map(
-                                  (
-                                    category
-                                  ) => (
-                                    <option
-                                      key={
-                                        category
-                                      }
-                                      value={
-                                        category
-                                      }
-                                    >
-                                      {
-                                        category
-                                      }
-                                    </option>
-                                  )
-                                )
-                              : filter.field ===
-                                "grantor"
-                              ? availableGrantors.map(
-                                  (
-                                    grantor
-                                  ) => (
-                                    <option
-                                      key={
-                                        grantor
-                                      }
-                                      value={
-                                        grantor
-                                      }
-                                    >
-                                      {
-                                        grantor
-                                      }
-                                    </option>
-                                  )
-                                )
-                              : filter.field ===
-                                "anticipated_deadline"
-                              ? availableMonths.map(
-                                  (
-                                    month
-                                  ) => (
-                                    <option
-                                      key={
-                                        month
-                                      }
-                                      value={
-                                        month
-                                      }
-                                    >
-                                      {
-                                        month
-                                      }
-                                    </option>
-                                  )
-                                )
-                              : (
-                                  <>
-                                    <option value="">
-                                      No specific
-                                      deadline
-                                    </option>
+                                      .value as FilterField;
 
-                                    {customers
-                                      .map(
+                                  updateAdvancedFilter(
+                                    filter.id,
+                                    {
+                                      field,
+                                      values:
+                                        getDefaultValuesForField(
+                                          field
+                                        ),
+                                    }
+                                  );
+                                }}
+                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                              >
+                                <option value="grantor">
+                                  Grantor
+                                </option>
+
+                                <option value="maximum_grant">
+                                  Maximum Amount
+                                </option>
+
+                                <option value="deadline">
+                                  Deadline
+                                </option>
+
+                                <option value="anticipated_deadline">
+                                  Anticipated Deadline
+                                </option>
+
+                                <option value="category">
+                                  Categories
+                                </option>
+
+                                <option value="limited_opportunity">
+                                  Limited Opportunity
+                                </option>
+
+                                <option value="fellowship_opportunity">
+                                  Fellowship Opportunity
+                                </option>
+                              </select>
+
+                              {/* Operator */}
+                              <select
+                                value={
+                                  filter.operator
+                                }
+                                onChange={(
+                                  e
+                                ) =>
+                                  updateAdvancedFilter(
+                                    filter.id,
+                                    {
+                                      operator:
+                                        e
+                                          .target
+                                          .value as FilterOperator,
+                                    }
+                                  )
+                                }
+                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                              >
+                                <option value="is">
+                                  is
+                                </option>
+
+                                <option value="is_not">
+                                  is not
+                                </option>
+                              </select>
+
+                              {/* Multi-Select Values */}
+                              <div className="flex-1">
+
+                                <div className="max-h-44 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
+
+                                  {options.length >
+                                  0 ? (
+                                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
+
+                                      {options.map(
                                         (
-                                          customer
-                                        ) =>
-                                          customer.deadline
-                                      )
-                                      .filter(
-                                        Boolean
-                                      )
-                                      .filter(
-                                        (
-                                          value,
-                                          valueIndex,
-                                          array
-                                        ) =>
-                                          array.indexOf(
-                                            value
-                                          ) ===
-                                          valueIndex
-                                      )
-                                      .sort()
-                                      .map(
-                                        (
-                                          deadline
+                                          option
                                         ) => (
-                                          <option
+                                          <label
                                             key={
-                                              deadline
+                                              option
                                             }
-                                            value={
-                                              deadline!
-                                            }
+                                            className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition hover:bg-white"
                                           >
-                                            {new Date(
-                                              `${deadline}T00:00:00`
-                                            ).toLocaleDateString(
-                                              "en-US",
+                                            <input
+                                              type="checkbox"
+                                              checked={filter.values.includes(
+                                                option
+                                              )}
+                                              onChange={() => {
+                                                const newValues =
+                                                  filter.values.includes(
+                                                    option
+                                                  )
+                                                    ? filter.values.filter(
+                                                        (
+                                                          value
+                                                        ) =>
+                                                          value !==
+                                                          option
+                                                      )
+                                                    : [
+                                                        ...filter.values,
+                                                        option,
+                                                      ];
+
+                                                updateAdvancedFilter(
+                                                  filter.id,
+                                                  {
+                                                    values:
+                                                      newValues,
+                                                  }
+                                                );
+                                              }}
+                                              className="h-4 w-4 rounded border-slate-300"
+                                            />
+
+                                            <span>
                                               {
-                                                year: "numeric",
-                                                month:
-                                                  "short",
-                                                day: "numeric",
+                                                option
                                               }
-                                            )}
-                                          </option>
+                                            </span>
+                                          </label>
                                         )
                                       )}
-                                  </>
-                                )}
-                          </select>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeAdvancedFilter(
-                                filter.id
-                              )
-                            }
-                            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      )
+                                    </div>
+                                  ) : (
+                                    <div className="px-3 py-3 text-sm text-slate-500">
+                                      No values available.
+                                    </div>
+                                  )}
+
+                                </div>
+
+                                {filter.values.length >
+                                  0 && (
+                                  <div className="mt-2 flex flex-wrap gap-1.5">
+                                    {filter.values.map(
+                                      (
+                                        value
+                                      ) => (
+                                        <span
+                                          key={
+                                            value
+                                          }
+                                          className="rounded-full border border-[#91AFC2] bg-[#E7EFF4] px-2.5 py-1 text-xs font-semibold text-slate-700"
+                                        >
+                                          {
+                                            value
+                                          }
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                )}
+
+                              </div>
+
+                              {/* Remove */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeAdvancedFilter(
+                                    filter.id
+                                  )
+                                }
+                                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700"
+                              >
+                                Remove
+                              </button>
+
+                            </div>
+
+                          </div>
+                        );
+                      }
                     )}
+
                   </div>
                 )}
 
                 <div className="mt-5 flex justify-end gap-3">
                   <button
                     type="button"
-                    onClick={() =>
-                      setAdvancedFilters(
-                        []
-                      )
+                    onClick={
+                      clearAdvancedFilters
                     }
                     className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                   >
@@ -1406,86 +1763,112 @@ export default function CustomerTable({
                   Active filters:
                 </span>
 
-                {quickCategories.map(
-                  (category) => (
-                    <button
-                      key={`category-${category}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          category,
-                          quickCategories,
-                          setQuickCategories
-                        )
-                      }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Category:{" "}
-                      {category} ×
-                    </button>
-                  )
-                )}
-
-                {quickGrantors.map(
-                  (grantor) => (
-                    <button
-                      key={`grantor-${grantor}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          grantor,
-                          quickGrantors,
-                          setQuickGrantors
-                        )
-                      }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Grantor:{" "}
-                      {grantor} ×
-                    </button>
-                  )
-                )}
-
-                {quickDeadline !==
-                  "all" && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setQuickDeadline(
-                        "all"
+                {/* Quick Filter Chips */}
+                {hasQuickFilters && (
+                  <>
+                    {quickCategories.map(
+                      (category) => (
+                        <button
+                          key={`category-${category}`}
+                          type="button"
+                          onClick={() =>
+                            toggleArrayValue(
+                              category,
+                              quickCategories,
+                              setQuickCategories
+                            )
+                          }
+                          className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Category:{" "}
+                          {category} ×
+                        </button>
                       )
-                    }
-                    className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                  >
-                    Deadline:{" "}
-                    {quickDeadline ===
-                    "no-deadline"
-                      ? "No specific deadline"
-                      : `Within ${quickDeadline} days`}{" "}
-                    ×
-                  </button>
+                    )}
+
+                    {quickGrantors.map(
+                      (grantor) => (
+                        <button
+                          key={`grantor-${grantor}`}
+                          type="button"
+                          onClick={() =>
+                            toggleArrayValue(
+                              grantor,
+                              quickGrantors,
+                              setQuickGrantors
+                            )
+                          }
+                          className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Grantor:{" "}
+                          {grantor} ×
+                        </button>
+                      )
+                    )}
+
+                    {quickMaximumAmounts.map(
+                      (amount) => (
+                        <button
+                          key={`amount-${amount}`}
+                          type="button"
+                          onClick={() =>
+                            toggleArrayValue(
+                              amount,
+                              quickMaximumAmounts,
+                              setQuickMaximumAmounts
+                            )
+                          }
+                          className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Maximum:{" "}
+                          {amount} ×
+                        </button>
+                      )
+                    )}
+
+                    {quickDeadline !==
+                      "all" && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setQuickDeadline(
+                            "all"
+                          )
+                        }
+                        className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                      >
+                        Deadline:{" "}
+                        {quickDeadline ===
+                        "no-deadline"
+                          ? "No specific deadline"
+                          : `Within ${quickDeadline} days`}{" "}
+                        ×
+                      </button>
+                    )}
+
+                    {quickMonths.map(
+                      (month) => (
+                        <button
+                          key={`month-${month}`}
+                          type="button"
+                          onClick={() =>
+                            toggleArrayValue(
+                              month,
+                              quickMonths,
+                              setQuickMonths
+                            )
+                          }
+                          className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Anticipated:{" "}
+                          {month} ×
+                        </button>
+                      )
+                    )}
+                  </>
                 )}
 
-                {quickMonths.map(
-                  (month) => (
-                    <button
-                      key={`month-${month}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          month,
-                          quickMonths,
-                          setQuickMonths
-                        )
-                      }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Month:{" "}
-                      {month} ×
-                    </button>
-                  )
-                )}
-
+                {/* Advanced Filter Chip */}
                 {advancedFilters.length >
                   0 && (
                   <button
@@ -1667,7 +2050,8 @@ export default function CustomerTable({
                                     "en-US",
                                     {
                                       year: "numeric",
-                                      month: "short",
+                                      month:
+                                        "short",
                                       day: "numeric",
                                     }
                                   )}
