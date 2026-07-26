@@ -25,10 +25,7 @@ type FilterField =
   | "limited_opportunity"
   | "fellowship_opportunity";
 
-type FilterOperator =
-  | "AND"
-  | "OR"
-  | "AND NOT";
+type FilterOperator = "AND" | "OR" | "AND NOT";
 
 type AdvancedFilter = {
   id: number;
@@ -114,18 +111,14 @@ export default function CustomerTable({
 
       if (
         quickFilterRef.current &&
-        !quickFilterRef.current.contains(
-          target
-        )
+        !quickFilterRef.current.contains(target)
       ) {
         setQuickFilterOpen(false);
       }
 
       if (
         advancedFilterRef.current &&
-        !advancedFilterRef.current.contains(
-          target
-        )
+        !advancedFilterRef.current.contains(target)
       ) {
         setAdvancedFilterOpen(false);
       }
@@ -145,17 +138,6 @@ export default function CustomerTable({
   }, []);
 
   // --------------------------------------------------
-  // Active Customers
-  // --------------------------------------------------
-
-  const activeCustomers = useMemo(() => {
-    return customers.filter(
-      (customer) =>
-        customer.Category === "active"
-    );
-  }, [customers]);
-
-  // --------------------------------------------------
   // Quick Filter Options
   // --------------------------------------------------
 
@@ -164,10 +146,13 @@ export default function CustomerTable({
       return [];
     }
 
-    if (
-      quickFilterField ===
-      "grantor"
-    ) {
+    const activeCustomers =
+      customers.filter(
+        (customer) =>
+          customer.Category === "active"
+      );
+
+    if (quickFilterField === "grantor") {
       return Array.from(
         new Set(
           activeCustomers
@@ -215,8 +200,7 @@ export default function CustomerTable({
           activeCustomers
             .flatMap(
               (customer) =>
-                customer.rfp_categories ??
-                []
+                customer.rfp_categories ?? []
             )
             .filter(
               (
@@ -264,7 +248,7 @@ export default function CustomerTable({
 
     return [];
   }, [
-    activeCustomers,
+    customers,
     quickFilterField,
   ]);
 
@@ -315,6 +299,12 @@ export default function CustomerTable({
   const getAdvancedFilterOptions = (
     field: FilterField
   ): string[] => {
+    const activeCustomers =
+      customers.filter(
+        (customer) =>
+          customer.Category === "active"
+      );
+
     if (field === "grantor") {
       return Array.from(
         new Set(
@@ -384,8 +374,7 @@ export default function CustomerTable({
           activeCustomers
             .flatMap(
               (customer) =>
-                customer.rfp_categories ??
-                []
+                customer.rfp_categories ?? []
             )
             .filter(
               (
@@ -401,27 +390,21 @@ export default function CustomerTable({
       field ===
       "limited_opportunity"
     ) {
-      return [
-        "Yes",
-        "No",
-      ];
+      return ["Yes", "No"];
     }
 
     if (
       field ===
       "fellowship_opportunity"
     ) {
-      return [
-        "Yes",
-        "No",
-      ];
+      return ["Yes", "No"];
     }
 
     return [];
   };
 
   // --------------------------------------------------
-  // Get Customer Values For Filter
+  // Get Customer Values
   // --------------------------------------------------
 
   const getCustomerFieldValues = (
@@ -439,9 +422,7 @@ export default function CustomerTable({
       "maximum_grant"
     ) {
       return customer.maximum_grant
-        ? [
-            customer.maximum_grant,
-          ]
+        ? [customer.maximum_grant]
         : [];
     }
 
@@ -461,8 +442,7 @@ export default function CustomerTable({
       "rfp_categories"
     ) {
       return (
-        customer.rfp_categories ??
-        []
+        customer.rfp_categories ?? []
       );
     }
 
@@ -498,7 +478,7 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Quick Deadline Matching
+  // Quick Deadline Filter
   // --------------------------------------------------
 
   const matchesQuickDeadline = (
@@ -583,35 +563,17 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Advanced Filter Matching
-  // --------------------------------------------------
-
-  const matchesAdvancedFilter = (
-    customer: Customer,
-    filter: AdvancedFilter
-  ) => {
-    const customerValues =
-      getCustomerFieldValues(
-        customer,
-        filter.field
-      );
-
-    return filter.values.some(
-      (value) =>
-        customerValues.includes(
-          value
-        )
-    );
-  };
-
-  // --------------------------------------------------
   // Filtered Customers
   // --------------------------------------------------
 
   const filteredCustomers =
     useMemo(() => {
       let result =
-        [...activeCustomers];
+        customers.filter(
+          (customer) =>
+            customer.Category ===
+            "active"
+        );
 
       // ------------------------------
       // Search
@@ -698,30 +660,21 @@ export default function CustomerTable({
 
       // ------------------------------
       // Advanced Filters
-      //
-      // First filter can be:
-      // AND
-      // OR
-      // AND NOT
-      //
-      // Subsequent filters can also be:
-      // AND
-      // OR
-      // AND NOT
       // ------------------------------
 
       if (
         advancedFilters.length >
         0
       ) {
-        let advancedResult: Customer[] =
-          [];
+        const activeCustomers =
+          customers.filter(
+            (customer) =>
+              customer.Category ===
+              "active"
+          );
 
         advancedFilters.forEach(
-          (
-            filter,
-            index
-          ) => {
+          (filter, index) => {
             if (
               filter.values.length ===
               0
@@ -729,42 +682,29 @@ export default function CustomerTable({
               return;
             }
 
-            const matchingCustomers =
-              activeCustomers.filter(
-                (customer) =>
-                  matchesAdvancedFilter(
-                    customer,
-                    filter
+            const matchesFilter = (
+              customer: Customer
+            ) => {
+              const customerValues =
+                getCustomerFieldValues(
+                  customer,
+                  filter.field
+                );
+
+              return filter.values.some(
+                (value) =>
+                  customerValues.includes(
+                    value
                   )
               );
+            };
 
-            // First active filter
-            if (
-              index === 0
-            ) {
-              if (
-                filter.operator ===
-                "AND NOT"
-              ) {
-                advancedResult =
-                  activeCustomers.filter(
-                    (customer) =>
-                      !matchingCustomers.some(
-                        (
-                          match
-                        ) =>
-                          String(
-                            match.id
-                          ) ===
-                          String(
-                            customer.id
-                          )
-                      )
-                  );
-              } else {
-                advancedResult =
-                  matchingCustomers;
-              }
+            // First filter
+            if (index === 0) {
+              result =
+                result.filter(
+                  matchesFilter
+                );
 
               return;
             }
@@ -774,19 +714,24 @@ export default function CustomerTable({
               filter.operator ===
               "AND"
             ) {
-              advancedResult =
-                advancedResult.filter(
+              result =
+                result.filter(
+                  matchesFilter
+                );
+
+              return;
+            }
+
+            // AND NOT
+            if (
+              filter.operator ===
+              "AND NOT"
+            ) {
+              result =
+                result.filter(
                   (customer) =>
-                    matchingCustomers.some(
-                      (
-                        match
-                      ) =>
-                        String(
-                          match.id
-                        ) ===
-                        String(
-                          customer.id
-                        )
+                    !matchesFilter(
+                      customer
                     )
                 );
 
@@ -798,9 +743,9 @@ export default function CustomerTable({
               filter.operator ===
               "OR"
             ) {
-              const existingIds =
+              const currentIds =
                 new Set(
-                  advancedResult.map(
+                  result.map(
                     (customer) =>
                       String(
                         customer.id
@@ -808,74 +753,29 @@ export default function CustomerTable({
                   )
                 );
 
-              matchingCustomers.forEach(
+              const orMatches =
+                activeCustomers.filter(
+                  matchesFilter
+                );
+
+              orMatches.forEach(
                 (customer) => {
                   if (
-                    !existingIds.has(
+                    !currentIds.has(
                       String(
                         customer.id
                       )
                     )
                   ) {
-                    advancedResult.push(
+                    result.push(
                       customer
                     );
                   }
                 }
               );
-
-              return;
-            }
-
-            // AND NOT
-            if (
-              filter.operator ===
-              "AND NOT"
-            ) {
-              advancedResult =
-                advancedResult.filter(
-                  (customer) =>
-                    !matchingCustomers.some(
-                      (
-                        match
-                      ) =>
-                        String(
-                          match.id
-                        ) ===
-                        String(
-                          customer.id
-                        )
-                    )
-                );
             }
           }
         );
-
-        // Apply advanced result
-        // to the current result.
-        //
-        // This means search and quick
-        // filter remain active while
-        // advanced filtering is applied.
-        const advancedIds =
-          new Set(
-            advancedResult.map(
-              (customer) =>
-                String(
-                  customer.id
-                )
-            )
-          );
-
-        result =
-          result.filter(
-            (customer) =>
-              advancedIds.has(
-                String(
-                  customer.id
-                )
-              )
-          );
       }
 
       // ------------------------------
@@ -913,7 +813,7 @@ export default function CustomerTable({
 
       return result;
     }, [
-      activeCustomers,
+      customers,
       search,
       sortBy,
       quickFilterField,
@@ -960,6 +860,13 @@ export default function CustomerTable({
           60 *
           24)
     );
+
+    if (daysUntil < 0) {
+      return {
+        container:
+          "bg-slate-100 text-slate-600 border-slate-300",
+      };
+    }
 
     if (daysUntil === 0) {
       return {
@@ -1088,7 +995,7 @@ export default function CustomerTable({
       <div className="max-w-[1800px] mx-auto">
 
         {/* Dashboard Header */}
-        <div className="relative overflow-hidden bg-[#AFC4D4] rounded-2xl shadow-lg border border-[#9FB7C8] p-8 mb-6 text-slate-800">
+        <div className="relative overflow-visible bg-[#AFC4D4] rounded-2xl shadow-lg border border-[#9FB7C8] p-8 mb-6 text-slate-800">
 
           {/* Accent Line */}
           <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-[#7E9FB5] via-[#91AFC2] to-[#AFC4D4]" />
@@ -1110,9 +1017,8 @@ export default function CustomerTable({
               </h1>
 
               <p className="mt-3 text-slate-700 max-w-2xl leading-6">
-                Discover active funding opportunities and find
-                grants that align with your organization's
-                mission, priorities, and goals.
+                Explore current funding opportunities and discover grants that align with your
+                research, programs, and academic priorities.
               </p>
             </div>
 
@@ -1142,10 +1048,10 @@ export default function CustomerTable({
           {/* Search, Filters and Sort */}
           <div className="mt-8 pt-6 border-t border-[#91AFC2]">
 
-            <div className="flex flex-col xl:flex-row gap-3">
+            <div className="flex flex-col xl:flex-row gap-3 items-start">
 
               {/* Search */}
-              <div className="relative flex-1">
+              <div className="relative flex-1 w-full">
 
                 <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-500">
                   <svg
@@ -1179,10 +1085,8 @@ export default function CustomerTable({
 
               {/* Quick Filter */}
               <div
-                ref={
-                  quickFilterRef
-                }
-                className="relative"
+                ref={quickFilterRef}
+                className="relative w-full xl:w-[180px]"
               >
                 <button
                   type="button"
@@ -1191,7 +1095,7 @@ export default function CustomerTable({
                       (open) => !open
                     )
                   }
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white focus:outline-none focus:ring-4 focus:ring-white/30 xl:w-[180px]"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white focus:outline-none focus:ring-4 focus:ring-white/30"
                 >
                   <span>
                     Quick Filter
@@ -1218,7 +1122,7 @@ export default function CustomerTable({
                 </button>
 
                 {quickFilterOpen && (
-                  <div className="absolute right-0 z-30 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+                  <div className="relative z-30 mt-2 w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
 
                     <div className="mb-3">
                       <p className="text-sm font-semibold text-slate-900">
@@ -1226,7 +1130,7 @@ export default function CustomerTable({
                       </p>
 
                       <p className="mt-1 text-xs text-slate-500">
-                        Choose a field, then select one or more values.
+                        Select one or more options.
                       </p>
                     </div>
 
@@ -1271,16 +1175,24 @@ export default function CustomerTable({
                             }
                             type="button"
                             onClick={() => {
-                              setQuickFilterField(
+                              const newField =
                                 option.value as Exclude<
                                   QuickFilterField,
                                   null
-                                >
-                              );
+                                >;
 
-                              setQuickFilterValues(
-                                []
-                              );
+                              if (
+                                quickFilterField !==
+                                newField
+                              ) {
+                                setQuickFilterField(
+                                  newField
+                                );
+
+                                setQuickFilterValues(
+                                  []
+                                );
+                              }
                             }}
                             className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${
                               quickFilterField ===
@@ -1308,9 +1220,7 @@ export default function CustomerTable({
                         <div className="max-h-52 space-y-1 overflow-y-auto">
 
                           {quickFilterOptions.map(
-                            (
-                              option
-                            ) => (
+                            (option) => (
                               <label
                                 key={
                                   option
@@ -1387,7 +1297,7 @@ export default function CustomerTable({
                 ref={
                   advancedFilterRef
                 }
-                className="relative"
+                className="relative w-full xl:w-[200px]"
               >
                 <button
                   type="button"
@@ -1396,7 +1306,7 @@ export default function CustomerTable({
                       (open) => !open
                     )
                   }
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white focus:outline-none focus:ring-4 focus:ring-white/30 xl:w-[200px]"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white focus:outline-none focus:ring-4 focus:ring-white/30"
                 >
                   <span>
                     Advanced Filter
@@ -1423,7 +1333,7 @@ export default function CustomerTable({
                 </button>
 
                 {advancedFilterOpen && (
-                  <div className="absolute right-0 z-30 mt-2 w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+                  <div className="relative z-30 mt-2 w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
 
                     <div className="mb-4">
                       <p className="text-sm font-semibold text-slate-900">
@@ -1431,7 +1341,7 @@ export default function CustomerTable({
                       </p>
 
                       <p className="mt-1 text-xs text-slate-500">
-                        Combine multiple filters with AND, OR, or AND NOT.
+                        Build detailed filters using AND, OR, and AND NOT.
                       </p>
                     </div>
 
@@ -1449,54 +1359,55 @@ export default function CustomerTable({
 
                           <div className="mb-2 flex items-center justify-between">
 
-                            <select
-                              value={
-                                filter.operator
-                              }
-                              onChange={(
-                                e
-                              ) => {
-                                setAdvancedFilters(
-                                  (
-                                    current
-                                  ) =>
-                                    current.map(
-                                      (
-                                        item
-                                      ) =>
-                                        item.id ===
-                                        filter.id
-                                          ? {
-                                              ...item,
-                                              operator:
-                                                e
-                                                  .target
-                                                  .value as FilterOperator,
-                                            }
-                                          : item
-                                    )
-                                );
-                              }}
-                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700"
-                            >
-                              <option value="AND">
-                                AND
-                              </option>
+                            {index >
+                            0 ? (
+                              <select
+                                value={
+                                  filter.operator
+                                }
+                                onChange={(
+                                  e
+                                ) => {
+                                  setAdvancedFilters(
+                                    (
+                                      current
+                                    ) =>
+                                      current.map(
+                                        (
+                                          item
+                                        ) =>
+                                          item.id ===
+                                          filter.id
+                                            ? {
+                                                ...item,
+                                                operator:
+                                                  e
+                                                    .target
+                                                    .value as FilterOperator,
+                                              }
+                                            : item
+                                      )
+                                  );
+                                }}
+                                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700"
+                              >
+                                <option value="AND">
+                                  AND
+                                </option>
 
-                              <option value="OR">
-                                OR
-                              </option>
+                                <option value="OR">
+                                  OR
+                                </option>
 
-                              <option value="AND NOT">
-                                AND NOT
-                              </option>
-                            </select>
-
-                            <span className="ml-2 flex-1 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">
-                              Filter{" "}
-                              {index +
-                                1}
-                            </span>
+                                <option value="AND NOT">
+                                  AND NOT
+                                </option>
+                              </select>
+                            ) : (
+                              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Filter 1
+                              </span>
+                            )}
 
                             <button
                               type="button"
@@ -1514,7 +1425,7 @@ export default function CustomerTable({
                                     )
                                 )
                               }
-                              className="ml-3 text-xs font-semibold text-slate-400 hover:text-red-600"
+                              className="text-xs font-semibold text-slate-400 hover:text-red-600"
                             >
                               Remove
                             </button>
@@ -1638,6 +1549,7 @@ export default function CustomerTable({
                             )}
 
                           </div>
+
                         </div>
                       )
                     )}
@@ -1688,7 +1600,7 @@ export default function CustomerTable({
               </div>
 
               {/* Sort */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 w-full xl:w-auto">
                 <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
                   Sort by
                 </span>
@@ -1718,6 +1630,7 @@ export default function CustomerTable({
 
             </div>
 
+            {/* Active Filter Summary */}
             {(search.trim() ||
               quickFilterValues.length >
                 0 ||
@@ -2028,7 +1941,7 @@ export default function CustomerTable({
 
         </div>
 
-        {/* Realtime-synchronized Drawer */}
+        {/* Realtime-Synchronized Drawer */}
         <CustomerDrawer
           customer={
             selectedCustomer
