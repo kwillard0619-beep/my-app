@@ -112,7 +112,6 @@ export default function CustomerTable({
 
   const [nextSortId, setNextSortId] = useState(4);
 
-  // Drag-and-drop sort state
   const [draggedSortId, setDraggedSortId] =
     useState<number | null>(null);
 
@@ -921,8 +920,6 @@ export default function CustomerTable({
         "active"
     );
 
-    // Search
-
     if (search.trim()) {
       const searchTerm =
         search
@@ -958,8 +955,6 @@ export default function CustomerTable({
       );
     }
 
-    // Quick Grantor Filter
-
     if (
       quickGrantors.length > 0
     ) {
@@ -971,8 +966,6 @@ export default function CustomerTable({
           )
       );
     }
-
-    // Quick Maximum Grant Filter
 
     if (
       quickMaximumGrants.length >
@@ -989,8 +982,6 @@ export default function CustomerTable({
       );
     }
 
-    // Quick Deadline Filter
-
     if (
       quickDeadline !== "all"
     ) {
@@ -1001,8 +992,6 @@ export default function CustomerTable({
           )
       );
     }
-
-    // Quick Anticipated Deadline Filter
 
     if (
       quickMonths.length > 0
@@ -1017,8 +1006,6 @@ export default function CustomerTable({
           )
       );
     }
-
-    // Quick Category Filter
 
     if (
       quickCategories.length > 0
@@ -1043,8 +1030,6 @@ export default function CustomerTable({
       );
     }
 
-    // Advanced Filters
-
     if (
       advancedFilters.length > 0
     ) {
@@ -1061,8 +1046,6 @@ export default function CustomerTable({
           )
       );
     }
-
-    // Stackable Sorting
 
     result.sort((a, b) => {
       for (const rule of sortRules) {
@@ -1670,63 +1653,84 @@ export default function CustomerTable({
   // --------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-slate-100 py-2">
-      <div className="mx-auto max-w-[1800px]">
+    <div className="min-h-screen bg-[#F7F9FA] py-4 sm:py-6">
+      <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
 
-        {/* Dashboard Header */}
+        {/* ==================================================
+            SOFT EDITORIAL DASHBOARD HEADER
+        ================================================== */}
 
-        <div className="relative mb-6 overflow-visible rounded-2xl border border-[#9FB7C8] bg-[#AFC4D4] p-8 text-slate-800 shadow-lg">
+        <div className="relative mb-7 overflow-visible rounded-[28px] border border-[#D8E4EA] bg-[#EEF4F7] shadow-[0_12px_40px_rgba(63,91,108,0.08)]">
 
-          <div className="absolute left-0 top-0 h-1 w-full rounded-t-2xl bg-gradient-to-r from-[#7E9FB5] via-[#91AFC2] to-[#AFC4D4]" />
+          {/* Decorative Background Shapes */}
 
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#9FB9C9] opacity-[0.12]" />
 
-            <div>
+          <div className="pointer-events-none absolute -bottom-32 left-[38%] h-64 w-64 rounded-full bg-[#B7CBD7] opacity-[0.10]" />
 
-              {/* Logo */}
+          <div className="pointer-events-none absolute right-[18%] top-[42%] h-28 w-28 rounded-full bg-[#D7E4EA] opacity-40" />
 
-              <div className="mb-6 flex h-20 w-64 items-center">
-                <img
-                  src="/lg-listings-logo.png"
-                  alt="LG Listings"
-                  className="h-full w-auto max-w-full object-contain object-left"
-                />
+          {/* Branding Area */}
+
+          <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
+
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+
+              {/* Logo + Title */}
+
+              <div className="min-w-0">
+
+                <div className="mb-6 flex h-16 w-56 items-center sm:h-20 sm:w-64">
+
+                  <img
+                    src="/lg-listings-logo.png"
+                    alt="LG Listings"
+                    className="h-full w-auto max-w-full object-contain object-left"
+                  />
+
+                </div>
+
+                <div className="max-w-3xl">
+
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#617D8E]">
+                    Private Grant Funding
+                  </p>
+
+                  <h1 className="text-3xl font-bold tracking-[-0.025em] text-[#263B49] sm:text-4xl lg:text-[2.65rem]">
+                    Active RFP Opportunities
+                  </h1>
+
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607582] sm:text-base">
+                    Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
+                  </p>
+
+                </div>
+
               </div>
 
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.15em] text-slate-600">
-                Private Grant Funding
-              </p>
+              {/* Active Count Pill */}
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-                Active RFP Opportunities
-              </h1>
+              <div className="relative flex-shrink-0">
 
-              <p className="mt-3 max-w-2xl leading-6 text-slate-700">
-                Explore current funding opportunities and discover grants that
-                align with your research, programs, and academic priorities.
-              </p>
+                <div className="inline-flex items-center gap-3 rounded-full border border-[#C8DAE3] bg-white/75 px-5 py-3 shadow-sm backdrop-blur-sm">
 
-            </div>
+                  <span className="relative flex h-3 w-3">
 
-            <div className="flex-shrink-0">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6F91A8] opacity-40" />
 
-              <div className="relative min-w-[200px] overflow-hidden rounded-2xl border border-[#91AFC2] bg-white/50 px-7 py-5 shadow-sm">
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-[#5F829B]" />
 
-                <div className="absolute right-0 top-0 h-20 w-20 -translate-y-8 translate-x-8 rounded-full bg-white/30" />
+                  </span>
 
-                <div className="relative text-center">
+                  <span className="text-sm font-semibold text-[#3F5968]">
 
-                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                    Active RFPs
-                  </div>
+                    <span className="font-bold text-[#263B49]">
+                      {activeCount}
+                    </span>{" "}
 
-                  <div className="mt-1 text-4xl font-bold text-slate-900">
-                    {activeCount}
-                  </div>
+                    Active Opportunities
 
-                  <div className="mt-1 text-xs text-slate-600">
-                    Currently available
-                  </div>
+                  </span>
 
                 </div>
 
@@ -1734,19 +1738,25 @@ export default function CustomerTable({
 
             </div>
 
+            {/* Accent Line */}
+
+            <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#91AFC2] to-transparent opacity-70" />
+
           </div>
 
-          {/* Search and Filters */}
+          {/* ==================================================
+              SEARCH + FILTER TOOLBAR
+          ================================================== */}
 
-          <div className="mt-8 border-t border-[#91AFC2] pt-6">
+          <div className="relative px-6 pb-7 sm:px-8 lg:px-10">
 
-            <div className="flex flex-col gap-3 xl:flex-row">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
 
               {/* Search */}
 
               <div className="relative flex-1">
 
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#78909E]">
 
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1756,11 +1766,13 @@ export default function CustomerTable({
                     stroke="currentColor"
                     className="h-5 w-5"
                   >
+
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61Z"
                     />
+
                   </svg>
 
                 </div>
@@ -1774,89 +1786,121 @@ export default function CustomerTable({
                       e.target.value
                     )
                   }
-                  className="w-full rounded-xl border border-[#91AFC2] bg-white/70 py-3 pl-11 pr-11 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
+                  className="w-full rounded-2xl border border-[#D2E0E7] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#91A2AC] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#AFC4D4]/30"
                 />
 
-                {/* Clear Search Button */}
-
                 {search.length > 0 && (
+
                   <button
                     type="button"
                     onClick={() =>
                       setSearch("")
                     }
                     aria-label="Clear search"
-                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition hover:text-slate-700"
+                    className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#91A2AC] transition hover:text-[#405967]"
                   >
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-sm font-bold leading-none hover:bg-slate-300">
+
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
                       ×
                     </span>
+
                   </button>
+
                 )}
 
               </div>
 
-              {/* Filter Toggle Group */}
+              {/* Filter Buttons */}
 
-              <div className="flex overflow-hidden rounded-xl border border-[#91AFC2] bg-white/50">
-
-                {/* Quick Filter */}
+              <div className="flex flex-col gap-2 sm:flex-row">
 
                 <button
                   type="button"
                   onClick={
                     toggleQuickFilters
                   }
-                  className={`relative px-5 py-3 text-sm font-semibold transition ${
+                  className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                     showQuickFilters
-                      ? "bg-white text-slate-900"
-                      : "text-slate-700 hover:bg-white/70"
+                      ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
+                      : "border-[#D0DFE6] bg-white/55 text-[#536C7B] hover:bg-white hover:text-[#304B5C]"
                   }`}
                 >
-                  {showQuickFilters && (
-                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#6F91A8]" />
-                  )}
+
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="h-4 w-4"
+                  >
+
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 3c2.755 0 5.287.74 7.484 2.03.336.197.516.579.444.961l-.79 4.16a2 2 0 0 1-.89 1.29l-3.118 1.87a2 2 0 0 0-.94 1.52l-.33 3.303a2 2 0 0 1-1.99 1.8h-1.74a2 2 0 0 1-1.99-1.8l-.33-3.303a2 2 0 0 0-.94-1.52l-3.118-1.87a2 2 0 0 1-.89-1.29l-.79-4.16a1 1 0 0 1 .444-.961A14.97 14.97 0 0 1 12 3Z"
+                    />
+
+                  </svg>
 
                   Quick Filter
 
                   {activeQuickFilterCount >
                     0 && (
-                    <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+
+                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
                       {activeQuickFilterCount}
                     </span>
-                  )}
-                </button>
 
-                {/* Advanced Filter */}
+                  )}
+
+                </button>
 
                 <button
                   type="button"
                   onClick={
                     toggleAdvancedFilters
                   }
-                  className={`relative border-l border-[#91AFC2] px-5 py-3 text-sm font-semibold transition ${
+                  className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                     showAdvancedFilters
-                      ? "bg-white text-slate-900"
-                      : "text-slate-700 hover:bg-white/70"
+                      ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
+                      : "border-[#D0DFE6] bg-white/55 text-[#536C7B] hover:bg-white hover:text-[#304B5C]"
                   }`}
                 >
-                  {showAdvancedFilters && (
-                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#6F91A8]" />
-                  )}
 
-                  Advanced Filters
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="h-4 w-4"
+                  >
+
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 13.5V4.5m0 9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0-4.5m6-4.5v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5m6-9v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5"
+                    />
+
+                  </svg>
+
+                  Advanced
 
                   {activeAdvancedFilterCount >
                     0 && (
-                    <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+
+                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
                       {activeAdvancedFilterCount}
                     </span>
+
                   )}
+
                 </button>
 
               </div>
 
-              {/* Stackable Sort */}
+              {/* Sort */}
 
               <div
                 ref={sortDropdownRef}
@@ -1871,7 +1915,7 @@ export default function CustomerTable({
                         !current
                     )
                   }
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#91AFC2] bg-white/70 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition hover:bg-white xl:min-w-[280px]"
+                  className="flex w-full items-center justify-between gap-4 rounded-xl border border-[#D0DFE6] bg-white/65 px-5 py-3 text-sm font-semibold text-[#536C7B] shadow-sm outline-none transition hover:bg-white hover:text-[#304B5C] xl:min-w-[210px]"
                 >
 
                   <span>
@@ -1890,27 +1934,30 @@ export default function CustomerTable({
                         : ""
                     }`}
                   >
+
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       d="m19.5 8.25-7.5 7.5-7.5-7.5"
                     />
+
                   </svg>
 
                 </button>
 
                 {showSortOptions && (
-                  <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+
+                  <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
 
                     <div className="mb-4 flex items-center justify-between">
 
                       <div>
 
-                        <h3 className="text-sm font-semibold text-slate-900">
+                        <h3 className="text-sm font-semibold text-[#304653]">
                           Sort by
                         </h3>
 
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-[#81929C]">
                           Drag and drop to change sort priority.
                         </p>
 
@@ -1935,6 +1982,7 @@ export default function CustomerTable({
                           rule,
                           index
                         ) => (
+
                           <div
                             key={
                               rule.id
@@ -1974,7 +2022,7 @@ export default function CustomerTable({
                                 : dragOverSortId ===
                                   rule.id
                                 ? "border-[#6F91A8] bg-[#F2F7FA] shadow-md"
-                                : "border-slate-200 bg-slate-50"
+                                : "border-[#E0E8ED] bg-[#F8FAFB]"
                             }`}
                           >
 
@@ -1982,10 +2030,8 @@ export default function CustomerTable({
 
                               <div className="flex items-center gap-2">
 
-                                {/* Drag Handle */}
-
                                 <span
-                                  className="cursor-grab text-slate-400 active:cursor-grabbing"
+                                  className="cursor-grab text-[#9AAAB4] active:cursor-grabbing"
                                   title="Drag to reorder"
                                 >
                                   <svg
@@ -1996,15 +2042,17 @@ export default function CustomerTable({
                                     stroke="currentColor"
                                     className="h-5 w-5"
                                   >
+
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
                                       d="M8.25 6.75h.008v.008H8.25V6.75Zm0 5.25h.008v.008H8.25V12Zm0 5.25h.008v.008H8.25V17.25Zm7.5-10.5h.008v.008h-.008V6.75Zm0 5.25h.008v.008h-.008V12Zm0 5.25h.008v.008h-.008V17.25Z"
                                     />
+
                                   </svg>
                                 </span>
 
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-[#81929C]">
                                   Sort level{" "}
                                   {index +
                                     1}
@@ -2014,6 +2062,7 @@ export default function CustomerTable({
 
                               {sortRules.length >
                                 1 && (
+
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -2021,10 +2070,11 @@ export default function CustomerTable({
                                       rule.id
                                     )
                                   }
-                                  className="text-xs font-semibold text-slate-500 hover:text-red-600"
+                                  className="text-xs font-semibold text-[#81929C] hover:text-red-600"
                                 >
                                   Remove
                                 </button>
+
                               )}
 
                             </div>
@@ -2048,7 +2098,7 @@ export default function CustomerTable({
                                     }
                                   )
                                 }
-                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#6F91A8]"
+                                className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
                               >
 
                                 {(
@@ -2072,6 +2122,7 @@ export default function CustomerTable({
                                       );
 
                                     return (
+
                                       <option
                                         key={
                                           field
@@ -2089,6 +2140,7 @@ export default function CustomerTable({
                                           ]
                                         }
                                       </option>
+
                                     );
 
                                   }
@@ -2113,7 +2165,7 @@ export default function CustomerTable({
                                     }
                                   )
                                 }
-                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#6F91A8]"
+                                className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
                               >
 
                                 <option value="asc">
@@ -2135,6 +2187,7 @@ export default function CustomerTable({
                             </div>
 
                           </div>
+
                         )
                       )}
 
@@ -2142,18 +2195,21 @@ export default function CustomerTable({
 
                     {sortRules.length <
                       4 && (
+
                       <button
                         type="button"
                         onClick={
                           addSortRule
                         }
-                        className="mt-4 w-full rounded-xl border border-dashed border-[#91AFC2] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#5F829B] transition hover:bg-[#E7F0F5]"
+                        className="mt-4 w-full rounded-xl border border-dashed border-[#B8CBD7] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#5F829B] transition hover:bg-[#E7F0F5]"
                       >
                         + Add Sort Level
                       </button>
+
                     )}
 
                   </div>
+
                 )}
 
               </div>
@@ -2163,17 +2219,18 @@ export default function CustomerTable({
             {/* Quick Filter Panel */}
 
             {showQuickFilters && (
-              <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+
+              <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-white/80 p-6 shadow-sm">
 
                 <div className="mb-5 flex items-center justify-between">
 
                   <div>
 
-                    <h3 className="text-base font-semibold text-slate-900">
+                    <h3 className="text-base font-semibold text-[#304653]">
                       Quick Filters
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-[#71848F]">
                       Quickly narrow opportunities using common filters.
                     </p>
 
@@ -2184,7 +2241,7 @@ export default function CustomerTable({
                     onClick={
                       clearQuickFilters
                     }
-                    className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                    className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
                   >
                     Clear Filters
                   </button>
@@ -2197,19 +2254,20 @@ export default function CustomerTable({
 
                   <div>
 
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
                       Grantor
                     </label>
 
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
 
                       {availableGrantors.map(
                         (grantor) => (
+
                           <label
                             key={
                               grantor
                             }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
                           >
 
                             <input
@@ -2227,7 +2285,7 @@ export default function CustomerTable({
                                     )
                                 )
                               }
-                              className="h-4 w-4 rounded border-slate-300"
+                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
                             />
 
                             <span>
@@ -2235,6 +2293,7 @@ export default function CustomerTable({
                             </span>
 
                           </label>
+
                         )
                       )}
 
@@ -2246,19 +2305,20 @@ export default function CustomerTable({
 
                   <div>
 
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
                       Maximum Grant
                     </label>
 
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
 
                       {availableMaximumGrants.map(
                         (amount) => (
+
                           <label
                             key={
                               amount
                             }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
                           >
 
                             <input
@@ -2276,7 +2336,7 @@ export default function CustomerTable({
                                     )
                                 )
                               }
-                              className="h-4 w-4 rounded border-slate-300"
+                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
                             />
 
                             <span>
@@ -2284,6 +2344,7 @@ export default function CustomerTable({
                             </span>
 
                           </label>
+
                         )
                       )}
 
@@ -2295,7 +2356,7 @@ export default function CustomerTable({
 
                   <div>
 
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
                       Deadline
                     </label>
 
@@ -2313,7 +2374,7 @@ export default function CustomerTable({
                             )
                         )
                       }
-                      className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/40"
+                      className="mt-3 w-full rounded-xl border border-[#E0E7EB] bg-white px-4 py-3 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/30"
                     >
 
                       <option value="all">
@@ -2344,19 +2405,20 @@ export default function CustomerTable({
 
                   <div>
 
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
                       Anticipated Deadline
                     </label>
 
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
 
                       {availableMonths.map(
                         (month) => (
+
                           <label
                             key={
                               month
                             }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
                           >
 
                             <input
@@ -2374,7 +2436,7 @@ export default function CustomerTable({
                                     )
                                 )
                               }
-                              className="h-4 w-4 rounded border-slate-300"
+                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
                             />
 
                             <span>
@@ -2382,6 +2444,7 @@ export default function CustomerTable({
                             </span>
 
                           </label>
+
                         )
                       )}
 
@@ -2393,19 +2456,20 @@ export default function CustomerTable({
 
                   <div>
 
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
                       Categories
                     </label>
 
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
 
                       {availableCategories.map(
                         (category) => (
+
                           <label
                             key={
                               category
                             }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
                           >
 
                             <input
@@ -2423,7 +2487,7 @@ export default function CustomerTable({
                                     )
                                 )
                               }
-                              className="h-4 w-4 rounded border-slate-300"
+                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
                             />
 
                             <span>
@@ -2431,6 +2495,7 @@ export default function CustomerTable({
                             </span>
 
                           </label>
+
                         )
                       )}
 
@@ -2441,22 +2506,24 @@ export default function CustomerTable({
                 </div>
 
               </div>
+
             )}
 
             {/* Advanced Filter Panel */}
 
             {showAdvancedFilters && (
-              <div className="relative z-[90] mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+
+              <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7] bg-white/80 p-6 shadow-sm">
 
                 <div className="flex items-center justify-between gap-4">
 
                   <div>
 
-                    <h3 className="text-base font-semibold text-slate-900">
+                    <h3 className="text-base font-semibold text-[#304653]">
                       Advanced Filters
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-[#71848F]">
                       Build a custom filter using multiple AND rules.
                     </p>
 
@@ -2477,13 +2544,13 @@ export default function CustomerTable({
                 {advancedFilters.length ===
                 0 ? (
 
-                  <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
+                  <div className="mt-5 rounded-xl border border-dashed border-[#CBD9E1] bg-[#FAFCFD] p-6 text-center">
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#71848F]">
                       No advanced filters added yet.
                     </p>
 
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-[#94A3AB]">
                       Click "Add Filter" to create your first rule.
                     </p>
 
@@ -2508,20 +2575,17 @@ export default function CustomerTable({
                           filter.id;
 
                         return (
+
                           <div
                             key={
                               filter.id
                             }
-                            className="relative flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 lg:flex-row lg:items-start"
+                            className="relative flex flex-col gap-3 rounded-xl border border-[#E0E7EB] bg-white p-4 lg:flex-row lg:items-start"
                           >
 
-                            {/* AND */}
-
-                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-500 lg:mt-0">
+                            <div className="rounded-lg border border-[#E0E7EB] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#81929C] lg:mt-0">
                               AND
                             </div>
-
-                            {/* Field */}
 
                             <select
                               value={
@@ -2550,7 +2614,7 @@ export default function CustomerTable({
                                 );
 
                               }}
-                              className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
                             >
 
                               <option value="grantor">
@@ -2583,8 +2647,6 @@ export default function CustomerTable({
 
                             </select>
 
-                            {/* Operator */}
-
                             <select
                               value={
                                 filter.operator
@@ -2602,7 +2664,7 @@ export default function CustomerTable({
                                   }
                                 )
                               }
-                              className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
                             >
 
                               <option value="is">
@@ -2615,8 +2677,6 @@ export default function CustomerTable({
 
                             </select>
 
-                            {/* Multi-Select */}
-
                             <div
                               ref={
                                 dropdownIsOpen
@@ -2626,13 +2686,11 @@ export default function CustomerTable({
                               className="relative min-w-0 flex-1"
                             >
 
-                              {/* Selected Values Area */}
-
                               <div
                                 className={`min-h-[42px] rounded-lg border bg-white p-1.5 transition ${
                                   dropdownIsOpen
                                     ? "border-[#6F91A8] ring-2 ring-[#AFC4D4]/40"
-                                    : "border-slate-200"
+                                    : "border-[#DDE6EB]"
                                 }`}
                               >
 
@@ -2640,6 +2698,7 @@ export default function CustomerTable({
 
                                   {filter.values.length ===
                                     0 && (
+
                                     <button
                                       type="button"
                                       onClick={() =>
@@ -2649,13 +2708,14 @@ export default function CustomerTable({
                                             : filter.id
                                         )
                                       }
-                                      className="flex-1 px-2 py-1.5 text-left text-sm text-slate-400"
+                                      className="flex-1 px-2 py-1.5 text-left text-sm text-[#9AAAB4]"
                                     >
                                       Select{" "}
                                       {getFieldLabel(
                                         filter.field
                                       ).toLowerCase()}
                                     </button>
+
                                   )}
 
                                   {filter.values.map(
@@ -2674,7 +2734,7 @@ export default function CustomerTable({
                                             value
                                           )
                                         }
-                                        className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-[#DCEAF1]"
+                                        className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#536C7B] transition hover:bg-[#DCEAF1]"
                                       >
 
                                         <span className="max-w-[180px] truncate">
@@ -2688,7 +2748,7 @@ export default function CustomerTable({
 
                                         </span>
 
-                                        <span className="font-bold text-slate-500">
+                                        <span className="font-bold text-[#81929C]">
                                           ×
                                         </span>
 
@@ -2696,8 +2756,6 @@ export default function CustomerTable({
 
                                     )
                                   )}
-
-                                  {/* Dropdown Toggle */}
 
                                   <button
                                     type="button"
@@ -2709,7 +2767,7 @@ export default function CustomerTable({
                                       )
                                     }
                                     aria-label="Add filter value"
-                                    className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                                    className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#F1F5F7] hover:text-[#536C7B]"
                                   >
 
                                     <svg
@@ -2741,16 +2799,14 @@ export default function CustomerTable({
 
                               </div>
 
-                              {/* Dropdown */}
-
                               {dropdownIsOpen && (
 
-                                <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-2xl">
+                                <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#D5E1E7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
 
                                   {options.length ===
                                   0 ? (
 
-                                    <div className="px-3 py-4 text-center text-sm text-slate-400">
+                                    <div className="px-3 py-4 text-center text-sm text-[#94A3AB]">
                                       No options available
                                     </div>
 
@@ -2765,7 +2821,7 @@ export default function CustomerTable({
                                           key={
                                             option
                                           }
-                                          className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                          className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
                                         >
 
                                           <input
@@ -2800,7 +2856,7 @@ export default function CustomerTable({
                                               );
 
                                             }}
-                                            className="h-4 w-4 rounded border-slate-300"
+                                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
                                           />
 
                                           <span>
@@ -2827,8 +2883,6 @@ export default function CustomerTable({
 
                             </div>
 
-                            {/* Remove */}
-
                             <button
                               type="button"
                               onClick={() =>
@@ -2836,12 +2890,13 @@ export default function CustomerTable({
                                   filter.id
                                 )
                               }
-                              className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-700"
+                              className="rounded-lg px-3 py-2 text-sm font-semibold text-[#81929C] transition hover:bg-red-50 hover:text-red-700"
                             >
                               Remove
                             </button>
 
                           </div>
+
                         );
 
                       }
@@ -2858,7 +2913,7 @@ export default function CustomerTable({
                     onClick={
                       clearAdvancedFilters
                     }
-                    className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                    className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
                   >
                     Clear Advanced Filters
                   </button>
@@ -2866,6 +2921,7 @@ export default function CustomerTable({
                 </div>
 
               </div>
+
             )}
 
             {/* Active Filter Chips */}
@@ -2875,11 +2931,9 @@ export default function CustomerTable({
 
               <div className="mt-5 flex flex-wrap items-center gap-2">
 
-                <span className="text-sm font-semibold text-slate-700">
+                <span className="text-sm font-semibold text-[#536C7B]">
                   Active filters:
                 </span>
-
-                {/* Quick Grantors */}
 
                 {quickGrantors.map(
                   (grantor) => (
@@ -2894,7 +2948,7 @@ export default function CustomerTable({
                           setQuickGrantors
                         )
                       }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
                     >
                       Grantor:{" "}
                       {grantor} ×
@@ -2902,8 +2956,6 @@ export default function CustomerTable({
 
                   )
                 )}
-
-                {/* Quick Maximum Grants */}
 
                 {quickMaximumGrants.map(
                   (amount) => (
@@ -2918,7 +2970,7 @@ export default function CustomerTable({
                           setQuickMaximumGrants
                         )
                       }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
                     >
                       Maximum Grant:{" "}
                       {amount} ×
@@ -2926,8 +2978,6 @@ export default function CustomerTable({
 
                   )
                 )}
-
-                {/* Quick Deadline */}
 
                 {quickDeadline !==
                   "all" && (
@@ -2939,7 +2989,7 @@ export default function CustomerTable({
                         "all"
                       )
                     }
-                    className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                    className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
                   >
                     Deadline:{" "}
                     {quickDeadline ===
@@ -2950,8 +3000,6 @@ export default function CustomerTable({
                   </button>
 
                 )}
-
-                {/* Quick Months */}
 
                 {quickMonths.map(
                   (month) => (
@@ -2966,7 +3014,7 @@ export default function CustomerTable({
                           setQuickMonths
                         )
                       }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
                     >
                       Anticipated:{" "}
                       {month} ×
@@ -2974,8 +3022,6 @@ export default function CustomerTable({
 
                   )
                 )}
-
-                {/* Quick Categories */}
 
                 {quickCategories.map(
                   (category) => (
@@ -2990,7 +3036,7 @@ export default function CustomerTable({
                           setQuickCategories
                         )
                       }
-                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
                     >
                       Category:{" "}
                       {category} ×
@@ -2998,8 +3044,6 @@ export default function CustomerTable({
 
                   )
                 )}
-
-                {/* Advanced Filter Summary */}
 
                 {activeAdvancedFilterCount >
                   0 && (
@@ -3009,7 +3053,7 @@ export default function CustomerTable({
                     onClick={
                       clearAdvancedFilters
                     }
-                    className="rounded-full border border-[#91AFC2] bg-[#E7EFF4] px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-[#DCE8EF]"
+                    className="rounded-full border border-[#B8CBD7] bg-[#E7EFF4] px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#DCE8EF]"
                   >
                     Advanced filters:{" "}
                     {
@@ -3025,7 +3069,7 @@ export default function CustomerTable({
                   onClick={
                     clearAllFilters
                   }
-                  className="ml-1 text-xs font-semibold text-slate-600 underline underline-offset-2 hover:text-slate-900"
+                  className="ml-1 text-xs font-semibold text-[#647781] underline underline-offset-2 hover:text-[#304653]"
                 >
                   Clear all
                 </button>
@@ -3040,13 +3084,13 @@ export default function CustomerTable({
               totalActiveFilterCount >
                 0) && (
 
-              <div className="mt-4 flex items-center gap-2 text-sm text-slate-700">
+              <div className="mt-4 flex items-center gap-2 text-sm text-[#607582]">
 
                 <span className="inline-block h-2 w-2 rounded-full bg-[#6F91A8]" />
 
                 Showing{" "}
 
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-[#304653]">
                   {
                     filteredCustomers.length
                   }
@@ -3062,15 +3106,17 @@ export default function CustomerTable({
 
         </div>
 
-        {/* Table */}
+        {/* ==================================================
+            OPPORTUNITIES TABLE
+        ================================================== */}
 
-        <div className="relative z-0 overflow-hidden rounded-2xl border border-[#D5E0E7] bg-white shadow-lg">
+        <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#D5E0E7] bg-white shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
 
           <div className="overflow-x-auto">
 
             <table className="w-full">
 
-              <thead className="bg-[#AFC4D4] text-slate-800">
+              <thead className="bg-[#DCE8EE] text-[#405967]">
 
                 <tr>
 
@@ -3106,7 +3152,7 @@ export default function CustomerTable({
 
               </thead>
 
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-[#E3E9ED]">
 
                 {filteredCustomers.map(
                   (
@@ -3127,30 +3173,33 @@ export default function CustomerTable({
                           new Date()
                         : false;
 
+                    const isSelected =
+                      String(selectedCustomerId) ===
+                      String(customer.id);
+
                     return (
 
-                        <tr
-                          key={customer.id}
-                          onClick={() =>
-                            setSelectedCustomerId(
-                              String(customer.id)
-                            )
-                          }
-                          className={`group cursor-pointer transition-all duration-200 ${
-                            String(selectedCustomerId) ===
+                      <tr
+                        key={customer.id}
+                        onClick={() =>
+                          setSelectedCustomerId(
                             String(customer.id)
-                              ? "bg-[#E8C96A] hover:bg-[#E2C15C] shadow-[inset_6px_0_0_#DC2626]"
-                              : index % 2 === 0
-                                ? "bg-white hover:bg-[#EEF5F8]"
-                                : "bg-slate-50 hover:bg-[#EEF5F8]"
-                          }`}
-                        >
+                          )
+                        }
+                        className={`group cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
+                            : index % 2 === 0
+                              ? "bg-white hover:bg-[#F1F6F8]"
+                              : "bg-[#FAFBFC] hover:bg-[#F1F6F8]"
+                        }`}
+                      >
 
                         {/* Grantor */}
 
                         <td className="p-5 align-top text-left">
 
-                          <span className="font-semibold text-slate-800">
+                          <span className="font-semibold text-[#405967]">
                             {customer.grantor ||
                               "-"}
                           </span>
@@ -3161,7 +3210,7 @@ export default function CustomerTable({
 
                         <td className="p-5 align-top text-left">
 
-                          <div className="font-semibold text-slate-900">
+                          <div className="font-semibold text-[#263B49]">
                             {customer.opportunity_name ||
                               "-"}
                           </div>
@@ -3172,7 +3221,7 @@ export default function CustomerTable({
 
                         <td className="p-5 align-top text-center">
 
-                          <span className="inline-flex rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-800">
+                          <span className="inline-flex rounded-lg border border-[#D5E0E7] bg-[#F1F4F6] px-3 py-2 text-sm font-semibold text-[#405967]">
                             {customer.maximum_grant ||
                               "Not specified"}
                           </span>
@@ -3189,7 +3238,7 @@ export default function CustomerTable({
 
                               <>
 
-                                <span className="font-semibold text-slate-800">
+                                <span className="font-semibold text-[#405967]">
 
                                   {new Date(
                                     `${customer.deadline}T00:00:00`
@@ -3249,7 +3298,7 @@ export default function CustomerTable({
 
                           ) : (
 
-                            <span className="text-slate-400">
+                            <span className="text-[#A0ADB5]">
                               —
                             </span>
 
@@ -3261,7 +3310,7 @@ export default function CustomerTable({
 
                         <td className="p-5 align-top text-left">
 
-                          <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-slate-700">
+                          <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-[#607582]">
                             {customer.abstract ||
                               "No abstract provided."}
                           </div>
@@ -3305,7 +3354,7 @@ export default function CustomerTable({
 
                             ) : (
 
-                              <span className="text-slate-400">
+                              <span className="text-[#A0ADB5]">
                                 —
                               </span>
 
@@ -3333,9 +3382,9 @@ export default function CustomerTable({
           {filteredCustomers.length ===
             0 && (
 
-            <div className="bg-slate-50 px-6 py-20 text-center">
+            <div className="bg-[#FAFBFC] px-6 py-20 text-center">
 
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-400 shadow-sm">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E0E7] bg-white text-[#9AAAB4] shadow-sm">
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -3356,11 +3405,11 @@ export default function CustomerTable({
 
               </div>
 
-              <h3 className="mt-5 text-lg font-semibold text-slate-900">
+              <h3 className="mt-5 text-lg font-semibold text-[#304653]">
                 No opportunities found
               </h3>
 
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-[#71848F]">
                 Try adjusting your search or
                 filters to find matching funding
                 opportunities.
@@ -3372,18 +3421,22 @@ export default function CustomerTable({
 
         </div>
 
-        {/* Realtime-synchronized Drawer */}
+        {/* ==================================================
+            REALTIME-SYNCHRONIZED DRAWER
+        ================================================== */}
 
         <CustomerDrawer
           customer={selectedCustomer}
           availableCategories={availableCategories}
           navigationCustomers={filteredCustomers}
           onNavigate={(customerId) =>
-            setSelectedCustomerId(String(customerId))
-        }
+            setSelectedCustomerId(
+              String(customerId)
+            )
+          }
           onClose={() =>
             setSelectedCustomerId(null)
-        }     
+          }
         />
 
       </div>
