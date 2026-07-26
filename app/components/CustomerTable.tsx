@@ -3378,17 +3378,15 @@ export default function CustomerTable({
         {/* Realtime-synchronized Drawer */}
 
         <CustomerDrawer
-          customer={
-            selectedCustomer
-          }
-          availableCategories={
-            availableCategories
-          }
+          customer={selectedCustomer}
+          availableCategories={availableCategories}
+          navigationCustomers={filteredCustomers}
+          onNavigate={(customerId) =>
+            setSelectedCustomerId(String(customerId))
+        }
           onClose={() =>
-            setSelectedCustomerId(
-              null
-            )
-          }
+          setSelectedCustomerId(null)
+        }
         />
 
       </div>

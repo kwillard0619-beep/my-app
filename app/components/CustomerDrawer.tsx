@@ -1,536 +1,503 @@
 "use client";
 
-import type { Customer } from "../types/customer";
+import { useEffect, useMemo } from "react";
 
-type Props = {
+type Customer = {
+  id: number;
+  grantor: string | null;
+  opportunity_name: string | null;
+  maximum_grant: string | null;
+  deadline: string | null;
+  anticipated_deadline: string | null;
+  abstract: string | null;
+  rfp_categories: string[] | null;
+};
+
+type CustomerDrawerProps = {
   customer: Customer | null;
-  availableCategories?: string[];
+  availableCategories: string[];
+  navigationCustomers: Customer[];
+  onNavigate: (customerId: number) => void;
   onClose: () => void;
 };
 
 export default function CustomerDrawer({
   customer,
-  availableCategories = [],
+  availableCategories,
+  navigationCustomers,
+  onNavigate,
   onClose,
-}: Props) {
-  if (!customer) return null;
-
-  // --------------------------------------------------
-  // Format Deadline
-  // --------------------------------------------------
-
-  const formattedDeadline = customer.deadline
-    ? new Date(
-        `${customer.deadline}T00:00:00`
-      ).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : null;
-
-  // --------------------------------------------------
-  // Deadline Countdown
-  // --------------------------------------------------
-
-  const getDeadlineCountdown = () => {
-    if (!customer.deadline) {
-      return {
-        text: "No deadline set",
-        className: "text-gray-400",
-      };
+}: CustomerDrawerProps) {
+  /*
+   * Find the current customer's position in the filtered list.
+   */
+  const currentIndex = useMemo(() => {
+    if (!customer) {
+      return -1;
     }
 
-    const deadlineDate = new Date(
-      `${customer.deadline}T00:00:00`
+    return navigationCustomers.findIndex(
+      (item) => item.id === customer.id
     );
+  }, [customer, navigationCustomers]);
 
-    const today = new Date();
+  /*
+   * Determine whether Previous / Next buttons should be enabled.
+   */
+  const hasPrevious =
+    currentIndex > 0;
 
-    today.setHours(0, 0, 0, 0);
+  const hasNext =
+    currentIndex >= 0 &&
+    currentIndex <
+      navigationCustomers.length - 1;
 
-    const difference =
-      deadlineDate.getTime() -
-      today.getTime();
-
-    const daysUntil = Math.ceil(
-      difference /
-        (1000 * 60 * 60 * 24)
-    );
-
-    if (daysUntil < 0) {
-      const daysAgo = Math.abs(daysUntil);
-
-      return {
-        text: `${daysAgo} ${
-          daysAgo === 1 ? "day" : "days"
-        } past deadline`,
-        className:
-          "font-medium text-gray-500",
-      };
+  /*
+   * Navigate to previous customer.
+   */
+  const handlePrevious = () => {
+    if (!hasPrevious) {
+      return;
     }
 
-    if (daysUntil === 0) {
-      return {
-        text: "Deadline is today",
-        className:
-          "font-semibold text-red-600",
-      };
-    }
-
-    if (daysUntil === 1) {
-      return {
-        text: "1 day remaining",
-        className:
-          "font-semibold text-red-600",
-      };
-    }
-
-    if (daysUntil <= 30) {
-      return {
-        text: `${daysUntil} days remaining`,
-        className:
-          "font-semibold text-amber-600",
-      };
-    }
-
-    return {
-      text: `${daysUntil} days remaining`,
-      className:
-        "font-semibold text-emerald-600",
-    };
-  };
-
-  const deadlineCountdown =
-    getDeadlineCountdown();
-
-  // --------------------------------------------------
-  // Boolean Formatting
-  // --------------------------------------------------
-
-  const formatBooleanValue = (
-    value:
-      | string
-      | null
-      | undefined
-  ) => {
-    if (!value) return null;
-
-    const normalized = String(value)
-      .trim()
-      .toLowerCase();
-
-    if (
-      normalized === "yes" ||
-      normalized === "true"
-    ) {
-      return "Yes";
-    }
-
-    if (
-      normalized === "no" ||
-      normalized === "false"
-    ) {
-      return "No";
-    }
-
-    return String(value);
-  };
-
-  const limitedOpportunity =
-    formatBooleanValue(
-      customer.limited_opportunity
-    );
-
-  const fellowshipOpportunity =
-    formatBooleanValue(
-      customer.fellowship_opportunity
-    );
-
-  // --------------------------------------------------
-  // Category Colors
-  // Uses the same category ordering as the
-  // availableCategories list from CustomerTable
-  // --------------------------------------------------
-
-  const getCategoryStyle = (
-    category: string
-  ) => {
-    const colors = [
-      "bg-blue-100 text-blue-800 border-blue-300",
-      "bg-purple-100 text-purple-800 border-purple-300",
-      "bg-emerald-100 text-emerald-800 border-emerald-300",
-      "bg-amber-100 text-amber-800 border-amber-300",
-      "bg-rose-100 text-rose-800 border-rose-300",
-      "bg-cyan-100 text-cyan-800 border-cyan-300",
-      "bg-indigo-100 text-indigo-800 border-indigo-300",
-      "bg-orange-100 text-orange-800 border-orange-300",
-    ];
-
-    const categoryIndex =
-      availableCategories.findIndex(
-        (availableCategory) =>
-          availableCategory
-            .trim()
-            .toLowerCase() ===
-          category.trim().toLowerCase()
-      );
-
-    if (categoryIndex !== -1) {
-      return colors[
-        categoryIndex % colors.length
+    const previousCustomer =
+      navigationCustomers[
+        currentIndex - 1
       ];
+
+    if (previousCustomer) {
+      onNavigate(previousCustomer.id);
     }
-
-    // Fallback for categories that are not
-    // included in availableCategories
-    let hash = 0;
-
-    for (
-      let i = 0;
-      i < category.length;
-      i++
-    ) {
-      hash =
-        category.charCodeAt(i) +
-        ((hash << 5) - hash);
-    }
-
-    const index =
-      Math.abs(hash) % colors.length;
-
-    return colors[index];
   };
 
-  // --------------------------------------------------
-  // Render
-  // --------------------------------------------------
+  /*
+   * Navigate to next customer.
+   */
+  const handleNext = () => {
+    if (!hasNext) {
+      return;
+    }
+
+    const nextCustomer =
+      navigationCustomers[
+        currentIndex + 1
+      ];
+
+    if (nextCustomer) {
+      onNavigate(nextCustomer.id);
+    }
+  };
+
+  /*
+   * Close drawer when Escape is pressed.
+   */
+  useEffect(() => {
+    if (!customer) {
+      return;
+    }
+
+    const handleKeyDown = (
+      event: KeyboardEvent
+    ) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+
+      if (
+        event.key === "ArrowLeft" &&
+        hasPrevious
+      ) {
+        handlePrevious();
+      }
+
+      if (
+        event.key === "ArrowRight" &&
+        hasNext
+      ) {
+        handleNext();
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+    };
+  }, [
+    customer,
+    hasPrevious,
+    hasNext,
+    currentIndex,
+    navigationCustomers,
+  ]);
+
+  /*
+   * Prevent the background page from scrolling
+   * while the drawer is open.
+   */
+  useEffect(() => {
+    if (!customer) {
+      return;
+    }
+
+    const originalOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    return () => {
+      document.body.style.overflow =
+        originalOverflow;
+    };
+  }, [customer]);
+
+  /*
+   * Format deadline.
+   */
+  const formattedDeadline =
+    customer?.deadline
+      ? new Date(
+          `${customer.deadline}T00:00:00`
+        ).toLocaleDateString(
+          "en-US",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        )
+      : null;
+
+  /*
+   * Determine whether deadline has passed.
+   */
+  const isPastDeadline =
+    customer?.deadline
+      ? new Date(
+          `${customer.deadline}T00:00:00`
+        ) < new Date()
+      : false;
+
+  /*
+   * If no customer is selected, render nothing.
+   */
+  if (!customer) {
+    return null;
+  }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      {/* Drawer */}
+    <>
+      {/* Background Overlay */}
 
       <div
-        className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"
-        onClick={(e) =>
-          e.stopPropagation()
+        className="fixed inset-0 z-[9998] bg-slate-900/30 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+
+      {/* Drawer */}
+
+      <aside
+        className="fixed right-0 top-0 z-[9999] flex h-screen w-full max-w-2xl flex-col bg-white shadow-2xl"
+        onClick={(event) =>
+          event.stopPropagation()
         }
       >
         {/* Header */}
 
-        <div className="sticky top-0 z-10 border-b border-[#C7D6E0] bg-[#EEF4F7]/95 px-8 py-8 backdrop-blur">
-          <div className="flex items-start justify-between gap-6">
-            <div className="min-w-0 pr-4">
-              {/* Grantor */}
+        <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-5">
+          <div className="min-w-0">
 
-              <p className="text-lg font-bold uppercase tracking-[0.12em] text-[#6F8FA5] sm:text-xl">
-                {customer.grantor ||
-                  "Grant Opportunity"}
-              </p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6F91A8]">
+              Funding Opportunity
+            </p>
 
-              {/* Opportunity Name */}
+            <h2 className="mt-1 truncate text-xl font-bold text-slate-900">
+              {customer.opportunity_name ||
+                "Untitled Opportunity"}
+            </h2>
 
-              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl">
-                {customer.opportunity_name ||
-                  "Untitled Opportunity"}
-              </h2>
-            </div>
+          </div>
 
-            {/* Close Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close opportunity details"
+            className="ml-4 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Navigation */}
+
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-3">
+
+          <div className="text-xs font-medium text-slate-500">
+            {currentIndex >= 0
+              ? `Opportunity ${
+                  currentIndex + 1
+                } of ${
+                  navigationCustomers.length
+                }`
+              : "Opportunity"}
+          </div>
+
+          <div className="flex items-center gap-2">
 
             <button
               type="button"
-              onClick={onClose}
-              aria-label="Close opportunity details"
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition hover:bg-white hover:text-slate-900"
+              onClick={handlePrevious}
+              disabled={!hasPrevious}
+              className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.8}
-                stroke="currentColor"
-                className="h-6 w-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-
-        <div className="px-8 py-8">
-          {/* Key Opportunity Information */}
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Maximum Grant */}
-
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-              <div className="text-sm font-medium text-gray-500">
-                Maximum Grant
-              </div>
-
-              <div className="mt-2 text-xl font-bold text-slate-900">
-                {customer.maximum_grant ||
-                  "Not specified"}
-              </div>
-            </div>
-
-            {/* Deadline */}
-
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-              <div className="text-sm font-medium text-gray-500">
-                Deadline
-              </div>
-
-              <div className="mt-2 text-xl font-bold text-slate-900">
-                {formattedDeadline ||
-                  "Not set"}
-              </div>
-            </div>
-          </div>
-
-          {/* Secondary Details */}
-
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Website */}
-
-            <div>
-              <div className="text-sm font-medium text-gray-500">
-                Website
-              </div>
-
-              <div className="mt-2">
-                {customer.website_link ? (
-                  <a
-                    href={
-                      customer.website_link
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#AFC4D4] px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#9FB7C8] hover:shadow-md"
-                  >
-                    Visit Website
-
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="h-4 w-4"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
-                      />
-
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M18 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H11"
-                      />
-                    </svg>
-                  </a>
-                ) : (
-                  <span className="text-gray-400">
-                    Not provided
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Deadline Countdown */}
-
-            <div>
-              <div className="text-sm font-medium text-gray-500">
-                Deadline Countdown
-              </div>
-
-              <div className="mt-2">
-                <span
-                  className={
-                    deadlineCountdown.className
-                  }
-                >
-                  {deadlineCountdown.text}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Divider */}
-
-          <div className="my-8 border-t border-gray-200" />
-
-          {/* Abstract */}
-
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Abstract
-            </h3>
-
-            <div className="mt-3 whitespace-pre-line text-base leading-7 text-gray-700">
-              {customer.abstract ||
-                "No abstract provided."}
-            </div>
-          </section>
-
-          {/* Categories */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Categories
-            </h3>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              {Array.isArray(
-                customer.rfp_categories
-              ) &&
-              customer.rfp_categories
-                .length > 0 ? (
-                customer.rfp_categories.map(
-                  (category) => (
-                    <span
-                      key={category}
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-sm font-medium ${getCategoryStyle(
-                        category
-                      )}`}
-                    >
-                      {category}
-                    </span>
-                  )
-                )
-              ) : (
-                <span className="text-gray-400">
-                  No categories listed.
-                </span>
-              )}
-            </div>
-          </section>
-
-          {/* Additional Details */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Additional Details
-            </h3>
-
-            <div className="mt-3 whitespace-pre-line text-base leading-7 text-gray-700">
-              {customer.additional_information ||
-                "No additional details provided."}
-            </div>
-          </section>
-
-          {/* Opportunity Information */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Opportunity Information
-            </h3>
-
-            <div className="mt-4 divide-y divide-gray-100 rounded-xl border border-gray-200">
-              {/* Limited Opportunity */}
-
-              <div className="flex items-center justify-between gap-4 p-4">
-                <span className="text-sm font-medium text-gray-600">
-                  Limited Opportunity
-                </span>
-
-                {limitedOpportunity ? (
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      limitedOpportunity ===
-                      "Yes"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : limitedOpportunity ===
-                            "No"
-                          ? "bg-slate-200 text-black"
-                          : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {limitedOpportunity}
-                  </span>
-                ) : (
-                  <span className="text-sm text-gray-400">
-                    Not specified
-                  </span>
-                )}
-              </div>
-
-              {/* Fellowship Opportunity */}
-
-              <div className="flex items-center justify-between gap-4 p-4">
-                <span className="text-sm font-medium text-gray-600">
-                  Fellowship Opportunity
-                </span>
-
-                {fellowshipOpportunity ? (
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      fellowshipOpportunity ===
-                      "Yes"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : fellowshipOpportunity ===
-                            "No"
-                          ? "bg-slate-200 text-black"
-                          : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {fellowshipOpportunity}
-                  </span>
-                ) : (
-                  <span className="text-sm text-gray-400">
-                    Not specified
-                  </span>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* Attachments */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-              Attachments
-            </h3>
-
-            <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="mx-auto h-8 w-8 text-gray-400"
+                className="h-4 w-4"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="m18.375 12.739-7.5 7.5a4.5 4.5 0 0 1-6.364-6.364l9-9a3 3 0 1 1 4.243 4.243l-9 9a1.5 1.5 0 0 1-2.121-2.121l8.25-8.25"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
                 />
               </svg>
 
-              <p className="mt-2 text-sm text-gray-500">
-                No attachments available.
-              </p>
-            </div>
-          </section>
+              Previous
+            </button>
 
-          {/* Bottom Spacing */}
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!hasNext}
+              className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
 
-          <div className="h-8" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </button>
+
+          </div>
         </div>
-      </div>
-    </div>
+
+        {/* Content */}
+
+        <div className="flex-1 overflow-y-auto">
+
+          <div className="space-y-6 p-6">
+
+            {/* Grantor */}
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Grantor
+              </p>
+
+              <p className="mt-2 text-base font-semibold text-slate-900">
+                {customer.grantor ||
+                  "Not specified"}
+              </p>
+
+            </div>
+
+            {/* Opportunity Name */}
+
+            <div>
+
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Opportunity Name
+              </p>
+
+              <p className="mt-2 text-lg font-semibold leading-7 text-slate-900">
+                {customer.opportunity_name ||
+                  "Not specified"}
+              </p>
+
+            </div>
+
+            {/* Grant + Deadline Grid */}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              {/* Maximum Grant */}
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Maximum Grant
+                </p>
+
+                <p className="mt-2 text-base font-semibold text-slate-900">
+                  {customer.maximum_grant ||
+                    "Not specified"}
+                </p>
+
+              </div>
+
+              {/* Deadline */}
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Deadline
+                </p>
+
+                {formattedDeadline ? (
+
+                  <div className="mt-2">
+
+                    <p className="font-semibold text-slate-900">
+                      {formattedDeadline}
+                    </p>
+
+                    {isPastDeadline && (
+                      <span className="mt-2 inline-flex rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                        Past deadline
+                      </span>
+                    )}
+
+                  </div>
+
+                ) : (
+
+                  <p className="mt-2 font-semibold text-slate-400">
+                    Not specified
+                  </p>
+
+                )}
+
+              </div>
+
+            </div>
+
+            {/* Anticipated Deadline */}
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Anticipated Deadline Month
+              </p>
+
+              <p className="mt-2 text-base font-semibold text-slate-900">
+                {customer.anticipated_deadline ||
+                  "Not specified"}
+              </p>
+
+            </div>
+
+            {/* Abstract */}
+
+            <div>
+
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Abstract
+              </p>
+
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+
+                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                  {customer.abstract ||
+                    "No abstract provided."}
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* Categories */}
+
+            <div>
+
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Categories
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+
+                {Array.isArray(
+                  customer.rfp_categories
+                ) &&
+                customer.rfp_categories.length >
+                  0 ? (
+
+                  customer.rfp_categories.map(
+                    (category) => (
+                      <span
+                        key={category}
+                        className="inline-flex rounded-full border border-[#B8CBD7] bg-[#EEF5F8] px-3 py-1.5 text-xs font-semibold text-slate-700"
+                      >
+                        {category}
+                      </span>
+                    )
+                  )
+
+                ) : (
+
+                  <span className="text-sm text-slate-400">
+                    No categories specified.
+                  </span>
+
+                )}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Footer */}
+
+        <div className="border-t border-slate-200 bg-white px-6 py-4">
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-xl bg-[#6F91A8] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#5F829B]"
+          >
+            Close
+          </button>
+
+        </div>
+
+      </aside>
+    </>
   );
 }
