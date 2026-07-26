@@ -120,11 +120,15 @@ export default function CustomerDrawer({
     );
 
     if (daysUntil < 0) {
-      const daysAgo = Math.abs(daysUntil);
+      const daysAgo = Math.abs(
+        daysUntil
+      );
 
       return {
         text: `${daysAgo} ${
-          daysAgo === 1 ? "day" : "days"
+          daysAgo === 1
+            ? "day"
+            : "days"
         } past deadline`,
         className:
           "font-medium text-gray-500",
@@ -264,14 +268,19 @@ export default function CustomerDrawer({
   // --------------------------------------------------
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex justify-end"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-[1000]">
+      {/* Backdrop */}
+
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
       {/* Drawer */}
 
       <div
-        className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"
+        className="absolute inset-y-0 right-0 z-10 h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"
         onClick={(e) =>
           e.stopPropagation()
         }
