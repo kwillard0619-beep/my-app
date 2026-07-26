@@ -48,15 +48,11 @@ type SortRule = {
   direction: SortDirection;
 };
 
-const SORT_FIELD_LABELS: Record<
-  SortField,
-  string
-> = {
+const SORT_FIELD_LABELS: Record<SortField, string> = {
   grantor: "Grantor",
   maximum_grant: "Maximum Grant",
   deadline: "Deadline",
-  anticipated_deadline:
-    "Anticipated Deadline",
+  anticipated_deadline: "Anticipated Deadline",
 };
 
 export default function CustomerTable({
@@ -81,8 +77,7 @@ export default function CustomerTable({
     return (
       customers.find(
         (customer) =>
-          String(customer.id) ===
-          String(selectedCustomerId)
+          String(customer.id) === String(selectedCustomerId)
       ) ?? null
     );
   }, [customers, selectedCustomerId]);
@@ -97,27 +92,32 @@ export default function CustomerTable({
   // Stackable Sort State
   // --------------------------------------------------
 
-  const [sortRules, setSortRules] =
-    useState<SortRule[]>([
-      {
-        id: 1,
-        field: "anticipated_deadline",
-        direction: "asc",
-      },
-      {
-        id: 2,
-        field: "deadline",
-        direction: "asc",
-      },
-      {
-        id: 3,
-        field: "maximum_grant",
-        direction: "desc",
-      },
-    ]);
+  const [sortRules, setSortRules] = useState<SortRule[]>([
+    {
+      id: 1,
+      field: "anticipated_deadline",
+      direction: "asc",
+    },
+    {
+      id: 2,
+      field: "deadline",
+      direction: "asc",
+    },
+    {
+      id: 3,
+      field: "maximum_grant",
+      direction: "desc",
+    },
+  ]);
 
-  const [nextSortId, setNextSortId] =
-    useState(4);
+  const [nextSortId, setNextSortId] = useState(4);
+
+  // Drag-and-drop sort state
+  const [draggedSortId, setDraggedSortId] =
+    useState<number | null>(null);
+
+  const [dragOverSortId, setDragOverSortId] =
+    useState<number | null>(null);
 
   // --------------------------------------------------
   // Sort Dropdown State
@@ -182,23 +182,18 @@ export default function CustomerTable({
     const handleOutsideClick = (
       event: MouseEvent
     ) => {
-      const target =
-        event.target as Node;
+      const target = event.target as Node;
 
       if (
         sortDropdownRef.current &&
-        !sortDropdownRef.current.contains(
-          target
-        )
+        !sortDropdownRef.current.contains(target)
       ) {
         setShowSortOptions(false);
       }
 
       if (
         advancedDropdownRef.current &&
-        !advancedDropdownRef.current.contains(
-          target
-        )
+        !advancedDropdownRef.current.contains(target)
       ) {
         setOpenAdvancedDropdownId(null);
       }
@@ -224,9 +219,7 @@ export default function CustomerTable({
   const availableCategories = useMemo(() => {
     const categories = customers.flatMap(
       (customer) =>
-        Array.isArray(
-          customer.rfp_categories
-        )
+        Array.isArray(customer.rfp_categories)
           ? customer.rfp_categories
           : []
     );
@@ -1173,6 +1166,109 @@ export default function CustomerTable({
     );
   };
 
+  // --------------------------------------------------
+  // Drag and Drop Sort Functions
+  // --------------------------------------------------
+
+  const handleSortDragStart = (
+    event: React.DragEvent<HTMLDivElement>,
+    id: number
+  ) => {
+    setDraggedSortId(id);
+
+    event.dataTransfer.effectAllowed =
+      "move";
+
+    event.dataTransfer.setData(
+      "text/plain",
+      String(id)
+    );
+  };
+
+  const handleSortDragOver = (
+    event: React.DragEvent<HTMLDivElement>,
+    id: number
+  ) => {
+    event.preventDefault();
+
+    event.dataTransfer.dropEffect =
+      "move";
+
+    if (
+      draggedSortId !== null &&
+      draggedSortId !== id
+    ) {
+      setDragOverSortId(id);
+    }
+  };
+
+  const handleSortDrop = (
+    event: React.DragEvent<HTMLDivElement>,
+    targetId: number
+  ) => {
+    event.preventDefault();
+
+    const sourceId =
+      draggedSortId;
+
+    if (
+      sourceId === null ||
+      sourceId === targetId
+    ) {
+      setDraggedSortId(null);
+      setDragOverSortId(null);
+      return;
+    }
+
+    setSortRules((current) => {
+      const sourceIndex =
+        current.findIndex(
+          (rule) =>
+            rule.id === sourceId
+        );
+
+      const targetIndex =
+        current.findIndex(
+          (rule) =>
+            rule.id === targetId
+        );
+
+      if (
+        sourceIndex === -1 ||
+        targetIndex === -1
+      ) {
+        return current;
+      }
+
+      const reordered = [
+        ...current,
+      ];
+
+      const [
+        movedRule,
+      ] = reordered.splice(
+        sourceIndex,
+        1
+      );
+
+      reordered.splice(
+        targetIndex,
+        0,
+        movedRule
+      );
+
+      return reordered;
+    });
+
+    setDraggedSortId(null);
+    setDragOverSortId(null);
+  };
+
+  const handleSortDragEnd = () => {
+    setDraggedSortId(null);
+    setDragOverSortId(null);
+  };
+
   const resetSortRules = () => {
     setSortRules([
       {
@@ -1430,6 +1526,27 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
+  // Filter Panel Toggle Functions
+  // --------------------------------------------------
+
+  const toggleQuickFilters = () => {
+    setShowAdvancedFilters(false);
+    setOpenAdvancedDropdownId(null);
+
+    setShowQuickFilters(
+      (current) => !current
+    );
+  };
+
+  const toggleAdvancedFilters = () => {
+    setShowQuickFilters(false);
+
+    setShowAdvancedFilters(
+      (current) => !current
+    );
+  };
+
+  // --------------------------------------------------
   // Clear All Filters
   // --------------------------------------------------
 
@@ -1657,54 +1774,87 @@ export default function CustomerTable({
                       e.target.value
                     )
                   }
-                  className="w-full rounded-xl border border-[#91AFC2] bg-white/70 py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
+                  className="w-full rounded-xl border border-[#91AFC2] bg-white/70 py-3 pl-11 pr-11 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-[#6F91A8] focus:bg-white focus:ring-4 focus:ring-white/30"
                 />
+
+                {/* Clear Search Button */}
+
+                {search.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSearch("")
+                    }
+                    aria-label="Clear search"
+                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition hover:text-slate-700"
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-sm font-bold leading-none hover:bg-slate-300">
+                      ×
+                    </span>
+                  </button>
+                )}
 
               </div>
 
-              {/* Quick Filter Button */}
+              {/* Filter Toggle Group */}
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowQuickFilters(
-                    (current) =>
-                      !current
-                  )
-                }
-                className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
-              >
-                Quick Filter
+              <div className="flex overflow-hidden rounded-xl border border-[#91AFC2] bg-white/50">
 
-                {activeQuickFilterCount >
-                  0 && (
-                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
-                    {activeQuickFilterCount}
-                  </span>
-                )}
-              </button>
+                {/* Quick Filter */}
 
-              {/* Advanced Filter Button */}
+                <button
+                  type="button"
+                  onClick={
+                    toggleQuickFilters
+                  }
+                  className={`relative px-5 py-3 text-sm font-semibold transition ${
+                    showQuickFilters
+                      ? "bg-white text-slate-900"
+                      : "text-slate-700 hover:bg-white/70"
+                  }`}
+                >
+                  {showQuickFilters && (
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#6F91A8]" />
+                  )}
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowAdvancedFilters(
-                    (current) =>
-                      !current
-                  )
-                }
-                className="rounded-xl border border-[#91AFC2] bg-white/70 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
-              >
-                Advanced Filters
+                  Quick Filter
 
-                {activeAdvancedFilterCount >
-                  0 && (
-                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
-                    {activeAdvancedFilterCount}
-                  </span>
-                )}
-              </button>
+                  {activeQuickFilterCount >
+                    0 && (
+                    <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                      {activeQuickFilterCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Advanced Filter */}
+
+                <button
+                  type="button"
+                  onClick={
+                    toggleAdvancedFilters
+                  }
+                  className={`relative border-l border-[#91AFC2] px-5 py-3 text-sm font-semibold transition ${
+                    showAdvancedFilters
+                      ? "bg-white text-slate-900"
+                      : "text-slate-700 hover:bg-white/70"
+                  }`}
+                >
+                  {showAdvancedFilters && (
+                    <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#6F91A8]" />
+                  )}
+
+                  Advanced Filters
+
+                  {activeAdvancedFilterCount >
+                    0 && (
+                    <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                      {activeAdvancedFilterCount}
+                    </span>
+                  )}
+                </button>
+
+              </div>
 
               {/* Stackable Sort */}
 
@@ -1750,7 +1900,7 @@ export default function CustomerTable({
                 </button>
 
                 {showSortOptions && (
-                  <div className="absolute right-0 top-full z-[100] mt-2 w-[380px] max-w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+                  <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
 
                     <div className="mb-4 flex items-center justify-between">
 
@@ -1761,7 +1911,7 @@ export default function CustomerTable({
                         </h3>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          Sorts are applied from top to bottom.
+                          Drag and drop to change sort priority.
                         </p>
 
                       </div>
@@ -1778,7 +1928,7 @@ export default function CustomerTable({
 
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2">
 
                       {sortRules.map(
                         (
@@ -1789,16 +1939,78 @@ export default function CustomerTable({
                             key={
                               rule.id
                             }
-                            className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                            draggable
+                            onDragStart={(
+                              event
+                            ) =>
+                              handleSortDragStart(
+                                event,
+                                rule.id
+                              )
+                            }
+                            onDragOver={(
+                              event
+                            ) =>
+                              handleSortDragOver(
+                                event,
+                                rule.id
+                              )
+                            }
+                            onDrop={(
+                              event
+                            ) =>
+                              handleSortDrop(
+                                event,
+                                rule.id
+                              )
+                            }
+                            onDragEnd={
+                              handleSortDragEnd
+                            }
+                            className={`rounded-xl border p-3 transition-all ${
+                              draggedSortId ===
+                              rule.id
+                                ? "border-[#6F91A8] bg-[#E7F0F5] opacity-50"
+                                : dragOverSortId ===
+                                  rule.id
+                                ? "border-[#6F91A8] bg-[#F2F7FA] shadow-md"
+                                : "border-slate-200 bg-slate-50"
+                            }`}
                           >
 
                             <div className="mb-2 flex items-center justify-between">
 
-                              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Sort level{" "}
-                                {index +
-                                  1}
-                              </span>
+                              <div className="flex items-center gap-2">
+
+                                {/* Drag Handle */}
+
+                                <span
+                                  className="cursor-grab text-slate-400 active:cursor-grabbing"
+                                  title="Drag to reorder"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="h-5 w-5"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M8.25 6.75h.008v.008H8.25V6.75Zm0 5.25h.008v.008H8.25V12Zm0 5.25h.008v.008H8.25V17.25Zm7.5-10.5h.008v.008h-.008V6.75Zm0 5.25h.008v.008h-.008V12Zm0 5.25h.008v.008h-.008V17.25Z"
+                                    />
+                                  </svg>
+                                </span>
+
+                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  Sort level{" "}
+                                  {index +
+                                    1}
+                                </span>
+
+                              </div>
 
                               {sortRules.length >
                                 1 && (
@@ -1952,6 +2164,32 @@ export default function CustomerTable({
 
             {showQuickFilters && (
               <div className="mt-5 rounded-2xl border border-[#91AFC2] bg-white/70 p-6 shadow-sm">
+
+                <div className="mb-5 flex items-center justify-between">
+
+                  <div>
+
+                    <h3 className="text-base font-semibold text-slate-900">
+                      Quick Filters
+                    </h3>
+
+                    <p className="mt-1 text-sm text-slate-600">
+                      Quickly narrow opportunities using common filters.
+                    </p>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={
+                      clearQuickFilters
+                    }
+                    className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    Clear Filters
+                  </button>
+
+                </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
 
@@ -2202,20 +2440,6 @@ export default function CustomerTable({
 
                 </div>
 
-                <div className="mt-5 flex justify-end">
-
-                  <button
-                    type="button"
-                    onClick={
-                      clearQuickFilters
-                    }
-                    className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-                  >
-                    Clear Filters
-                  </button>
-
-                </div>
-
               </div>
             )}
 
@@ -2233,8 +2457,7 @@ export default function CustomerTable({
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-600">
-                      Build a custom filter using
-                      multiple AND rules.
+                      Build a custom filter using multiple AND rules.
                     </p>
 
                   </div>
@@ -2261,8 +2484,7 @@ export default function CustomerTable({
                     </p>
 
                     <p className="mt-1 text-xs text-slate-400">
-                      Click "Add Filter" to create
-                      your first rule.
+                      Click "Add Filter" to create your first rule.
                     </p>
 
                   </div>
@@ -2393,7 +2615,7 @@ export default function CustomerTable({
 
                             </select>
 
-                            {/* Multi-Select Dropdown */}
+                            {/* Multi-Select */}
 
                             <div
                               ref={
@@ -2404,69 +2626,37 @@ export default function CustomerTable({
                               className="relative min-w-0 flex-1"
                             >
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setOpenAdvancedDropdownId(
-                                    dropdownIsOpen
-                                      ? null
-                                      : filter.id
-                                  )
-                                }
-                                className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm"
+                              {/* Selected Values Area */}
+
+                              <div
+                                className={`min-h-[42px] rounded-lg border bg-white p-1.5 transition ${
+                                  dropdownIsOpen
+                                    ? "border-[#6F91A8] ring-2 ring-[#AFC4D4]/40"
+                                    : "border-slate-200"
+                                }`}
                               >
 
-                                <span
-                                  className={
-                                    filter.values
-                                      .length ===
-                                    0
-                                      ? "text-slate-400"
-                                      : "text-slate-700"
-                                  }
-                                >
+                                <div className="flex flex-wrap items-center gap-1.5">
 
-                                  {filter.values
-                                    .length ===
-                                  0
-                                    ? `Select ${getFieldLabel(
+                                  {filter.values.length ===
+                                    0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setOpenAdvancedDropdownId(
+                                          dropdownIsOpen
+                                            ? null
+                                            : filter.id
+                                        )
+                                      }
+                                      className="flex-1 px-2 py-1.5 text-left text-sm text-slate-400"
+                                    >
+                                      Select{" "}
+                                      {getFieldLabel(
                                         filter.field
-                                      ).toLowerCase()}`
-                                    : `${filter.values.length} selected`}
-
-                                </span>
-
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={
-                                    1.5
-                                  }
-                                  stroke="currentColor"
-                                  className={`h-4 w-4 transition-transform ${
-                                    dropdownIsOpen
-                                      ? "rotate-180"
-                                      : ""
-                                  }`}
-                                >
-
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                                  />
-
-                                </svg>
-
-                              </button>
-
-                              {/* Selected Options */}
-
-                              {filter.values.length >
-                                0 && (
-
-                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                      ).toLowerCase()}
+                                    </button>
+                                  )}
 
                                   {filter.values.map(
                                     (
@@ -2484,7 +2674,7 @@ export default function CustomerTable({
                                             value
                                           )
                                         }
-                                        className="inline-flex items-center gap-1 rounded-full border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-[#DCEAF1]"
+                                        className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-[#DCEAF1]"
                                       >
 
                                         <span className="max-w-[180px] truncate">
@@ -2507,9 +2697,51 @@ export default function CustomerTable({
                                     )
                                   )}
 
+                                  {/* Dropdown Toggle */}
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setOpenAdvancedDropdownId(
+                                        dropdownIsOpen
+                                          ? null
+                                          : filter.id
+                                      )
+                                    }
+                                    aria-label="Add filter value"
+                                    className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                                  >
+
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={
+                                        1.5
+                                      }
+                                      stroke="currentColor"
+                                      className={`h-4 w-4 transition-transform ${
+                                        dropdownIsOpen
+                                          ? "rotate-180"
+                                          : ""
+                                      }`}
+                                    >
+
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                      />
+
+                                    </svg>
+
+                                  </button>
+
                                 </div>
 
-                              )}
+                              </div>
+
+                              {/* Dropdown */}
 
                               {dropdownIsOpen && (
 
