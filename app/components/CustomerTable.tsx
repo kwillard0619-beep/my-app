@@ -1664,13 +1664,13 @@ export default function CustomerTable({
 
           {/* Main Gradient Background */}
 
-          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#405C6E] to-[#9FB9C9]" />
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#405C6E] via-[58%] to-[#9FB9C9]" />
 
           {/* Soft Dusty Blue Glow Behind Logo */}
 
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-[58%] overflow-hidden rounded-r-[28px]">
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-[65%] overflow-hidden rounded-r-[28px]">
 
-            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/60 via-[#9FB9C9]/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/55 via-[#9FB9C9]/25 to-transparent" />
 
           </div>
 
@@ -3373,7 +3373,7 @@ export default function CustomerTable({
             ACTIVE OPPORTUNITIES COUNT
         ================================================== */}
 
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-start">
 
           <div className="inline-flex items-center gap-3 rounded-xl border border-[#C8D8E1] bg-[#E6EFF3] px-5 py-3 shadow-sm">
 
