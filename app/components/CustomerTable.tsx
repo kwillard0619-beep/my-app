@@ -1648,1730 +1648,133 @@ export default function CustomerTable({
     }
   };
 
-    // --------------------------------------------------
-  // Render
-  // --------------------------------------------------
+   // --------------------------------------------------
+// Render
+// --------------------------------------------------
 
-  return (
-    <div className="min-h-screen bg-[#F7F9FA] py-4 sm:py-6">
-      <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
+return (
+  <div className="min-h-screen bg-[#F7F9FA] py-4 sm:py-6">
+    <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
+
+      {/* ==================================================
+          HEADER / SEARCH / FILTER AREA
+      ================================================== */}
+
+      <div className="relative overflow-hidden rounded-[28px]">
 
         {/* ==================================================
-            HEADER / SEARCH / FILTER AREA
+            SOFT MULTI-STOP GRADIENT BACKGROUND
         ================================================== */}
 
-        <div className="relative overflow-hidden rounded-[28px]">
+        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#344F60] via-[35%] via-[#4F6B7B] via-[55%] via-[#718D9D] via-[75%] to-[#AFC4D0]" />
 
-          {/* ==================================================
-              SOFT MULTI-STOP GRADIENT BACKGROUND
-          ================================================== */}
+        {/* ==================================================
+            LARGE SOFT BLEND OVERLAY
+        ================================================== */}
 
-          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#344F60] via-[35%] via-[#4F6B7B] via-[55%] via-[#718D9D] via-[75%] to-[#AFC4D0]" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
 
-          {/* ==================================================
-              LARGE SOFT BLEND OVERLAY
-          ================================================== */}
-
-          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
-
-            <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#344F60]/20 via-[#6B8797]/30 to-[#AFC4D0]/10 blur-[55px]" />
-
-          </div>
-
-          {/* ==================================================
-              DUSTY BLUE SOFTENING
-          ================================================== */}
-
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
-
-            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
-
-          </div>
-
-          {/* ==================================================
-              BRANDING AREA
-          ================================================== */}
-
-          <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
-
-            {/* ==================================================
-                LOGO
-                Clean upper-right placement
-            ================================================== */}
-
-            <div className="pointer-events-none absolute right-6 top-6 hidden sm:block lg:right-10 lg:top-8">
-
-              <div className="flex h-20 w-48 items-center justify-center rounded-2xl bg-white/10 px-4 backdrop-blur-[2px]">
-
-                <img
-                  src="/lg-listings-logo.png"
-                  alt="LG Listings"
-                  className="h-full w-auto max-w-full object-contain object-center opacity-95"
-                />
-
-              </div>
-
-            </div>
-
-            <div className="flex flex-col gap-7">
-
-              {/* ==================================================
-                  TITLE / DESCRIPTION
-              ================================================== */}
-
-              <div className="min-w-0 pr-0 sm:pr-52">
-
-                <div className="max-w-3xl">
-
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D7E4EA]">
-                    Private Grant Funding
-                  </p>
-
-                  <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
-                    Active RFP Opportunities
-                  </h1>
-
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#DCE8ED] sm:text-base">
-                    Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* ==================================================
-                ACCENT LINE
-            ================================================== */}
-
-            <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#D7E4EA]/60 to-transparent" />
-
-          </div>
-
-          {/* ==================================================
-              SEARCH + FILTER TOOLBAR
-          ================================================== */}
-
-          <div className="relative px-6 pb-7 sm:px-8 lg:px-10">
-
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-
-              {/* ==================================================
-                  SEARCH
-              ================================================== */}
-
-              <div className="relative flex-1">
-
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#78909E]">
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="h-5 w-5"
-                  >
-
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61Z"
-                    />
-
-                  </svg>
-
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Search grants, organizations, categories, key words..."
-                  value={search}
-                  onChange={(e) =>
-                    setSearch(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-2xl border border-[#D2E0E7] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#91A2AC] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#AFC4D4]/30"
-                />
-
-                {search.length > 0 && (
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSearch("")
-                    }
-                    aria-label="Clear search"
-                    className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#91A2AC] transition hover:text-[#405967]"
-                  >
-
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
-                      ×
-                    </span>
-
-                  </button>
-
-                )}
-
-              </div>
-
-              {/* ==================================================
-                  FILTER BUTTONS
-              ================================================== */}
-
-              <div className="flex flex-col gap-2 sm:flex-row">
-
-                <button
-                  type="button"
-                  onClick={
-                    toggleQuickFilters
-                  }
-                  className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
-                    showQuickFilters
-                      ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
-                      : "border-white/20 bg-white/10 text-white hover:bg-white/20"
-                  }`}
-                >
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="h-4 w-4"
-                  >
-
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 3c2.755 0 5.287.74 7.484 2.03.336.197.516.579.444.961l-.79 4.16a2 2 0 0 1-.89 1.29l-3.118 1.87a2 2 0 0 0-.94 1.52l-.33 3.303a2 2 0 0 1-1.99 1.8h-1.74a2 2 0 0 1-1.99-1.8l-.33-3.303a2 2 0 0 0-.94-1.52l-3.118-1.87a2 2 0 0 1-.89-1.29l-.79-4.16a1 1 0 0 1 .444-.961A14.97 14.97 0 0 1 12 3Z"
-                    />
-
-                  </svg>
-
-                  Quick Filter
-
-                  {activeQuickFilterCount >
-                    0 && (
-
-                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
-                      {activeQuickFilterCount}
-                    </span>
-
-                  )}
-
-                </button>
-
-                <button
-                  type="button"
-                  onClick={
-                    toggleAdvancedFilters
-                  }
-                  className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
-                    showAdvancedFilters
-                      ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
-                      : "border-white/20 bg-white/10 text-white hover:bg-white/20"
-                  }`}
-                >
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="h-4 w-4"
-                  >
-
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 13.5V4.5m0 9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0-4.5m6-4.5v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m6-9v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5"
-                    />
-
-                  </svg>
-
-                  Advanced
-
-                  {activeAdvancedFilterCount >
-                    0 && (
-
-                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
-                      {activeAdvancedFilterCount}
-                    </span>
-
-                  )}
-
-                </button>
-
-              </div>
-
-              {/* ==================================================
-                  SORT
-              ================================================== */}
-
-              <div
-                ref={sortDropdownRef}
-                className="relative"
-              >
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowSortOptions(
-                      (current) =>
-                        !current
-                    )
-                  }
-                  className="flex w-full items-center justify-between gap-4 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm outline-none transition hover:bg-white/20 xl:min-w-[210px]"
-                >
-
-                  <span>
-                    Sort by
-                  </span>
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className={`h-4 w-4 transition-transform ${
-                      showSortOptions
-                        ? "rotate-180"
-                        : ""
-                    }`}
-                  >
-
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                    />
-
-                  </svg>
-
-                </button>
-
-                {showSortOptions && (
-
-                  <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
-
-                    <div className="mb-4 flex items-center justify-between">
-
-                      <div>
-
-                        <h3 className="text-sm font-semibold text-[#304653]">
-                          Sort by
-                        </h3>
-
-                        <p className="mt-1 text-xs text-[#81929C]">
-                          Drag and drop to change sort priority.
-                        </p>
-
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={
-                          resetSortRules
-                        }
-                        className="text-xs font-semibold text-[#5F829B] underline underline-offset-2 hover:text-[#456A82]"
-                      >
-                        Reset
-                      </button>
-
-                    </div>
-
-                    <div className="space-y-2">
-
-                      {sortRules.map(
-                        (
-                          rule,
-                          index
-                        ) => (
-
-                          <div
-                            key={
-                              rule.id
-                            }
-                            draggable
-                            onDragStart={(
-                              event
-                            ) =>
-                              handleSortDragStart(
-                                event,
-                                rule.id
-                              )
-                            }
-                            onDragOver={(
-                              event
-                            ) =>
-                              handleSortDragOver(
-                                event,
-                                rule.id
-                              )
-                            }
-                            onDrop={(
-                              event
-                            ) =>
-                              handleSortDrop(
-                                event,
-                                rule.id
-                              )
-                            }
-                            onDragEnd={
-                              handleSortDragEnd
-                            }
-                            className={`rounded-xl border p-3 transition-all ${
-                              draggedSortId ===
-                              rule.id
-                                ? "border-[#6F91A8] bg-[#E7F0F5] opacity-50"
-                                : dragOverSortId ===
-                                  rule.id
-                                ? "border-[#6F91A8] bg-[#F2F7FA] shadow-md"
-                                : "border-[#E0E8ED] bg-[#F8FAFB]"
-                            }`}
-                          >
-
-                            <div className="mb-2 flex items-center justify-between">
-
-                              <div className="flex items-center gap-2">
-
-                                <span
-                                  className="cursor-grab text-[#9AAAB4] active:cursor-grabbing"
-                                  title="Drag to reorder"
-                                >
-
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="h-5 w-5"
-                                  >
-
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      d="M8.25 6.75h.008v.008H8.25V6.75Zm0 5.25h.008v.008H8.25V12Zm0 5.25h.008v.008H8.25V17.25Zm7.5-10.5h.008v.008h-.008V6.75Zm0 5.25h.008v.008h-.008V12Zm0 5.25h.008v.008h-.008V17.25Z"
-                                    />
-
-                                  </svg>
-
-                                </span>
-
-                                <span className="text-xs font-semibold uppercase tracking-wide text-[#81929C]">
-                                  Sort level{" "}
-                                  {index +
-                                    1}
-                                </span>
-
-                              </div>
-
-                              {sortRules.length >
-                                1 && (
-
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    removeSortRule(
-                                      rule.id
-                                    )
-                                  }
-                                  className="text-xs font-semibold text-[#81929C] hover:text-red-600"
-                                >
-                                  Remove
-                                </button>
-
-                              )}
-
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-
-                              <select
-                                value={
-                                  rule.field
-                                }
-                                onChange={(
-                                  e
-                                ) =>
-                                  updateSortRule(
-                                    rule.id,
-                                    {
-                                      field:
-                                        e
-                                          .target
-                                          .value as SortField,
-                                    }
-                                  )
-                                }
-                                className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
-                              >
-
-                                {(
-                                  Object.keys(
-                                    SORT_FIELD_LABELS
-                                  ) as SortField[]
-                                ).map(
-                                  (
-                                    field
-                                  ) => {
-
-                                    const usedByAnotherRule =
-                                      sortRules.some(
-                                        (
-                                          otherRule
-                                        ) =>
-                                          otherRule.id !==
-                                            rule.id &&
-                                          otherRule.field ===
-                                            field
-                                      );
-
-                                    return (
-
-                                      <option
-                                        key={
-                                          field
-                                        }
-                                        value={
-                                          field
-                                        }
-                                        disabled={
-                                          usedByAnotherRule
-                                        }
-                                      >
-                                        {
-                                          SORT_FIELD_LABELS[
-                                            field
-                                          ]
-                                        }
-                                      </option>
-
-                                    );
-
-                                  }
-                                )}
-
-                              </select>
-
-                              <select
-                                value={
-                                  rule.direction
-                                }
-                                onChange={(
-                                  e
-                                ) =>
-                                  updateSortRule(
-                                    rule.id,
-                                    {
-                                      direction:
-                                        e
-                                          .target
-                                          .value as SortDirection,
-                                    }
-                                  )
-                                }
-                                className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
-                              >
-
-                                <option value="asc">
-                                  {getSortDirectionLabel(
-                                    rule.field,
-                                    "asc"
-                                  )}
-                                </option>
-
-                                <option value="desc">
-                                  {getSortDirectionLabel(
-                                    rule.field,
-                                    "desc"
-                                  )}
-                                </option>
-
-                              </select>
-
-                            </div>
-
-                          </div>
-
-                        )
-                      )}
-
-                    </div>
-
-                    {sortRules.length <
-                      4 && (
-
-                      <button
-                        type="button"
-                        onClick={
-                          addSortRule
-                        }
-                        className="mt-4 w-full rounded-xl border border-dashed border-[#B8CBD7] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#5F829B] transition hover:bg-[#E7F0F5]"
-                      >
-                        + Add Sort Level
-                      </button>
-
-                    )}
-
-                  </div>
-
-                )}
-
-              </div>
-
-            </div>
-
-            {/* ==================================================
-                QUICK FILTER PANEL
-            ================================================== */}
-
-            {showQuickFilters && (
-
-              <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
-
-                <div className="mb-5 flex items-center justify-between">
-
-                  <div>
-
-                    <h3 className="text-base font-semibold text-[#304653]">
-                      Quick Filters
-                    </h3>
-
-                    <p className="mt-1 text-sm text-[#71848F]">
-                      Quickly narrow opportunities using common filters.
-                    </p>
-
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={
-                      clearQuickFilters
-                    }
-                    className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
-                  >
-                    Clear Filters
-                  </button>
-
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
-
-                  {/* Grantor */}
-
-                  <div>
-
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
-                      Grantor
-                    </label>
-
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
-
-                      {availableGrantors.map(
-                        (grantor) => (
-
-                          <label
-                            key={
-                              grantor
-                            }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
-                          >
-
-                            <input
-                              type="checkbox"
-                              checked={quickGrantors.includes(
-                                grantor
-                              )}
-                              onChange={() =>
-                                activateQuickFilter(
-                                  () =>
-                                    toggleArrayValue(
-                                      grantor,
-                                      quickGrantors,
-                                      setQuickGrantors
-                                    )
-                                )
-                              }
-                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
-                            />
-
-                            <span>
-                              {grantor}
-                            </span>
-
-                          </label>
-
-                        )
-                      )}
-
-                    </div>
-
-                  </div>
-
-                  {/* Maximum Grant */}
-
-                  <div>
-
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
-                      Maximum Grant
-                    </label>
-
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
-
-                      {availableMaximumGrants.map(
-                        (amount) => (
-
-                          <label
-                            key={
-                              amount
-                            }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
-                          >
-
-                            <input
-                              type="checkbox"
-                              checked={quickMaximumGrants.includes(
-                                amount
-                              )}
-                              onChange={() =>
-                                activateQuickFilter(
-                                  () =>
-                                    toggleArrayValue(
-                                      amount,
-                                      quickMaximumGrants,
-                                      setQuickMaximumGrants
-                                    )
-                                )
-                              }
-                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
-                            />
-
-                            <span>
-                              {amount}
-                            </span>
-
-                          </label>
-
-                        )
-                      )}
-
-                    </div>
-
-                  </div>
-
-                  {/* Deadline */}
-
-                  <div>
-
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
-                      Deadline
-                    </label>
-
-                    <select
-                      value={
-                        quickDeadline
-                      }
-                      onChange={(e) =>
-                        activateQuickFilter(
-                          () =>
-                            setQuickDeadline(
-                              e
-                                .target
-                                .value
-                            )
-                        )
-                      }
-                      className="mt-3 w-full rounded-xl border border-[#E0E7EB] bg-white px-4 py-3 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/30"
-                    >
-
-                      <option value="all">
-                        All Deadlines
-                      </option>
-
-                      <option value="30">
-                        Due within 30 days
-                      </option>
-
-                      <option value="60">
-                        Due within 60 days
-                      </option>
-
-                      <option value="90">
-                        Due within 90 days
-                      </option>
-
-                      <option value="no-deadline">
-                        No specific deadline
-                      </option>
-
-                    </select>
-
-                  </div>
-
-                  {/* Anticipated Deadline */}
-
-                  <div>
-
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
-                      Anticipated Deadline
-                    </label>
-
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
-
-                      {availableMonths.map(
-                        (month) => (
-
-                          <label
-                            key={
-                              month
-                            }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
-                          >
-
-                            <input
-                              type="checkbox"
-                              checked={quickMonths.includes(
-                                month
-                              )}
-                              onChange={() =>
-                                activateQuickFilter(
-                                  () =>
-                                    toggleArrayValue(
-                                      month,
-                                      quickMonths,
-                                      setQuickMonths
-                                    )
-                                )
-                              }
-                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
-                            />
-
-                            <span>
-                              {month}
-                            </span>
-
-                          </label>
-
-                        )
-                      )}
-
-                    </div>
-
-                  </div>
-
-                  {/* Categories */}
-
-                  <div>
-
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
-                      Categories
-                    </label>
-
-                    <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
-
-                      {availableCategories.map(
-                        (category) => (
-
-                          <label
-                            key={
-                              category
-                            }
-                            className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
-                          >
-
-                            <input
-                              type="checkbox"
-                              checked={quickCategories.includes(
-                                category
-                              )}
-                              onChange={() =>
-                                activateQuickFilter(
-                                  () =>
-                                    toggleArrayValue(
-                                      category,
-                                      quickCategories,
-                                      setQuickCategories
-                                    )
-                                )
-                              }
-                              className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
-                            />
-
-                            <span>
-                              {category}
-                            </span>
-
-                          </label>
-
-                        )
-                      )}
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            )}
-
-            {/* ==================================================
-                ADVANCED FILTER PANEL
-            ================================================== */}
-
-            {showAdvancedFilters && (
-
-              <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
-
-                <div className="flex items-center justify-between gap-4">
-
-                  <div>
-
-                    <h3 className="text-base font-semibold text-[#304653]">
-                      Advanced Filters
-                    </h3>
-
-                    <p className="mt-1 text-sm text-[#71848F]">
-                      Build a custom filter using multiple AND rules.
-                    </p>
-
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={
-                      addAdvancedFilter
-                    }
-                    className="rounded-xl bg-[#6F91A8] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5F829B]"
-                  >
-                    + Add Filter
-                  </button>
-
-                </div>
-
-                {advancedFilters.length ===
-                0 ? (
-
-                  <div className="mt-5 rounded-xl border border-dashed border-[#CBD9E1] bg-[#FAFCFD] p-6 text-center">
-
-                    <p className="text-sm text-[#71848F]">
-                      No advanced filters added yet.
-                    </p>
-
-                    <p className="mt-1 text-xs text-[#94A3AB]">
-                      Click "Add Filter" to create your first rule.
-                    </p>
-
-                  </div>
-
-                ) : (
-
-                  <div className="mt-5 space-y-3">
-
-                    {advancedFilters.map(
-                      (
-                        filter
-                      ) => {
-
-                        const options =
-                          getAdvancedFilterOptions(
-                            filter.field
-                          );
-
-                        const dropdownIsOpen =
-                          openAdvancedDropdownId ===
-                          filter.id;
-
-                        return (
-
-                          <div
-                            key={
-                              filter.id
-                            }
-                            className="relative flex flex-col gap-3 rounded-xl border border-[#E0E7EB] bg-white p-4 lg:flex-row lg:items-start"
-                          >
-
-                            <div className="rounded-lg border border-[#E0E7EB] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#81929C] lg:mt-0">
-                              AND
-                            </div>
-
-                            <select
-                              value={
-                                filter.field
-                              }
-                              onChange={(
-                                e
-                              ) => {
-
-                                const field =
-                                  e
-                                    .target
-                                    .value as FilterField;
-
-                                updateAdvancedFilter(
-                                  filter.id,
-                                  {
-                                    field,
-                                    values:
-                                      [],
-                                  }
-                                );
-
-                                setOpenAdvancedDropdownId(
-                                  null
-                                );
-
-                              }}
-                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
-                            >
-
-                              <option value="grantor">
-                                Grantor
-                              </option>
-
-                              <option value="maximum_grant">
-                                Maximum Grant
-                              </option>
-
-                              <option value="deadline">
-                                Deadline
-                              </option>
-
-                              <option value="anticipated_deadline">
-                                Anticipated Deadline
-                              </option>
-
-                              <option value="category">
-                                Categories
-                              </option>
-
-                              <option value="limited_opportunity">
-                                Limited Opportunity
-                              </option>
-
-                              <option value="fellowship_opportunity">
-                                Fellowship Opportunity
-                              </option>
-
-                            </select>
-
-                            <select
-                              value={
-                                filter.operator
-                              }
-                              onChange={(
-                                e
-                              ) =>
-                                updateAdvancedFilter(
-                                  filter.id,
-                                  {
-                                    operator:
-                                      e
-                                        .target
-                                        .value as FilterOperator,
-                                  }
-                                )
-                              }
-                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
-                            >
-
-                              <option value="is">
-                                is
-                              </option>
-
-                              <option value="is_not">
-                                is not
-                              </option>
-
-                            </select>
-
-                            <div
-                              ref={
-                                dropdownIsOpen
-                                  ? advancedDropdownRef
-                                  : null
-                              }
-                              className="relative min-w-0 flex-1"
-                            >
-
-                              <div
-                                className={`min-h-[42px] rounded-lg border bg-white p-1.5 transition ${
-                                  dropdownIsOpen
-                                    ? "border-[#6F91A8] ring-2 ring-[#AFC4D4]/40"
-                                    : "border-[#DDE6EB]"
-                                }`}
-                              >
-
-                                <div className="flex flex-wrap items-center gap-1.5">
-
-                                  {filter.values.length ===
-                                    0 && (
-
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setOpenAdvancedDropdownId(
-                                          dropdownIsOpen
-                                            ? null
-                                            : filter.id
-                                        )
-                                      }
-                                      className="flex-1 px-2 py-1.5 text-left text-sm text-[#9AAAB4]"
-                                    >
-                                      Select{" "}
-                                      {getFieldLabel(
-                                        filter.field
-                                      ).toLowerCase()}
-                                    </button>
-
-                                  )}
-
-                                  {filter.values.map(
-                                    (
-                                      value
-                                    ) => (
-
-                                      <button
-                                        key={
-                                          value
-                                        }
-                                        type="button"
-                                        onClick={() =>
-                                          removeAdvancedFilterValue(
-                                            filter.id,
-                                            value
-                                          )
-                                        }
-                                        className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#536C7B] transition hover:bg-[#DCEAF1]"
-                                      >
-
-                                        <span className="max-w-[180px] truncate">
-
-                                          {filter.field ===
-                                          "deadline"
-                                            ? formatDeadline(
-                                                value
-                                              )
-                                            : value}
-
-                                        </span>
-
-                                        <span className="font-bold text-[#81929C]">
-                                          ×
-                                        </span>
-
-                                      </button>
-
-                                    )
-                                  )}
-
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setOpenAdvancedDropdownId(
-                                        dropdownIsOpen
-                                          ? null
-                                          : filter.id
-                                      )
-                                    }
-                                    aria-label="Add filter value"
-                                    className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#F1F5F7] hover:text-[#536C7B]"
-                                  >
-
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      strokeWidth={
-                                        1.5
-                                      }
-                                      stroke="currentColor"
-                                      className={`h-4 w-4 transition-transform ${
-                                        dropdownIsOpen
-                                          ? "rotate-180"
-                                          : ""
-                                      }`}
-                                    >
-
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                                      />
-
-                                    </svg>
-
-                                  </button>
-
-                                </div>
-
-                              </div>
-
-                              {dropdownIsOpen && (
-
-                                <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#D5E1E7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
-
-                                  {options.length ===
-                                  0 ? (
-
-                                    <div className="px-3 py-4 text-center text-sm text-[#94A3AB]">
-                                      No options available
-                                    </div>
-
-                                  ) : (
-
-                                    options.map(
-                                      (
-                                        option
-                                      ) => (
-
-                                        <label
-                                          key={
-                                            option
-                                          }
-                                          className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
-                                        >
-
-                                          <input
-                                            type="checkbox"
-                                            checked={filter.values.includes(
-                                              option
-                                            )}
-                                            onChange={() => {
-
-                                              const newValues =
-                                                filter.values.includes(
-                                                  option
-                                                )
-                                                  ? filter.values.filter(
-                                                      (
-                                                        value
-                                                      ) =>
-                                                        value !==
-                                                        option
-                                                    )
-                                                  : [
-                                                      ...filter.values,
-                                                      option,
-                                                    ];
-
-                                              updateAdvancedFilter(
-                                                filter.id,
-                                                {
-                                                  values:
-                                                    newValues,
-                                                }
-                                              );
-
-                                            }}
-                                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
-                                          />
-
-                                          <span>
-
-                                            {filter.field ===
-                                            "deadline"
-                                              ? formatDeadline(
-                                                  option
-                                                )
-                                              : option}
-
-                                          </span>
-
-                                        </label>
-
-                                      )
-                                    )
-
-                                  )}
-
-                                </div>
-
-                              )}
-
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                removeAdvancedFilter(
-                                  filter.id
-                                )
-                              }
-                              className="rounded-lg px-3 py-2 text-sm font-semibold text-[#81929C] transition hover:bg-red-50 hover:text-red-700"
-                            >
-                              Remove
-                            </button>
-
-                          </div>
-
-                        );
-
-                      }
-                    )}
-
-                  </div>
-
-                )}
-
-                <div className="mt-5 flex justify-end gap-3">
-
-                  <button
-                    type="button"
-                    onClick={
-                      clearAdvancedFilters
-                    }
-                    className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
-                  >
-                    Clear Advanced Filters
-                  </button>
-
-                </div>
-
-              </div>
-
-            )}
-
-            {/* ==================================================
-                ACTIVE FILTER CHIPS
-            ================================================== */}
-
-            {totalActiveFilterCount >
-              0 && (
-
-              <div className="mt-5 flex flex-wrap items-center gap-2">
-
-                <span className="text-sm font-semibold text-white/90">
-                  Active filters:
-                </span>
-
-                {quickGrantors.map(
-                  (grantor) => (
-
-                    <button
-                      key={`grantor-${grantor}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          grantor,
-                          quickGrantors,
-                          setQuickGrantors
-                        )
-                      }
-                      className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
-                    >
-                      Grantor:{" "}
-                      {grantor} ×
-                    </button>
-
-                  )
-                )}
-
-                {quickMaximumGrants.map(
-                  (amount) => (
-
-                    <button
-                      key={`maximum-${amount}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          amount,
-                          quickMaximumGrants,
-                          setQuickMaximumGrants
-                        )
-                      }
-                      className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
-                    >
-                      Maximum Grant:{" "}
-                      {amount} ×
-                    </button>
-
-                  )
-                )}
-
-                {quickDeadline !==
-                  "all" && (
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setQuickDeadline(
-                        "all"
-                      )
-                    }
-                    className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
-                  >
-                    Deadline:{" "}
-                    {quickDeadline ===
-                    "no-deadline"
-                      ? "No specific deadline"
-                      : `Within ${quickDeadline} days`}{" "}
-                    ×
-                  </button>
-
-                )}
-
-                {activeAdvancedFilterCount >
-                  0 && (
-
-                  <button
-                    type="button"
-                    onClick={
-                      clearAdvancedFilters
-                    }
-                    className="rounded-full border border-white/25 bg-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/30"
-                  >
-                    Advanced filters:{" "}
-                    {
-                      activeAdvancedFilterCount
-                    }{" "}
-                    ×
-                  </button>
-
-                )}
-
-                <button
-                  type="button"
-                  onClick={
-                    clearAllFilters
-                  }
-                  className="ml-1 text-xs font-semibold text-white/80 underline underline-offset-2 hover:text-white"
-                >
-                  Clear all
-                </button>
-
-              </div>
-
-            )}
-
-            {/* ==================================================
-                SEARCH RESULT COUNT
-            ================================================== */}
-
-            {(search.trim() ||
-              totalActiveFilterCount >
-                0) && (
-
-              <div className="mt-4 flex items-center gap-2 text-sm text-[#E0EBEF]">
-
-                <span className="inline-block h-2 w-2 rounded-full bg-[#D7E4EA]" />
-
-                Showing{" "}
-
-                <span className="font-semibold text-white">
-                  {
-                    filteredCustomers.length
-                  }
-                </span>{" "}
-
-                matching opportunities
-
-              </div>
-
-            )}
-
-          </div>
+          <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#344F60]/20 via-[#6B8797]/30 to-[#AFC4D0]/10 blur-[55px]" />
 
         </div>
 
         {/* ==================================================
-            MATCHING BACKGROUND SPACE
-            Keeps the transition between header and table
-            the same color as the page background.
+            DUSTY BLUE SOFTENING
         ================================================== */}
 
-        <div className="h-6 bg-[#F7F9FA] sm:h-8" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
+
+          <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
+
+        </div>
 
         {/* ==================================================
-            OPPORTUNITIES TABLE
+            LOGO BLEND AREA
+            Softly integrates logo into gradient.
+            No box / no backdrop blur / no hard edge.
         ================================================== */}
 
-        <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#D5E0E7] bg-white shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
+        <div className="pointer-events-none absolute right-0 top-0 hidden h-[240px] w-[58%] overflow-hidden rounded-r-[28px] sm:block lg:h-[260px]">
 
-          <div className="overflow-x-auto">
+          {/* Soft lightening layer behind logo */}
+          <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#8FAEBD]/10 to-transparent opacity-70" />
 
-            <table className="w-full">
+          {/* Soft dark blend from the left side */}
+          <div className="absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#263B49]/20 via-[#405D6D]/10 to-transparent blur-[30px]" />
 
-              <thead className="bg-[#AFC4D0] text-[#263B49]">
+          {/* Very soft logo fade */}
+          <div className="absolute right-0 top-0 h-full w-[75%] bg-gradient-to-l from-transparent via-[#AFC4D0]/10 to-transparent blur-[25px]" />
 
-                <tr>
+          {/* Logo */}
+          <img
+            src="/lg-listings-logo.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute right-8 top-1/2 h-28 w-auto -translate-y-1/2 object-contain opacity-[0.22] mix-blend-multiply blur-[0.15px] sm:right-10 sm:h-32 lg:right-14 lg:h-36 xl:right-20 xl:h-40"
+          />
 
-                  <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
-                    Grantor
-                  </th>
+          {/* Soft fade directly over logo edge */}
+          <div className="absolute inset-y-0 left-0 w-[45%] bg-gradient-to-r from-[#344F60]/35 via-[#4F6B7B]/15 to-transparent" />
 
-                  <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
-                    Opportunity
-                  </th>
+        </div>
 
-                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
-                    Maximum Grant
-                  </th>
+        {/* ==================================================
+            BRANDING AREA
+        ================================================== */}
 
-                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
-                    Deadline
-                  </th>
+        <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
 
-                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
-                    Anticipated Deadline Month
-                  </th>
+          <div className="flex flex-col gap-7">
 
-                  <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
-                    Abstract
-                  </th>
+            {/* ==================================================
+                TITLE / DESCRIPTION
+            ================================================== */}
 
-                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
-                    Categories
-                  </th>
+            <div className="min-w-0 pr-0 sm:pr-52">
 
-                </tr>
+              <div className="max-w-3xl">
 
-              </thead>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D7E4EA]">
+                  Private Grant Funding
+                </p>
 
-              <tbody className="divide-y divide-[#E3E9ED]">
+                <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
+                  Active RFP Opportunities
+                </h1>
 
-                {filteredCustomers.map(
-                  (
-                    customer,
-                    index
-                  ) => {
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#DCE8ED] sm:text-base">
+                  Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
+                </p>
 
-                    const deadlineStyle =
-                      getDeadlineStyle(
-                        customer.deadline
-                      );
+              </div>
 
-                    const isPastDeadline =
-                      customer.deadline
-                        ? new Date(
-                            `${customer.deadline}T00:00:00`
-                          ) <
-                          new Date()
-                        : false;
-
-                    const isSelected =
-                      String(selectedCustomerId) ===
-                      String(customer.id);
-
-                    return (
-
-                      <tr
-                        key={customer.id}
-                        onClick={() =>
-                          setSelectedCustomerId(
-                            String(customer.id)
-                          )
-                        }
-                        className={`group cursor-pointer transition-all duration-200 ${
-                          isSelected
-                            ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
-                            : index % 2 === 0
-                              ? "bg-white hover:bg-[#F1F6F8]"
-                              : "bg-[#FAFBFC] hover:bg-[#F1F6F8]"
-                        }`}
-                      >
-
-                        {/* Grantor */}
-
-                        <td className="p-5 align-top text-left">
-
-                          <span className="font-semibold text-[#405967]">
-                            {customer.grantor ||
-                              "-"}
-                          </span>
-
-                        </td>
-
-                        {/* Opportunity */}
-
-                        <td className="p-5 align-top text-left">
-
-                          <div className="font-semibold text-[#263B49]">
-                            {customer.opportunity_name ||
-                              "-"}
-                          </div>
-
-                        </td>
-
-                        {/* Maximum Grant */}
-
-                        <td className="p-5 align-top text-center">
-
-                          <span className="inline-flex rounded-lg border border-[#D5E0E7] bg-[#F1F4F6] px-3 py-2 text-sm font-semibold text-[#405967]">
-                            {customer.maximum_grant ||
-                              "Not specified"}
-                          </span>
-
-                        </td>
-
-                        {/* Deadline */}
-
-                        <td className="p-5 align-top">
-
-                          <div className="flex flex-col items-center gap-2">
-
-                            {customer.deadline ? (
-
-                              <>
-
-                                <span className="font-semibold text-[#405967]">
-
-                                  {new Date(
-                                    `${customer.deadline}T00:00:00`
-                                  ).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      year: "numeric",
-                                      month:
-                                        "short",
-                                      day: "numeric",
-                                    }
-                                  )}
-
-                                </span>
-
-                                {isPastDeadline && (
-
-                                  <span
-                                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
-                                  >
-                                    Past deadline
-                                  </span>
-
-                                )}
-
-                              </>
-
-                            ) : (
-
-                              <span
-                                className={`rounded-full border px-2.5 py-1 text-xs font-medium ${deadlineStyle.container}`}
-                              >
-                                Not set
-                              </span>
-
-                            )}
-
-                          </div>
-
-                        </td>
-
-                        {/* Anticipated Deadline */}
-
-                        <td className="p-5 align-top text-center">
-
-                          {customer.anticipated_deadline ? (
-
-                            <span
-                              className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
-                                customer.anticipated_deadline
-                              )}`}
-                            >
-                              {
-                                customer.anticipated_deadline
-                              }
-                            </span>
-
-                          ) : (
-
-                            <span className="text-[#A0ADB5]">
-                              —
-                            </span>
-
-                          )}
-
-                        </td>
-
-                        {/* Abstract */}
-
-                        <td className="p-5 align-top text-left">
-
-                          <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-[#607582]">
-                            {customer.abstract ||
-                              "No abstract provided."}
-                          </div>
-
-                        </td>
-
-                        {/* Categories */}
-
-                        <td className="p-5 align-top">
-
-                          <div className="flex flex-wrap justify-center gap-2">
-
-                            {Array.isArray(
-                              customer.rfp_categories
-                            ) &&
-                            customer.rfp_categories
-                              .length >
-                              0 ? (
-
-                              customer.rfp_categories.map(
-                                (
-                                  category
-                                ) => (
-
-                                  <span
-                                    key={
-                                      category
-                                    }
-                                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
-                                      category,
-                                      categoryColorMap
-                                    )}`}
-                                  >
-                                    {
-                                      category
-                                    }
-                                  </span>
-
-                                )
-                              )
-
-                            ) : (
-
-                              <span className="text-[#A0ADB5]">
-                                —
-                              </span>
-
-                            )}
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    );
-
-                  }
-                )}
-
-              </tbody>
-
-            </table>
+            </div>
 
           </div>
 
           {/* ==================================================
-              EMPTY STATE
+              ACCENT LINE
           ================================================== */}
 
-          {filteredCustomers.length ===
-            0 && (
+          <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#D7E4EA]/60 to-transparent" />
 
-            <div className="bg-[#FAFBFC] px-6 py-20 text-center">
+        </div>
 
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E0E7] bg-white text-[#9AAAB4] shadow-sm">
+        {/* ==================================================
+            SEARCH + FILTER TOOLBAR
+        ================================================== */}
+
+        <div className="relative px-6 pb-7 sm:px-8 lg:px-10">
+
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+
+            {/* ==================================================
+                SEARCH
+            ================================================== */}
+
+            <div className="relative flex-1">
+
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#78909E]">
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -3379,7 +1782,7 @@ export default function CustomerTable({
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-7 w-7"
+                  className="h-5 w-5"
                 >
 
                   <path
@@ -3392,15 +1795,1206 @@ export default function CustomerTable({
 
               </div>
 
-              <h3 className="mt-5 text-lg font-semibold text-[#304653]">
-                No opportunities found
-              </h3>
+              <input
+                type="text"
+                placeholder="Search grants, organizations, categories, key words..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                className="w-full rounded-2xl border border-[#D2E0E7] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#91A2AC] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#AFC4D4]/30"
+              />
 
-              <p className="mt-2 text-sm text-[#71848F]">
-                Try adjusting your search or
-                filters to find matching funding
-                opportunities.
-              </p>
+              {search.length > 0 && (
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSearch("")
+                  }
+                  aria-label="Clear search"
+                  className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#91A2AC] transition hover:text-[#405967]"
+                >
+
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
+                    ×
+                  </span>
+
+                </button>
+
+              )}
+
+            </div>
+
+            {/* ==================================================
+                FILTER BUTTONS
+            ================================================== */}
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+
+              <button
+                type="button"
+                onClick={toggleQuickFilters}
+                className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
+                  showQuickFilters
+                    ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
+                    : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-4 w-4"
+                >
+
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 3c2.755 0 5.287.74 7.484 2.03.336.197.516.579.444.961l-.79 4.16a2 2 0 0 1-.89 1.29l-3.118 1.87a2 2 0 0 0-.94 1.52l-.33 3.303a2 2 0 0 1-1.99 1.8h-1.74a2 2 0 0 1-1.99-1.8l-.33-3.303a2 2 0 0 0-.94-1.52l-3.118-1.87a2 2 0 0 1-.89-1.29l-.79-4.16a1 1 0 0 1 .444-.961A14.97 14.97 0 0 1 12 3Z"
+                  />
+
+                </svg>
+
+                Quick Filter
+
+                {activeQuickFilterCount > 0 && (
+
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                    {activeQuickFilterCount}
+                  </span>
+
+                )}
+
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleAdvancedFilters}
+                className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
+                  showAdvancedFilters
+                    ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
+                    : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-4 w-4"
+                >
+
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 13.5V4.5m0 9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0-4.5m6-4.5v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m6-9v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5"
+                  />
+
+                </svg>
+
+                Advanced
+
+                {activeAdvancedFilterCount > 0 && (
+
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                    {activeAdvancedFilterCount}
+                  </span>
+
+                )}
+
+              </button>
+
+            </div>
+
+            {/* ==================================================
+                SORT
+            ================================================== */}
+
+            <div
+              ref={sortDropdownRef}
+              className="relative"
+            >
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowSortOptions(
+                    (current) =>
+                      !current
+                  )
+                }
+                className="flex w-full items-center justify-between gap-4 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm outline-none transition hover:bg-white/20 xl:min-w-[210px]"
+              >
+
+                <span>
+                  Sort by
+                </span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={`h-4 w-4 transition-transform ${
+                    showSortOptions
+                      ? "rotate-180"
+                      : ""
+                  }`}
+                >
+
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                  />
+
+                </svg>
+
+              </button>
+
+              {showSortOptions && (
+
+                <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
+
+                  <div className="mb-4 flex items-center justify-between">
+
+                    <div>
+
+                      <h3 className="text-sm font-semibold text-[#304653]">
+                        Sort by
+                      </h3>
+
+                      <p className="mt-1 text-xs text-[#81929C]">
+                        Drag and drop to change sort priority.
+                      </p>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={resetSortRules}
+                      className="text-xs font-semibold text-[#5F829B] underline underline-offset-2 hover:text-[#456A82]"
+                    >
+                      Reset
+                    </button>
+
+                  </div>
+
+                  <div className="space-y-2">
+
+                    {sortRules.map(
+                      (
+                        rule,
+                        index
+                      ) => (
+
+                        <div
+                          key={rule.id}
+                          draggable
+                          onDragStart={(event) =>
+                            handleSortDragStart(
+                              event,
+                              rule.id
+                            )
+                          }
+                          onDragOver={(event) =>
+                            handleSortDragOver(
+                              event,
+                              rule.id
+                            )
+                          }
+                          onDrop={(event) =>
+                            handleSortDrop(
+                              event,
+                              rule.id
+                            )
+                          }
+                          onDragEnd={
+                            handleSortDragEnd
+                          }
+                          className={`rounded-xl border p-3 transition-all ${
+                            draggedSortId ===
+                            rule.id
+                              ? "border-[#6F91A8] bg-[#E7F0F5] opacity-50"
+                              : dragOverSortId ===
+                                rule.id
+                              ? "border-[#6F91A8] bg-[#F2F7FA] shadow-md"
+                              : "border-[#E0E8ED] bg-[#F8FAFB]"
+                          }`}
+                        >
+
+                          <div className="mb-2 flex items-center justify-between">
+
+                            <div className="flex items-center gap-2">
+
+                              <span
+                                className="cursor-grab text-[#9AAAB4] active:cursor-grabbing"
+                                title="Drag to reorder"
+                              >
+
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="h-5 w-5"
+                                >
+
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M8.25 6.75h.008v.008H8.25V6.75Zm0 5.25h.008v.008H8.25V12Zm0 5.25h.008v.008H8.25V17.25Zm7.5-10.5h.008v.008h-.008V6.75Zm0 5.25h.008v.008h-.008V12Zm0 5.25h.008v.008h-.008V17.25Z"
+                                  />
+
+                                </svg>
+
+                              </span>
+
+                              <span className="text-xs font-semibold uppercase tracking-wide text-[#81929C]">
+                                Sort level{" "}
+                                {index + 1}
+                              </span>
+
+                            </div>
+
+                            {sortRules.length > 1 && (
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeSortRule(
+                                    rule.id
+                                  )
+                                }
+                                className="text-xs font-semibold text-[#81929C] hover:text-red-600"
+                              >
+                                Remove
+                              </button>
+
+                            )}
+
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
+                            <select
+                              value={rule.field}
+                              onChange={(e) =>
+                                updateSortRule(
+                                  rule.id,
+                                  {
+                                    field:
+                                      e.target
+                                        .value as SortField,
+                                  }
+                                )
+                              }
+                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                            >
+
+                              {(
+                                Object.keys(
+                                  SORT_FIELD_LABELS
+                                ) as SortField[]
+                              ).map(
+                                (
+                                  field
+                                ) => {
+
+                                  const usedByAnotherRule =
+                                    sortRules.some(
+                                      (
+                                        otherRule
+                                      ) =>
+                                        otherRule.id !==
+                                          rule.id &&
+                                        otherRule.field ===
+                                          field
+                                    );
+
+                                  return (
+
+                                    <option
+                                      key={field}
+                                      value={field}
+                                      disabled={
+                                        usedByAnotherRule
+                                      }
+                                    >
+                                      {
+                                        SORT_FIELD_LABELS[
+                                          field
+                                        ]
+                                      }
+                                    </option>
+
+                                  );
+
+                                }
+                              )}
+
+                            </select>
+
+                            <select
+                              value={
+                                rule.direction
+                              }
+                              onChange={(e) =>
+                                updateSortRule(
+                                  rule.id,
+                                  {
+                                    direction:
+                                      e.target
+                                        .value as SortDirection,
+                                  }
+                                )
+                              }
+                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                            >
+
+                              <option value="asc">
+                                {getSortDirectionLabel(
+                                  rule.field,
+                                  "asc"
+                                )}
+                              </option>
+
+                              <option value="desc">
+                                {getSortDirectionLabel(
+                                  rule.field,
+                                  "desc"
+                                )}
+                              </option>
+
+                            </select>
+
+                          </div>
+
+                        </div>
+
+                      )
+                    )}
+
+                  </div>
+
+                  {sortRules.length < 4 && (
+
+                    <button
+                      type="button"
+                      onClick={addSortRule}
+                      className="mt-4 w-full rounded-xl border border-dashed border-[#B8CBD7] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#5F829B] transition hover:bg-[#E7F0F5]"
+                    >
+                      + Add Sort Level
+                    </button>
+
+                  )}
+
+                </div>
+
+              )}
+
+            </div>
+
+          </div>
+
+          {/* ==================================================
+              QUICK FILTER PANEL
+          ================================================== */}
+
+          {showQuickFilters && (
+
+            <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
+
+              <div className="mb-5 flex items-center justify-between">
+
+                <div>
+
+                  <h3 className="text-base font-semibold text-[#304653]">
+                    Quick Filters
+                  </h3>
+
+                  <p className="mt-1 text-sm text-[#71848F]">
+                    Quickly narrow opportunities using common filters.
+                  </p>
+
+                </div>
+
+                <button
+                  type="button"
+                  onClick={clearQuickFilters}
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
+                >
+                  Clear Filters
+                </button>
+
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
+
+                {/* Grantor */}
+
+                <div>
+
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                    Grantor
+                  </label>
+
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+
+                    {availableGrantors.map(
+                      (grantor) => (
+
+                        <label
+                          key={grantor}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                        >
+
+                          <input
+                            type="checkbox"
+                            checked={quickGrantors.includes(
+                              grantor
+                            )}
+                            onChange={() =>
+                              activateQuickFilter(
+                                () =>
+                                  toggleArrayValue(
+                                    grantor,
+                                    quickGrantors,
+                                    setQuickGrantors
+                                  )
+                              )
+                            }
+                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                          />
+
+                          <span>
+                            {grantor}
+                          </span>
+
+                        </label>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+                {/* Maximum Grant */}
+
+                <div>
+
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                    Maximum Grant
+                  </label>
+
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+
+                    {availableMaximumGrants.map(
+                      (amount) => (
+
+                        <label
+                          key={amount}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                        >
+
+                          <input
+                            type="checkbox"
+                            checked={quickMaximumGrants.includes(
+                              amount
+                            )}
+                            onChange={() =>
+                              activateQuickFilter(
+                                () =>
+                                  toggleArrayValue(
+                                    amount,
+                                    quickMaximumGrants,
+                                    setQuickMaximumGrants
+                                  )
+                              )
+                            }
+                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                          />
+
+                          <span>
+                            {amount}
+                          </span>
+
+                        </label>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+                {/* Deadline */}
+
+                <div>
+
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                    Deadline
+                  </label>
+
+                  <select
+                    value={quickDeadline}
+                    onChange={(e) =>
+                      activateQuickFilter(
+                        () =>
+                          setQuickDeadline(
+                            e.target.value
+                          )
+                      )
+                    }
+                    className="mt-3 w-full rounded-xl border border-[#E0E7EB] bg-white px-4 py-3 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/30"
+                  >
+
+                    <option value="all">
+                      All Deadlines
+                    </option>
+
+                    <option value="30">
+                      Due within 30 days
+                    </option>
+
+                    <option value="60">
+                      Due within 60 days
+                    </option>
+
+                    <option value="90">
+                      Due within 90 days
+                    </option>
+
+                    <option value="no-deadline">
+                      No specific deadline
+                    </option>
+
+                  </select>
+
+                </div>
+
+                {/* Anticipated Deadline */}
+
+                <div>
+
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                    Anticipated Deadline
+                  </label>
+
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+
+                    {availableMonths.map(
+                      (month) => (
+
+                        <label
+                          key={month}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                        >
+
+                          <input
+                            type="checkbox"
+                            checked={quickMonths.includes(
+                              month
+                            )}
+                            onChange={() =>
+                              activateQuickFilter(
+                                () =>
+                                  toggleArrayValue(
+                                    month,
+                                    quickMonths,
+                                    setQuickMonths
+                                  )
+                              )
+                            }
+                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                          />
+
+                          <span>
+                            {month}
+                          </span>
+
+                        </label>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+                {/* Categories */}
+
+                <div>
+
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                    Categories
+                  </label>
+
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+
+                    {availableCategories.map(
+                      (category) => (
+
+                        <label
+                          key={category}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                        >
+
+                          <input
+                            type="checkbox"
+                            checked={quickCategories.includes(
+                              category
+                            )}
+                            onChange={() =>
+                              activateQuickFilter(
+                                () =>
+                                  toggleArrayValue(
+                                    category,
+                                    quickCategories,
+                                    setQuickCategories
+                                  )
+                              )
+                            }
+                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                          />
+
+                          <span>
+                            {category}
+                          </span>
+
+                        </label>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* ==================================================
+              ADVANCED FILTER PANEL
+          ================================================== */}
+
+          {showAdvancedFilters && (
+
+            <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
+
+              <div className="flex items-center justify-between gap-4">
+
+                <div>
+
+                  <h3 className="text-base font-semibold text-[#304653]">
+                    Advanced Filters
+                  </h3>
+
+                  <p className="mt-1 text-sm text-[#71848F]">
+                    Build a custom filter using multiple AND rules.
+                  </p>
+
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addAdvancedFilter}
+                  className="rounded-xl bg-[#6F91A8] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5F829B]"
+                >
+                  + Add Filter
+                </button>
+
+              </div>
+
+              {advancedFilters.length === 0 ? (
+
+                <div className="mt-5 rounded-xl border border-dashed border-[#CBD9E1] bg-[#FAFCFD] p-6 text-center">
+
+                  <p className="text-sm text-[#71848F]">
+                    No advanced filters added yet.
+                  </p>
+
+                  <p className="mt-1 text-xs text-[#94A3AB]">
+                    Click "Add Filter" to create your first rule.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="mt-5 space-y-3">
+
+                  {advancedFilters.map(
+                    (
+                      filter
+                    ) => {
+
+                      const options =
+                        getAdvancedFilterOptions(
+                          filter.field
+                        );
+
+                      const dropdownIsOpen =
+                        openAdvancedDropdownId ===
+                        filter.id;
+
+                      return (
+
+                        <div
+                          key={filter.id}
+                          className="relative flex flex-col gap-3 rounded-xl border border-[#E0E7EB] bg-white p-4 lg:flex-row lg:items-start"
+                        >
+
+                          <div className="rounded-lg border border-[#E0E7EB] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#81929C] lg:mt-0">
+                            AND
+                          </div>
+
+                          <select
+                            value={filter.field}
+                            onChange={(e) => {
+
+                              const field =
+                                e.target.value as FilterField;
+
+                              updateAdvancedFilter(
+                                filter.id,
+                                {
+                                  field,
+                                  values: [],
+                                }
+                              );
+
+                              setOpenAdvancedDropdownId(
+                                null
+                              );
+
+                            }}
+                            className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                          >
+
+                            <option value="grantor">
+                              Grantor
+                            </option>
+
+                            <option value="maximum_grant">
+                              Maximum Grant
+                            </option>
+
+                            <option value="deadline">
+                              Deadline
+                            </option>
+
+                            <option value="anticipated_deadline">
+                              Anticipated Deadline
+                            </option>
+
+                            <option value="category">
+                              Categories
+                            </option>
+
+                            <option value="limited_opportunity">
+                              Limited Opportunity
+                            </option>
+
+                            <option value="fellowship_opportunity">
+                              Fellowship Opportunity
+                            </option>
+
+                          </select>
+
+                          <select
+                            value={filter.operator}
+                            onChange={(e) =>
+                              updateAdvancedFilter(
+                                filter.id,
+                                {
+                                  operator:
+                                    e.target
+                                      .value as FilterOperator,
+                                }
+                              )
+                            }
+                            className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                          >
+
+                            <option value="is">
+                              is
+                            </option>
+
+                            <option value="is_not">
+                              is not
+                            </option>
+
+                          </select>
+
+                          <div
+                            ref={
+                              dropdownIsOpen
+                                ? advancedDropdownRef
+                                : null
+                            }
+                            className="relative min-w-0 flex-1"
+                          >
+
+                            <div
+                              className={`min-h-[42px] rounded-lg border bg-white p-1.5 transition ${
+                                dropdownIsOpen
+                                  ? "border-[#6F91A8] ring-2 ring-[#AFC4D4]/40"
+                                  : "border-[#DDE6EB]"
+                              }`}
+                            >
+
+                              <div className="flex flex-wrap items-center gap-1.5">
+
+                                {filter.values.length === 0 && (
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setOpenAdvancedDropdownId(
+                                        dropdownIsOpen
+                                          ? null
+                                          : filter.id
+                                      )
+                                    }
+                                    className="flex-1 px-2 py-1.5 text-left text-sm text-[#9AAAB4]"
+                                  >
+                                    Select{" "}
+                                    {getFieldLabel(
+                                      filter.field
+                                    ).toLowerCase()}
+                                  </button>
+
+                                )}
+
+                                {filter.values.map(
+                                  (
+                                    value
+                                  ) => (
+
+                                    <button
+                                      key={value}
+                                      type="button"
+                                      onClick={() =>
+                                        removeAdvancedFilterValue(
+                                          filter.id,
+                                          value
+                                        )
+                                      }
+                                      className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#536C7B] transition hover:bg-[#DCEAF1]"
+                                    >
+
+                                      <span className="max-w-[180px] truncate">
+
+                                        {filter.field ===
+                                        "deadline"
+                                          ? formatDeadline(
+                                              value
+                                            )
+                                          : value}
+
+                                      </span>
+
+                                      <span className="font-bold text-[#81929C]">
+                                        ×
+                                      </span>
+
+                                    </button>
+
+                                  )
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setOpenAdvancedDropdownId(
+                                      dropdownIsOpen
+                                        ? null
+                                        : filter.id
+                                    )
+                                  }
+                                  aria-label="Add filter value"
+                                  className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#F1F5F7] hover:text-[#536C7B]"
+                                >
+
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className={`h-4 w-4 transition-transform ${
+                                      dropdownIsOpen
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
+                                  >
+
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                    />
+
+                                  </svg>
+
+                                </button>
+
+                              </div>
+
+                            </div>
+
+                            {dropdownIsOpen && (
+
+                              <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#D5E1E7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
+
+                                {options.length === 0 ? (
+
+                                  <div className="px-3 py-4 text-center text-sm text-[#94A3AB]">
+                                    No options available
+                                  </div>
+
+                                ) : (
+
+                                  options.map(
+                                    (
+                                      option
+                                    ) => (
+
+                                      <label
+                                        key={option}
+                                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                                      >
+
+                                        <input
+                                          type="checkbox"
+                                          checked={filter.values.includes(
+                                            option
+                                          )}
+                                          onChange={() => {
+
+                                            const newValues =
+                                              filter.values.includes(
+                                                option
+                                              )
+                                                ? filter.values.filter(
+                                                    (
+                                                      value
+                                                    ) =>
+                                                      value !==
+                                                      option
+                                                  )
+                                                : [
+                                                    ...filter.values,
+                                                    option,
+                                                  ];
+
+                                            updateAdvancedFilter(
+                                              filter.id,
+                                              {
+                                                values:
+                                                  newValues,
+                                              }
+                                            );
+
+                                          }}
+                                          className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                                        />
+
+                                        <span>
+
+                                          {filter.field ===
+                                          "deadline"
+                                            ? formatDeadline(
+                                                option
+                                              )
+                                            : option}
+
+                                        </span>
+
+                                      </label>
+
+                                    )
+                                  )
+
+                                )}
+
+                              </div>
+
+                            )}
+
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeAdvancedFilter(
+                                filter.id
+                              )
+                            }
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-[#81929C] transition hover:bg-red-50 hover:text-red-700"
+                          >
+                            Remove
+                          </button>
+
+                        </div>
+
+                      );
+
+                    }
+                  )}
+
+                </div>
+
+              )}
+
+              <div className="mt-5 flex justify-end gap-3">
+
+                <button
+                  type="button"
+                  onClick={clearAdvancedFilters}
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
+                >
+                  Clear Advanced Filters
+                </button>
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* ==================================================
+              ACTIVE FILTER CHIPS
+          ================================================== */}
+
+          {totalActiveFilterCount > 0 && (
+
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+
+              <span className="text-sm font-semibold text-white/90">
+                Active filters:
+              </span>
+
+              {quickGrantors.map(
+                (grantor) => (
+
+                  <button
+                    key={`grantor-${grantor}`}
+                    type="button"
+                    onClick={() =>
+                      toggleArrayValue(
+                        grantor,
+                        quickGrantors,
+                        setQuickGrantors
+                      )
+                    }
+                    className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
+                  >
+                    Grantor:{" "}
+                    {grantor} ×
+                  </button>
+
+                )
+              )}
+
+              {quickMaximumGrants.map(
+                (amount) => (
+
+                  <button
+                    key={`maximum-${amount}`}
+                    type="button"
+                    onClick={() =>
+                      toggleArrayValue(
+                        amount,
+                        quickMaximumGrants,
+                        setQuickMaximumGrants
+                      )
+                    }
+                    className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
+                  >
+                    Maximum Grant:{" "}
+                    {amount} ×
+                  </button>
+
+                )
+              )}
+
+              {quickDeadline !== "all" && (
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setQuickDeadline("all")
+                  }
+                  className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
+                >
+                  Deadline:{" "}
+                  {quickDeadline ===
+                  "no-deadline"
+                    ? "No specific deadline"
+                    : `Within ${quickDeadline} days`}{" "}
+                  ×
+                </button>
+
+              )}
+
+              {activeAdvancedFilterCount > 0 && (
+
+                <button
+                  type="button"
+                  onClick={clearAdvancedFilters}
+                  className="rounded-full border border-white/25 bg-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/30"
+                >
+                  Advanced filters:{" "}
+                  {activeAdvancedFilterCount}{" "}
+                  ×
+                </button>
+
+              )}
+
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="ml-1 text-xs font-semibold text-white/80 underline underline-offset-2 hover:text-white"
+              >
+                Clear all
+              </button>
+
+            </div>
+
+          )}
+
+          {/* ==================================================
+              SEARCH RESULT COUNT
+          ================================================== */}
+
+          {(search.trim() ||
+            totalActiveFilterCount > 0) && (
+
+            <div className="mt-4 flex items-center gap-2 text-sm text-[#E0EBEF]">
+
+              <span className="inline-block h-2 w-2 rounded-full bg-[#D7E4EA]" />
+
+              Showing{" "}
+
+              <span className="font-semibold text-white">
+                {filteredCustomers.length}
+              </span>{" "}
+
+              matching opportunities
 
             </div>
 
@@ -3408,49 +3002,376 @@ export default function CustomerTable({
 
         </div>
 
-        {/* ==================================================
-            ACTIVE OPPORTUNITIES COUNT
-        ================================================== */}
+      </div>
 
-        <div className="mt-4 flex justify-start">
+      {/* ==================================================
+          MATCHING BACKGROUND SPACE
+          Keeps the transition between header and table
+          the same color as the page background.
+      ================================================== */}
 
-          <div className="inline-flex items-center gap-3 rounded-xl border border-[#C8D8E1] bg-[#E6EFF3] px-5 py-3 shadow-sm">
+      <div className="h-6 bg-[#F7F9FA] sm:h-8" />
 
-            <span className="h-2.5 w-2.5 rounded-full bg-[#6F91A8]" />
+      {/* ==================================================
+          OPPORTUNITIES TABLE
+      ================================================== */}
 
-            <span className="text-sm font-semibold text-[#405967]">
+      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#D5E0E7] bg-white shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
 
-              <span className="font-bold text-[#263B49]">
-                {activeCount}
-              </span>{" "}
+        <div className="overflow-x-auto">
 
-              Active Opportunities
+          <table className="w-full">
 
-            </span>
+            <thead className="bg-[#AFC4D0] text-[#263B49]">
 
-          </div>
+              <tr>
+
+                <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
+                  Grantor
+                </th>
+
+                <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
+                  Opportunity
+                </th>
+
+                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                  Maximum Grant
+                </th>
+
+                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                  Deadline
+                </th>
+
+                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                  Anticipated Deadline Month
+                </th>
+
+                <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
+                  Abstract
+                </th>
+
+                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                  Categories
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody className="divide-y divide-[#E3E9ED]">
+
+              {filteredCustomers.map(
+                (
+                  customer,
+                  index
+                ) => {
+
+                  const deadlineStyle =
+                    getDeadlineStyle(
+                      customer.deadline
+                    );
+
+                  const isPastDeadline =
+                    customer.deadline
+                      ? new Date(
+                          `${customer.deadline}T00:00:00`
+                        ) <
+                        new Date()
+                      : false;
+
+                  const isSelected =
+                    String(selectedCustomerId) ===
+                    String(customer.id);
+
+                  return (
+
+                    <tr
+                      key={customer.id}
+                      onClick={() =>
+                        setSelectedCustomerId(
+                          String(customer.id)
+                        )
+                      }
+                      className={`group cursor-pointer transition-all duration-200 ${
+                        isSelected
+                          ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
+                          : index % 2 === 0
+                            ? "bg-white hover:bg-[#F1F6F8]"
+                            : "bg-[#FAFBFC] hover:bg-[#F1F6F8]"
+                      }`}
+                    >
+
+                      {/* Grantor */}
+
+                      <td className="p-5 align-top text-left">
+
+                        <span className="font-semibold text-[#405967]">
+                          {customer.grantor ||
+                            "-"}
+                        </span>
+
+                      </td>
+
+                      {/* Opportunity */}
+
+                      <td className="p-5 align-top text-left">
+
+                        <div className="font-semibold text-[#263B49]">
+                          {customer.opportunity_name ||
+                            "-"}
+                        </div>
+
+                      </td>
+
+                      {/* Maximum Grant */}
+
+                      <td className="p-5 align-top text-center">
+
+                        <span className="inline-flex rounded-lg border border-[#D5E0E7] bg-[#F1F4F6] px-3 py-2 text-sm font-semibold text-[#405967]">
+                          {customer.maximum_grant ||
+                            "Not specified"}
+                        </span>
+
+                      </td>
+
+                      {/* Deadline */}
+
+                      <td className="p-5 align-top">
+
+                        <div className="flex flex-col items-center gap-2">
+
+                          {customer.deadline ? (
+
+                            <>
+
+                              <span className="font-semibold text-[#405967]">
+
+                                {new Date(
+                                  `${customer.deadline}T00:00:00`
+                                ).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month:
+                                      "short",
+                                    day: "numeric",
+                                  }
+                                )}
+
+                              </span>
+
+                              {isPastDeadline && (
+
+                                <span
+                                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${deadlineStyle.container}`}
+                                >
+                                  Past deadline
+                                </span>
+
+                              )}
+
+                            </>
+
+                          ) : (
+
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-xs font-medium ${deadlineStyle.container}`}
+                            >
+                              Not set
+                            </span>
+
+                          )}
+
+                        </div>
+
+                      </td>
+
+                      {/* Anticipated Deadline */}
+
+                      <td className="p-5 align-top text-center">
+
+                        {customer.anticipated_deadline ? (
+
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
+                              customer.anticipated_deadline
+                            )}`}
+                          >
+                            {
+                              customer.anticipated_deadline
+                            }
+                          </span>
+
+                        ) : (
+
+                          <span className="text-[#A0ADB5]">
+                            —
+                          </span>
+
+                        )}
+
+                      </td>
+
+                      {/* Abstract */}
+
+                      <td className="p-5 align-top text-left">
+
+                        <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-[#607582]">
+                          {customer.abstract ||
+                            "No abstract provided."}
+                        </div>
+
+                      </td>
+
+                      {/* Categories */}
+
+                      <td className="p-5 align-top">
+
+                        <div className="flex flex-wrap justify-center gap-2">
+
+                          {Array.isArray(
+                            customer.rfp_categories
+                          ) &&
+                          customer.rfp_categories
+                            .length >
+                            0 ? (
+
+                            customer.rfp_categories.map(
+                              (
+                                category
+                              ) => (
+
+                                <span
+                                  key={
+                                    category
+                                  }
+                                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                                    category,
+                                    categoryColorMap
+                                  )}`}
+                                >
+                                  {
+                                    category
+                                  }
+                                </span>
+
+                              )
+                            )
+
+                          ) : (
+
+                            <span className="text-[#A0ADB5]">
+                              —
+                            </span>
+
+                          )}
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  );
+
+                }
+              )}
+
+            </tbody>
+
+          </table>
 
         </div>
 
         {/* ==================================================
-            REALTIME-SYNCHRONIZED DRAWER
+            EMPTY STATE
         ================================================== */}
 
-        <CustomerDrawer
-          customer={selectedCustomer}
-          availableCategories={availableCategories}
-          navigationCustomers={filteredCustomers}
-          onNavigate={(customerId) =>
-            setSelectedCustomerId(
-              String(customerId)
-            )
-          }
-          onClose={() =>
-            setSelectedCustomerId(null)
-          }
-        />
+        {filteredCustomers.length ===
+          0 && (
+
+          <div className="bg-[#FAFBFC] px-6 py-20 text-center">
+
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E0E7] bg-white text-[#9AAAB4] shadow-sm">
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-7 w-7"
+              >
+
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61Z"
+                />
+
+              </svg>
+
+            </div>
+
+            <h3 className="mt-5 text-lg font-semibold text-[#304653]">
+              No opportunities found
+            </h3>
+
+            <p className="mt-2 text-sm text-[#71848F]">
+              Try adjusting your search or
+              filters to find matching funding
+              opportunities.
+            </p>
+
+          </div>
+
+        )}
 
       </div>
+
+      {/* ==================================================
+          ACTIVE OPPORTUNITIES COUNT
+      ================================================== */}
+
+      <div className="mt-4 flex justify-start">
+
+        <div className="inline-flex items-center gap-3 rounded-xl border border-[#C8D8E1] bg-[#E6EFF3] px-5 py-3 shadow-sm">
+
+          <span className="h-2.5 w-2.5 rounded-full bg-[#6F91A8]" />
+
+          <span className="text-sm font-semibold text-[#405967]">
+
+            <span className="font-bold text-[#263B49]">
+              {activeCount}
+            </span>{" "}
+
+            Active Opportunities
+
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* ==================================================
+          REALTIME-SYNCHRONIZED DRAWER
+      ================================================== */}
+
+      <CustomerDrawer
+        customer={selectedCustomer}
+        availableCategories={availableCategories}
+        navigationCustomers={filteredCustomers}
+        onNavigate={(customerId) =>
+          setSelectedCustomerId(
+            String(customerId)
+          )
+        }
+        onClose={() =>
+          setSelectedCustomerId(null)
+        }
+      />
+
     </div>
-  );
+  </div>
+);
 }
