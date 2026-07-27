@@ -1664,13 +1664,17 @@ export default function CustomerTable({
 
           {/* Main Gradient Background */}
 
-          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#405C6E] via-[58%] to-[#9FB9C9]" />
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#263B49] via-[#405C6E] to-[#9FB9C9]" />
 
           {/* Soft Dusty Blue Glow Behind Logo */}
 
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-[65%] overflow-hidden rounded-r-[28px]">
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-[58%] overflow-hidden rounded-r-[28px]">
 
-          <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/55 via-[#9FB9C9]/25 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/90 via-[#9FB9C9]/55 to-transparent" />
+
+            <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+
+            <div className="absolute -bottom-28 right-[18%] h-72 w-72 rounded-full bg-[#D7E4EA]/10 blur-3xl" />
 
           </div>
 
