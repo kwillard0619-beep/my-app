@@ -1659,8 +1659,7 @@ export default function CustomerTable({
         {/* ==================================================
             GRADIENT DASHBOARD HEADER
         ================================================== */}
-
-        <div className="relative mb-7 overflow-visible rounded-[28px] border border-[#526C7E] shadow-[0_16px_45px_rgba(38,59,73,0.16)]">
+<div className="relative mb-7 overflow-visible rounded-[28px] border border-[#526C7E] shadow-[0_16px_45px_rgba(38,59,73,0.16)]">
 
           {/* Main Gradient Background */}
 
@@ -1682,7 +1681,7 @@ export default function CustomerTable({
 
           <div className="pointer-events-none absolute right-0 top-0 hidden h-[240px] w-[58%] overflow-hidden rounded-r-[28px] lg:block">
 
-            <div className="absolute inset-0 bg-gradient-to-r from-[#405C6E]/70 via-[#8FAEBD]/35 to-transparent opacity-70" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#8FAEBD] via-[#A8C0CC]/60 to-transparent opacity-60" />
 
             <img
               src="/lg-listings-logo.png"
