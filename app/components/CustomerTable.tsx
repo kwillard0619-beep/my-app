@@ -1657,44 +1657,41 @@ export default function CustomerTable({
       <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
 
         {/* ==================================================
-            GRADIENT DASHBOARD HEADER
+            HEADER / SEARCH / FILTER AREA
         ================================================== */}
-<div className="relative mb-7 overflow-visible rounded-[28px] border border-[#526C7E] shadow-[0_16px_45px_rgba(38,59,73,0.16)]">
 
-          {/* Main Gradient Background */}
+        <div className="relative overflow-hidden rounded-[28px]">
 
-           <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#405C6E] via-[#587789] via-[#7E9CAB] to-[#9FB9C9]" />
-          
-          {/* Soft Dusty Blue Glow Behind Logo */}
+          {/* ==================================================
+              SOFT MULTI-STOP GRADIENT BACKGROUND
+          ================================================== */}
 
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-[58%] overflow-hidden rounded-r-[28px]">
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#344F60] via-[35%] via-[#4F6B7B] via-[55%] via-[#718D9D] via-[75%] to-[#AFC4D0]" />
 
-            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/90 via-[#9FB9C9]/55 to-transparent" />
+          {/* ==================================================
+              LARGE SOFT BLEND OVERLAY
+              Helps eliminate visible transition bands
+          ================================================== */}
 
-            <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
 
-            <div className="absolute -bottom-28 right-[18%] h-72 w-72 rounded-full bg-[#D7E4EA]/10 blur-3xl" />
-
-          </div>
-
-          {/* Logo Fade / Blend */}
-
-          <div className="pointer-events-none absolute right-0 top-0 hidden h-[240px] w-[58%] overflow-hidden rounded-r-[28px] lg:block">
-
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8FAEBD] via-[#A8C0CC]/60 to-transparent opacity-60" />
-
-            <img
-              src="/lg-listings-logo.png"
-              alt=""
-              aria-hidden="true"
-              className="absolute right-8 top-1/2 h-32 w-auto -translate-y-1/2 object-contain opacity-[0.18] mix-blend-multiply blur-[0.2px] xl:right-16 xl:h-40"
-            />
-
-            <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#263B49]/35 to-transparent" />
+            <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#344F60]/20 via-[#6B8797]/30 to-[#AFC4D0]/10 blur-[55px]" />
 
           </div>
 
-          {/* Branding Area */}
+          {/* ==================================================
+              DUSTY BLUE SOFTENING
+          ================================================== */}
+
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
+
+            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
+
+          </div>
+
+          {/* ==================================================
+              BRANDING AREA
+          ================================================== */}
 
           <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
 
@@ -2994,6 +2991,7 @@ export default function CustomerTable({
                       : `Within ${quickDeadline} days`}{" "}
                     ×
                   </button>
+
                 )}
 
                 {activeAdvancedFilterCount >
@@ -3417,4 +3415,4 @@ export default function CustomerTable({
       </div>
     </div>
   );
-}           
+}
