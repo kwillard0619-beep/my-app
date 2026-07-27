@@ -1657,18 +1657,49 @@ export default function CustomerTable({
       <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
 
         {/* ==================================================
-            SOFT EDITORIAL DASHBOARD HEADER
+            GRADIENT DASHBOARD HEADER
         ================================================== */}
 
-        <div className="relative mb-7 overflow-visible rounded-[28px] border border-[#D8E4EA] bg-[#EEF4F7] shadow-[0_12px_40px_rgba(63,91,108,0.08)]">
+        <div className="relative mb-7 overflow-visible rounded-[28px] border border-[#526C7E] shadow-[0_16px_45px_rgba(38,59,73,0.16)]">
 
-          {/* Decorative Background Shapes */}
+          {/* Main Gradient Background */}
 
-          <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#9FB9C9] opacity-[0.12]" />
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#263B49] via-[#405C6E] to-[#9FB9C9]" />
 
-          <div className="pointer-events-none absolute -bottom-32 left-[38%] h-64 w-64 rounded-full bg-[#B7CBD7] opacity-[0.10]" />
+          {/* Soft Dusty Blue Glow Behind Logo */}
 
-          <div className="pointer-events-none absolute right-[18%] top-[42%] h-28 w-28 rounded-full bg-[#D7E4EA] opacity-40" />
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-[58%] overflow-hidden rounded-r-[28px]">
+
+            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/90 via-[#9FB9C9]/55 to-transparent" />
+
+            <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+
+            <div className="absolute -bottom-28 right-[18%] h-72 w-72 rounded-full bg-[#D7E4EA]/10 blur-3xl" />
+
+          </div>
+
+          {/* Logo Fade / Blend */}
+
+          <div className="pointer-events-none absolute right-0 top-0 hidden h-[240px] w-[58%] overflow-hidden rounded-r-[28px] lg:block">
+
+            <div className="absolute inset-0 bg-gradient-to-r from-[#8FAEBD] via-[#A8C0CC]/60 to-transparent opacity-60" />
+
+            <img
+              src="/lg-listings-logo.png"
+              alt=""
+              aria-hidden="true"
+              className="absolute right-8 top-1/2 h-32 w-auto -translate-y-1/2 object-contain opacity-[0.18] mix-blend-multiply blur-[0.2px] xl:right-16 xl:h-40"
+            />
+
+            <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#263B49]/35 to-transparent" />
+
+          </div>
+
+          {/* Decorative Shapes */}
+
+          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full border border-white/10 bg-white/5" />
+
+          <div className="pointer-events-none absolute -bottom-32 left-[35%] h-64 w-64 rounded-full bg-white/5" />
 
           {/* Branding Area */}
 
@@ -1680,27 +1711,27 @@ export default function CustomerTable({
 
               <div className="min-w-0">
 
-                <div className="mb-6 flex h-16 w-56 items-center sm:h-20 sm:w-64">
+                <div className="mb-6 flex h-16 w-56 items-center sm:h-20 sm:w-64 lg:hidden">
 
                   <img
                     src="/lg-listings-logo.png"
                     alt="LG Listings"
-                    className="h-full w-auto max-w-full object-contain object-left"
+                    className="h-full w-auto max-w-full object-contain object-left opacity-90"
                   />
 
                 </div>
 
                 <div className="max-w-3xl">
 
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#617D8E]">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D7E4EA]">
                     Private Grant Funding
                   </p>
 
-                  <h1 className="text-3xl font-bold tracking-[-0.025em] text-[#263B49] sm:text-4xl lg:text-[2.65rem]">
+                  <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
                     Active RFP Opportunities
                   </h1>
 
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607582] sm:text-base">
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#DCE8ED] sm:text-base">
                     Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
                   </p>
 
@@ -1712,19 +1743,19 @@ export default function CustomerTable({
 
               <div className="relative flex-shrink-0">
 
-                <div className="inline-flex items-center gap-3 rounded-full border border-[#C8DAE3] bg-white/75 px-5 py-3 shadow-sm backdrop-blur-sm">
+                <div className="inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/15 px-5 py-3 shadow-lg backdrop-blur-md">
 
                   <span className="relative flex h-3 w-3">
 
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6F91A8] opacity-40" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#D7E4EA] opacity-50" />
 
-                    <span className="relative inline-flex h-3 w-3 rounded-full bg-[#5F829B]" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-[#E2EEF2] shadow-[0_0_12px_rgba(226,238,242,0.65)]" />
 
                   </span>
 
-                  <span className="text-sm font-semibold text-[#3F5968]">
+                  <span className="text-sm font-semibold text-white">
 
-                    <span className="font-bold text-[#263B49]">
+                    <span className="font-bold text-white">
                       {activeCount}
                     </span>{" "}
 
@@ -1740,7 +1771,7 @@ export default function CustomerTable({
 
             {/* Accent Line */}
 
-            <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#91AFC2] to-transparent opacity-70" />
+            <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#D7E4EA]/60 to-transparent" />
 
           </div>
 
@@ -1822,7 +1853,7 @@ export default function CustomerTable({
                   className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                     showQuickFilters
                       ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
-                      : "border-[#D0DFE6] bg-white/55 text-[#536C7B] hover:bg-white hover:text-[#304B5C]"
+                      : "border-white/20 bg-white/10 text-white hover:bg-white/20"
                   }`}
                 >
 
@@ -1864,7 +1895,7 @@ export default function CustomerTable({
                   className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                     showAdvancedFilters
                       ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
-                      : "border-[#D0DFE6] bg-white/55 text-[#536C7B] hover:bg-white hover:text-[#304B5C]"
+                      : "border-white/20 bg-white/10 text-white hover:bg-white/20"
                   }`}
                 >
 
@@ -1915,7 +1946,7 @@ export default function CustomerTable({
                         !current
                     )
                   }
-                  className="flex w-full items-center justify-between gap-4 rounded-xl border border-[#D0DFE6] bg-white/65 px-5 py-3 text-sm font-semibold text-[#536C7B] shadow-sm outline-none transition hover:bg-white hover:text-[#304B5C] xl:min-w-[210px]"
+                  className="flex w-full items-center justify-between gap-4 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm outline-none transition hover:bg-white/20 xl:min-w-[210px]"
                 >
 
                   <span>
@@ -2220,7 +2251,7 @@ export default function CustomerTable({
 
             {showQuickFilters && (
 
-              <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-white/80 p-6 shadow-sm">
+              <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
 
                 <div className="mb-5 flex items-center justify-between">
 
@@ -2513,7 +2544,7 @@ export default function CustomerTable({
 
             {showAdvancedFilters && (
 
-              <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7] bg-white/80 p-6 shadow-sm">
+              <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
 
                 <div className="flex items-center justify-between gap-4">
 
@@ -2931,7 +2962,7 @@ export default function CustomerTable({
 
               <div className="mt-5 flex flex-wrap items-center gap-2">
 
-                <span className="text-sm font-semibold text-[#536C7B]">
+                <span className="text-sm font-semibold text-white/90">
                   Active filters:
                 </span>
 
@@ -2948,7 +2979,7 @@ export default function CustomerTable({
                           setQuickGrantors
                         )
                       }
-                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
+                      className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
                     >
                       Grantor:{" "}
                       {grantor} ×
@@ -2970,7 +3001,7 @@ export default function CustomerTable({
                           setQuickMaximumGrants
                         )
                       }
-                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
+                      className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
                     >
                       Maximum Grant:{" "}
                       {amount} ×
@@ -2989,7 +3020,7 @@ export default function CustomerTable({
                         "all"
                       )
                     }
-                    className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
+                    className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
                   >
                     Deadline:{" "}
                     {quickDeadline ===
@@ -2998,51 +3029,6 @@ export default function CustomerTable({
                       : `Within ${quickDeadline} days`}{" "}
                     ×
                   </button>
-
-                )}
-
-                {quickMonths.map(
-                  (month) => (
-
-                    <button
-                      key={`month-${month}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          month,
-                          quickMonths,
-                          setQuickMonths
-                        )
-                      }
-                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
-                    >
-                      Anticipated:{" "}
-                      {month} ×
-                    </button>
-
-                  )
-                )}
-
-                {quickCategories.map(
-                  (category) => (
-
-                    <button
-                      key={`category-${category}`}
-                      type="button"
-                      onClick={() =>
-                        toggleArrayValue(
-                          category,
-                          quickCategories,
-                          setQuickCategories
-                        )
-                      }
-                      className="rounded-full border border-[#D5E1E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#F1F5F7]"
-                    >
-                      Category:{" "}
-                      {category} ×
-                    </button>
-
-                  )
                 )}
 
                 {activeAdvancedFilterCount >
@@ -3053,7 +3039,7 @@ export default function CustomerTable({
                     onClick={
                       clearAdvancedFilters
                     }
-                    className="rounded-full border border-[#B8CBD7] bg-[#E7EFF4] px-3 py-1.5 text-xs font-semibold text-[#536C7B] transition hover:bg-[#DCE8EF]"
+                    className="rounded-full border border-white/25 bg-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/30"
                   >
                     Advanced filters:{" "}
                     {
@@ -3069,7 +3055,7 @@ export default function CustomerTable({
                   onClick={
                     clearAllFilters
                   }
-                  className="ml-1 text-xs font-semibold text-[#647781] underline underline-offset-2 hover:text-[#304653]"
+                  className="ml-1 text-xs font-semibold text-white/80 underline underline-offset-2 hover:text-white"
                 >
                   Clear all
                 </button>
@@ -3084,13 +3070,13 @@ export default function CustomerTable({
               totalActiveFilterCount >
                 0) && (
 
-              <div className="mt-4 flex items-center gap-2 text-sm text-[#607582]">
+              <div className="mt-4 flex items-center gap-2 text-sm text-[#E0EBEF]">
 
-                <span className="inline-block h-2 w-2 rounded-full bg-[#6F91A8]" />
+                <span className="inline-block h-2 w-2 rounded-full bg-[#D7E4EA]" />
 
                 Showing{" "}
 
-                <span className="font-semibold text-[#304653]">
+                <span className="font-semibold text-white">
                   {
                     filteredCustomers.length
                   }
@@ -3442,4 +3428,4 @@ export default function CustomerTable({
       </div>
     </div>
   );
-}
+}            
