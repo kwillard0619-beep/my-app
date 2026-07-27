@@ -1664,17 +1664,13 @@ export default function CustomerTable({
 
           {/* Main Gradient Background */}
 
-          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#263B49] via-[#405C6E] to-[#9FB9C9]" />
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#405C6E] to-[#9FB9C9]" />
 
           {/* Soft Dusty Blue Glow Behind Logo */}
 
           <div className="pointer-events-none absolute right-0 top-0 h-full w-[58%] overflow-hidden rounded-r-[28px]">
 
-            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/90 via-[#9FB9C9]/55 to-transparent" />
-
-            <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-
-            <div className="absolute -bottom-28 right-[18%] h-72 w-72 rounded-full bg-[#D7E4EA]/10 blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/60 via-[#9FB9C9]/30 to-transparent" />
 
           </div>
 
@@ -1682,7 +1678,7 @@ export default function CustomerTable({
 
           <div className="pointer-events-none absolute right-0 top-0 hidden h-[240px] w-[58%] overflow-hidden rounded-r-[28px] lg:block">
 
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8FAEBD] via-[#A8C0CC]/60 to-transparent opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#405C6E]/70 via-[#8FAEBD]/35 to-transparent opacity-70" />
 
             <img
               src="/lg-listings-logo.png"
@@ -1695,17 +1691,11 @@ export default function CustomerTable({
 
           </div>
 
-          {/* Decorative Shapes */}
-
-          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full border border-white/10 bg-white/5" />
-
-          <div className="pointer-events-none absolute -bottom-32 left-[35%] h-64 w-64 rounded-full bg-white/5" />
-
           {/* Branding Area */}
 
           <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
 
-            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-7">
 
               {/* Logo + Title */}
 
@@ -1734,34 +1724,6 @@ export default function CustomerTable({
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-[#DCE8ED] sm:text-base">
                     Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
                   </p>
-
-                </div>
-
-              </div>
-
-              {/* Active Count Pill */}
-
-              <div className="relative flex-shrink-0">
-
-                <div className="inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/15 px-5 py-3 shadow-lg backdrop-blur-md">
-
-                  <span className="relative flex h-3 w-3">
-
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#D7E4EA] opacity-50" />
-
-                    <span className="relative inline-flex h-3 w-3 rounded-full bg-[#E2EEF2] shadow-[0_0_12px_rgba(226,238,242,0.65)]" />
-
-                  </span>
-
-                  <span className="text-sm font-semibold text-white">
-
-                    <span className="font-bold text-white">
-                      {activeCount}
-                    </span>{" "}
-
-                    Active Opportunities
-
-                  </span>
 
                 </div>
 
@@ -1911,7 +1873,7 @@ export default function CustomerTable({
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M6 13.5V4.5m0 9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0-4.5m6-4.5v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5m6-9v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5"
+                      d="M6 13.5V4.5m0 9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0-4.5m6-4.5v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m6-9v9m0-9a2.25 2.25 0 1 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5m0 9v-9m0 9a2.25 2.25 0 1 0 0-4.5m0 4.5a2.25 2.25 0 0 1 0-4.5"
                     />
 
                   </svg>
@@ -3102,35 +3064,35 @@ export default function CustomerTable({
 
             <table className="w-full">
 
-              <thead className="bg-[#DCE8EE] text-[#405967]">
+              <thead className="bg-[#AFC4D0] text-[#263B49]">
 
                 <tr>
 
-                  <th className="p-5 text-left text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
                     Grantor
                   </th>
 
-                  <th className="p-5 text-left text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
                     Opportunity
                   </th>
 
-                  <th className="p-5 text-center text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
                     Maximum Grant
                   </th>
 
-                  <th className="p-5 text-center text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
                     Deadline
                   </th>
 
-                  <th className="p-5 text-center text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
                     Anticipated Deadline Month
                   </th>
 
-                  <th className="p-5 text-left text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
                     Abstract
                   </th>
 
-                  <th className="p-5 text-center text-xs font-semibold uppercase tracking-wider">
+                  <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
                     Categories
                   </th>
 
@@ -3408,6 +3370,30 @@ export default function CustomerTable({
         </div>
 
         {/* ==================================================
+            ACTIVE OPPORTUNITIES COUNT
+        ================================================== */}
+
+        <div className="mt-4 flex justify-end">
+
+          <div className="inline-flex items-center gap-3 rounded-xl border border-[#C8D8E1] bg-[#E6EFF3] px-5 py-3 shadow-sm">
+
+            <span className="h-2.5 w-2.5 rounded-full bg-[#6F91A8]" />
+
+            <span className="text-sm font-semibold text-[#405967]">
+
+              <span className="font-bold text-[#263B49]">
+                {activeCount}
+              </span>{" "}
+
+              Active Opportunities
+
+            </span>
+
+          </div>
+
+        </div>
+
+        {/* ==================================================
             REALTIME-SYNCHRONIZED DRAWER
         ================================================== */}
 
@@ -3428,4 +3414,4 @@ export default function CustomerTable({
       </div>
     </div>
   );
-}            
+}           
