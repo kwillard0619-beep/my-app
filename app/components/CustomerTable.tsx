@@ -1657,46 +1657,37 @@ export default function CustomerTable({
       <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
 
         {/* ==================================================
-            HEADER + SEARCH / FILTER AREA
+            HEADER / SEARCH / FILTER AREA
         ================================================== */}
 
         <div className="relative overflow-hidden rounded-[28px]">
 
           {/* ==================================================
-              SMOOTH MULTI-STOP GRADIENT BACKGROUND
+              SOFT MULTI-STOP GRADIENT BACKGROUND
           ================================================== */}
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[#263B49] via-[#405C6E] to-[#AFC4D0]" />
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#344F60] via-[35%] via-[#4F6B7B] via-[55%] via-[#718D9D] via-[75%] to-[#AFC4D0]" />
 
-          {/* Subtle blended middle tones */}
+          {/* ==================================================
+              LARGE SOFT BLEND OVERLAY
+              Helps eliminate visible transition bands
+          ================================================== */}
 
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute inset-y-0 left-[20%] w-[60%] bg-gradient-to-r from-transparent via-[#5F7B8B]/25 to-transparent blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+
+            <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#344F60]/20 via-[#6B8797]/30 to-[#AFC4D0]/10 blur-[55px]" />
+
           </div>
 
           {/* ==================================================
-              FADED LOGO ON RIGHT SIDE
+              DUSTY BLUE SOFTENING
           ================================================== */}
 
-          <div className="pointer-events-none absolute right-0 top-0 hidden h-[260px] w-[55%] overflow-hidden lg:block">
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
 
-            <img
-              src="/lg-listings-logo.png"
-              alt=""
-              aria-hidden="true"
-              className="absolute right-8 top-1/2 h-36 w-auto -translate-y-1/2 object-contain object-right opacity-[0.14] mix-blend-screen blur-[0.2px] xl:right-16 xl:h-44"
-            />
-
-            {/* Soft fade from center of header into logo */}
-
-            <div className="absolute inset-y-0 left-0 w-[45%] bg-gradient-to-r from-[#405C6E] via-[#405C6E]/70 to-transparent" />
-
-            {/* Very subtle right-side blending */}
-
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#405C6E]/10" />
+            <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
 
           </div>
-
 
           {/* ==================================================
               BRANDING AREA
@@ -1709,8 +1700,6 @@ export default function CustomerTable({
               {/* Logo + Title */}
 
               <div className="min-w-0">
-
-                {/* Mobile Logo */}
 
                 <div className="mb-6 flex h-16 w-56 items-center sm:h-20 sm:w-64 lg:hidden">
 
@@ -1747,7 +1736,6 @@ export default function CustomerTable({
             <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#D7E4EA]/60 to-transparent" />
 
           </div>
-
 
           {/* ==================================================
               SEARCH + FILTER TOOLBAR
@@ -1815,14 +1803,9 @@ export default function CustomerTable({
 
               </div>
 
-
-              {/* ==================================================
-                  FILTER BUTTONS
-              ================================================== */}
+              {/* Filter Buttons */}
 
               <div className="flex flex-col gap-2 sm:flex-row">
-
-                {/* Quick Filter */}
 
                 <button
                   type="button"
@@ -1855,7 +1838,8 @@ export default function CustomerTable({
 
                   Quick Filter
 
-                  {activeQuickFilterCount > 0 && (
+                  {activeQuickFilterCount >
+                    0 && (
 
                     <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
                       {activeQuickFilterCount}
@@ -1864,9 +1848,6 @@ export default function CustomerTable({
                   )}
 
                 </button>
-
-
-                {/* Advanced Filter */}
 
                 <button
                   type="button"
@@ -1899,7 +1880,8 @@ export default function CustomerTable({
 
                   Advanced
 
-                  {activeAdvancedFilterCount > 0 && (
+                  {activeAdvancedFilterCount >
+                    0 && (
 
                     <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
                       {activeAdvancedFilterCount}
@@ -1911,10 +1893,7 @@ export default function CustomerTable({
 
               </div>
 
-
-              {/* ==================================================
-                  SORT DROPDOWN
-              ================================================== */}
+              {/* Sort */}
 
               <div
                 ref={sortDropdownRef}
@@ -1959,7 +1938,6 @@ export default function CustomerTable({
 
                 </button>
 
-
                 {showSortOptions && (
 
                   <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
@@ -1989,7 +1967,6 @@ export default function CustomerTable({
                       </button>
 
                     </div>
-
 
                     <div className="space-y-2">
 
@@ -2050,7 +2027,6 @@ export default function CustomerTable({
                                   className="cursor-grab text-[#9AAAB4] active:cursor-grabbing"
                                   title="Drag to reorder"
                                 >
-
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
@@ -2067,17 +2043,18 @@ export default function CustomerTable({
                                     />
 
                                   </svg>
-
                                 </span>
 
                                 <span className="text-xs font-semibold uppercase tracking-wide text-[#81929C]">
                                   Sort level{" "}
-                                  {index + 1}
+                                  {index +
+                                    1}
                                 </span>
 
                               </div>
 
-                              {sortRules.length > 1 && (
+                              {sortRules.length >
+                                1 && (
 
                                 <button
                                   type="button"
@@ -2094,7 +2071,6 @@ export default function CustomerTable({
                               )}
 
                             </div>
-
 
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 
@@ -2165,7 +2141,6 @@ export default function CustomerTable({
 
                               </select>
 
-
                               <select
                                 value={
                                   rule.direction
@@ -2211,8 +2186,8 @@ export default function CustomerTable({
 
                     </div>
 
-
-                    {sortRules.length < 4 && (
+                    {sortRules.length <
+                      4 && (
 
                       <button
                         type="button"
@@ -2234,10 +2209,7 @@ export default function CustomerTable({
 
             </div>
 
-
-            {/* ==================================================
-                QUICK FILTER PANEL
-            ================================================== */}
+            {/* Quick Filter Panel */}
 
             {showQuickFilters && (
 
@@ -2268,7 +2240,6 @@ export default function CustomerTable({
                   </button>
 
                 </div>
-
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
 
@@ -2323,7 +2294,6 @@ export default function CustomerTable({
 
                   </div>
 
-
                   {/* Maximum Grant */}
 
                   <div>
@@ -2375,7 +2345,6 @@ export default function CustomerTable({
 
                   </div>
 
-
                   {/* Deadline */}
 
                   <div>
@@ -2392,7 +2361,9 @@ export default function CustomerTable({
                         activateQuickFilter(
                           () =>
                             setQuickDeadline(
-                              e.target.value
+                              e
+                                .target
+                                .value
                             )
                         )
                       }
@@ -2422,7 +2393,6 @@ export default function CustomerTable({
                     </select>
 
                   </div>
-
 
                   {/* Anticipated Deadline */}
 
@@ -2474,7 +2444,6 @@ export default function CustomerTable({
                     </div>
 
                   </div>
-
 
                   {/* Categories */}
 
@@ -2533,10 +2502,7 @@ export default function CustomerTable({
 
             )}
 
-
-            {/* ==================================================
-                ADVANCED FILTER PANEL
-            ================================================== */}
+            {/* Advanced Filter Panel */}
 
             {showAdvancedFilters && (
 
@@ -2568,8 +2534,8 @@ export default function CustomerTable({
 
                 </div>
 
-
-                {advancedFilters.length === 0 ? (
+                {advancedFilters.length ===
+                0 ? (
 
                   <div className="mt-5 rounded-xl border border-dashed border-[#CBD9E1] bg-[#FAFCFD] p-6 text-center">
 
@@ -2614,7 +2580,6 @@ export default function CustomerTable({
                               AND
                             </div>
 
-
                             <select
                               value={
                                 filter.field
@@ -2632,7 +2597,8 @@ export default function CustomerTable({
                                   filter.id,
                                   {
                                     field,
-                                    values: [],
+                                    values:
+                                      [],
                                   }
                                 );
 
@@ -2674,7 +2640,6 @@ export default function CustomerTable({
 
                             </select>
 
-
                             <select
                               value={
                                 filter.operator
@@ -2705,7 +2670,6 @@ export default function CustomerTable({
 
                             </select>
 
-
                             <div
                               ref={
                                 dropdownIsOpen
@@ -2725,7 +2689,8 @@ export default function CustomerTable({
 
                                 <div className="flex flex-wrap items-center gap-1.5">
 
-                                  {filter.values.length === 0 && (
+                                  {filter.values.length ===
+                                    0 && (
 
                                     <button
                                       type="button"
@@ -2745,7 +2710,6 @@ export default function CustomerTable({
                                     </button>
 
                                   )}
-
 
                                   {filter.values.map(
                                     (
@@ -2786,7 +2750,6 @@ export default function CustomerTable({
                                     )
                                   )}
 
-
                                   <button
                                     type="button"
                                     onClick={() =>
@@ -2804,7 +2767,9 @@ export default function CustomerTable({
                                       xmlns="http://www.w3.org/2000/svg"
                                       fill="none"
                                       viewBox="0 0 24 24"
-                                      strokeWidth={1.5}
+                                      strokeWidth={
+                                        1.5
+                                      }
                                       stroke="currentColor"
                                       className={`h-4 w-4 transition-transform ${
                                         dropdownIsOpen
@@ -2827,12 +2792,12 @@ export default function CustomerTable({
 
                               </div>
 
-
                               {dropdownIsOpen && (
 
                                 <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#D5E1E7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
 
-                                  {options.length === 0 ? (
+                                  {options.length ===
+                                  0 ? (
 
                                     <div className="px-3 py-4 text-center text-sm text-[#94A3AB]">
                                       No options available
@@ -2911,7 +2876,6 @@ export default function CustomerTable({
 
                             </div>
 
-
                             <button
                               type="button"
                               onClick={() =>
@@ -2935,7 +2899,6 @@ export default function CustomerTable({
 
                 )}
 
-
                 <div className="mt-5 flex justify-end gap-3">
 
                   <button
@@ -2954,19 +2917,16 @@ export default function CustomerTable({
 
             )}
 
+            {/* Active Filter Chips */}
 
-            {/* ==================================================
-                ACTIVE FILTER CHIPS
-            ================================================== */}
-
-            {totalActiveFilterCount > 0 && (
+            {totalActiveFilterCount >
+              0 && (
 
               <div className="mt-5 flex flex-wrap items-center gap-2">
 
                 <span className="text-sm font-semibold text-white/90">
                   Active filters:
                 </span>
-
 
                 {quickGrantors.map(
                   (grantor) => (
@@ -2990,7 +2950,6 @@ export default function CustomerTable({
                   )
                 )}
 
-
                 {quickMaximumGrants.map(
                   (amount) => (
 
@@ -3013,8 +2972,8 @@ export default function CustomerTable({
                   )
                 )}
 
-
-                {quickDeadline !== "all" && (
+                {quickDeadline !==
+                  "all" && (
 
                   <button
                     type="button"
@@ -3035,8 +2994,8 @@ export default function CustomerTable({
 
                 )}
 
-
-                {activeAdvancedFilterCount > 0 && (
+                {activeAdvancedFilterCount >
+                  0 && (
 
                   <button
                     type="button"
@@ -3054,7 +3013,6 @@ export default function CustomerTable({
 
                 )}
 
-
                 <button
                   type="button"
                   onClick={
@@ -3069,13 +3027,11 @@ export default function CustomerTable({
 
             )}
 
-
-            {/* ==================================================
-                SEARCH RESULT COUNT
-            ================================================== */}
+            {/* Search Result Count */}
 
             {(search.trim() ||
-              totalActiveFilterCount > 0) && (
+              totalActiveFilterCount >
+                0) && (
 
               <div className="mt-4 flex items-center gap-2 text-sm text-[#E0EBEF]">
 
@@ -3098,14 +3054,6 @@ export default function CustomerTable({
           </div>
 
         </div>
-
-
-        {/* ==================================================
-            WHITE SPACE BETWEEN HEADER AND TABLE
-        ================================================== */}
-
-        <div className="h-6 bg-white sm:h-8 lg:h-10" />
-
 
         {/* ==================================================
             OPPORTUNITIES TABLE
@@ -3152,7 +3100,6 @@ export default function CustomerTable({
                 </tr>
 
               </thead>
-
 
               <tbody className="divide-y divide-[#E3E9ED]">
 
@@ -3208,7 +3155,6 @@ export default function CustomerTable({
 
                         </td>
 
-
                         {/* Opportunity */}
 
                         <td className="p-5 align-top text-left">
@@ -3220,7 +3166,6 @@ export default function CustomerTable({
 
                         </td>
 
-
                         {/* Maximum Grant */}
 
                         <td className="p-5 align-top text-center">
@@ -3231,7 +3176,6 @@ export default function CustomerTable({
                           </span>
 
                         </td>
-
 
                         {/* Deadline */}
 
@@ -3259,7 +3203,6 @@ export default function CustomerTable({
 
                                 </span>
 
-
                                 {isPastDeadline && (
 
                                   <span
@@ -3285,7 +3228,6 @@ export default function CustomerTable({
                           </div>
 
                         </td>
-
 
                         {/* Anticipated Deadline */}
 
@@ -3313,7 +3255,6 @@ export default function CustomerTable({
 
                         </td>
 
-
                         {/* Abstract */}
 
                         <td className="p-5 align-top text-left">
@@ -3325,7 +3266,6 @@ export default function CustomerTable({
 
                         </td>
 
-
                         {/* Categories */}
 
                         <td className="p-5 align-top">
@@ -3336,7 +3276,8 @@ export default function CustomerTable({
                               customer.rfp_categories
                             ) &&
                             customer.rfp_categories
-                              .length > 0 ? (
+                              .length >
+                              0 ? (
 
                               customer.rfp_categories.map(
                                 (
@@ -3385,12 +3326,10 @@ export default function CustomerTable({
 
           </div>
 
+          {/* Empty State */}
 
-          {/* ==================================================
-              EMPTY STATE
-          ================================================== */}
-
-          {filteredCustomers.length === 0 && (
+          {filteredCustomers.length ===
+            0 && (
 
             <div className="bg-[#FAFBFC] px-6 py-20 text-center">
 
@@ -3415,7 +3354,6 @@ export default function CustomerTable({
 
               </div>
 
-
               <h3 className="mt-5 text-lg font-semibold text-[#304653]">
                 No opportunities found
               </h3>
@@ -3431,7 +3369,6 @@ export default function CustomerTable({
           )}
 
         </div>
-
 
         {/* ==================================================
             ACTIVE OPPORTUNITIES COUNT
@@ -3456,7 +3393,6 @@ export default function CustomerTable({
           </div>
 
         </div>
-
 
         {/* ==================================================
             REALTIME-SYNCHRONIZED DRAWER
