@@ -1663,8 +1663,8 @@ export default function CustomerTable({
 
           {/* Main Gradient Background */}
 
-          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#263B49] via-[#405C6E] to-[#9FB9C9]" />
-
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#5B788A] to-[#9FB9C9]" />
+          
           {/* Soft Dusty Blue Glow Behind Logo */}
 
           <div className="pointer-events-none absolute right-0 top-0 h-full w-[58%] overflow-hidden rounded-r-[28px]">
