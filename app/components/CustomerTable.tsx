@@ -95,12 +95,12 @@ export default function CustomerTable({
   const [sortRules, setSortRules] = useState<SortRule[]>([
     {
       id: 1,
-      field: "anticipated_deadline",
+      field: "deadline",
       direction: "asc",
     },
     {
       id: 2,
-      field: "deadline",
+      field: "anticipated_deadline",
       direction: "asc",
     },
     {
