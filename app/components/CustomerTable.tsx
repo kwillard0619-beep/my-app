@@ -1670,7 +1670,6 @@ export default function CustomerTable({
 
           {/* ==================================================
               LARGE SOFT BLEND OVERLAY
-              Helps eliminate visible transition bands
           ================================================== */}
 
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
@@ -1695,21 +1694,32 @@ export default function CustomerTable({
 
           <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
 
+            {/* ==================================================
+                LOGO
+                Clean upper-right placement
+            ================================================== */}
+
+            <div className="pointer-events-none absolute right-6 top-6 hidden sm:block lg:right-10 lg:top-8">
+
+              <div className="flex h-20 w-48 items-center justify-center rounded-2xl bg-white/10 px-4 backdrop-blur-[2px]">
+
+                <img
+                  src="/lg-listings-logo.png"
+                  alt="LG Listings"
+                  className="h-full w-auto max-w-full object-contain object-center opacity-95"
+                />
+
+              </div>
+
+            </div>
+
             <div className="flex flex-col gap-7">
 
-              {/* Logo + Title */}
+              {/* ==================================================
+                  TITLE / DESCRIPTION
+              ================================================== */}
 
-              <div className="min-w-0">
-
-                <div className="mb-6 flex h-16 w-56 items-center sm:h-20 sm:w-64 lg:hidden">
-
-                  <img
-                    src="/lg-listings-logo.png"
-                    alt="LG Listings"
-                    className="h-full w-auto max-w-full object-contain object-left opacity-90"
-                  />
-
-                </div>
+              <div className="min-w-0 pr-0 sm:pr-52">
 
                 <div className="max-w-3xl">
 
@@ -1731,7 +1741,9 @@ export default function CustomerTable({
 
             </div>
 
-            {/* Accent Line */}
+            {/* ==================================================
+                ACCENT LINE
+            ================================================== */}
 
             <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#D7E4EA]/60 to-transparent" />
 
@@ -1745,7 +1757,9 @@ export default function CustomerTable({
 
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
 
-              {/* Search */}
+              {/* ==================================================
+                  SEARCH
+              ================================================== */}
 
               <div className="relative flex-1">
 
@@ -1803,7 +1817,9 @@ export default function CustomerTable({
 
               </div>
 
-              {/* Filter Buttons */}
+              {/* ==================================================
+                  FILTER BUTTONS
+              ================================================== */}
 
               <div className="flex flex-col gap-2 sm:flex-row">
 
@@ -1893,7 +1909,9 @@ export default function CustomerTable({
 
               </div>
 
-              {/* Sort */}
+              {/* ==================================================
+                  SORT
+              ================================================== */}
 
               <div
                 ref={sortDropdownRef}
@@ -2027,6 +2045,7 @@ export default function CustomerTable({
                                   className="cursor-grab text-[#9AAAB4] active:cursor-grabbing"
                                   title="Drag to reorder"
                                 >
+
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
@@ -2043,6 +2062,7 @@ export default function CustomerTable({
                                     />
 
                                   </svg>
+
                                 </span>
 
                                 <span className="text-xs font-semibold uppercase tracking-wide text-[#81929C]">
@@ -2209,7 +2229,9 @@ export default function CustomerTable({
 
             </div>
 
-            {/* Quick Filter Panel */}
+            {/* ==================================================
+                QUICK FILTER PANEL
+            ================================================== */}
 
             {showQuickFilters && (
 
@@ -2502,7 +2524,9 @@ export default function CustomerTable({
 
             )}
 
-            {/* Advanced Filter Panel */}
+            {/* ==================================================
+                ADVANCED FILTER PANEL
+            ================================================== */}
 
             {showAdvancedFilters && (
 
@@ -2917,7 +2941,9 @@ export default function CustomerTable({
 
             )}
 
-            {/* Active Filter Chips */}
+            {/* ==================================================
+                ACTIVE FILTER CHIPS
+            ================================================== */}
 
             {totalActiveFilterCount >
               0 && (
@@ -3027,7 +3053,9 @@ export default function CustomerTable({
 
             )}
 
-            {/* Search Result Count */}
+            {/* ==================================================
+                SEARCH RESULT COUNT
+            ================================================== */}
 
             {(search.trim() ||
               totalActiveFilterCount >
@@ -3054,6 +3082,14 @@ export default function CustomerTable({
           </div>
 
         </div>
+
+        {/* ==================================================
+            MATCHING BACKGROUND SPACE
+            Keeps the transition between header and table
+            the same color as the page background.
+        ================================================== */}
+
+        <div className="h-6 bg-[#F7F9FA] sm:h-8" />
 
         {/* ==================================================
             OPPORTUNITIES TABLE
@@ -3326,7 +3362,9 @@ export default function CustomerTable({
 
           </div>
 
-          {/* Empty State */}
+          {/* ==================================================
+              EMPTY STATE
+          ================================================== */}
 
           {filteredCustomers.length ===
             0 && (
