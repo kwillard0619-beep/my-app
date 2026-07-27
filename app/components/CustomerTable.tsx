@@ -1699,26 +1699,28 @@ return (
             Soft blended placement with no hard container edge
       ================================================== */}
 
-          <div className="pointer-events-none absolute right-0 top-0 hidden h-[230px] w-[48%] overflow-hidden rounded-r-[28px] sm:block lg:right-0 lg:top-0">
+          {/* ==================================================
+                  LOGO
+                  Soft color wash behind logo — no harsh edge
+              ================================================== */}
 
-            {/* Soft ambient light behind logo */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_45%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.08)_28%,rgba(255,255,255,0)_68%)]" />
+              <div className="pointer-events-none absolute right-0 top-0 hidden h-[220px] w-[52%] overflow-hidden rounded-r-[28px] sm:block">
 
-            {/* Subtle gradient blend to prevent a visible transition */}
-            <div className="absolute inset-0 bg-gradient-to-l from-white/[0.04] via-white/[0.02] to-transparent" />
+                {/* Soft color wash behind logo */}
+                <div className="absolute inset-0 bg-gradient-to-l from-[#B8CBD5]/35 via-[#8FAEBD]/15 to-transparent blur-[18px]" />
 
-            {/* Logo */}
-            <div className="absolute right-8 top-1/2 -translate-y-1/2 xl:right-14">
+                {/* Additional soft glow to blend the logo into the background */}
+                <div className="absolute right-[-5%] top-1/2 h-[180px] w-[75%] -translate-y-1/2 rounded-full bg-[#D7E4EA]/10 blur-[45px]" />
 
-              <img
-                src="/lg-listings-logo.png"
-                alt="LG Listings"
-                className="h-28 w-auto max-w-[220px] object-contain object-center opacity-90 drop-shadow-[0_2px_8px_rgba(38,59,73,0.18)] xl:h-36 xl:max-w-[260px]"
-              />
+                {/* Logo */}
+                <img
+                  src="/lg-listings-logo.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute right-8 top-1/2 h-28 w-auto -translate-y-1/2 object-contain opacity-[0.20] mix-blend-multiply blur-[0.15px] xl:right-16 xl:h-36"
+                />
 
-            </div>
-
-          </div>
+              </div>
         {/* ==================================================
             BRANDING AREA
         ================================================== */}
