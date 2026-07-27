@@ -1660,7 +1660,7 @@ return (
           HEADER / SEARCH / FILTER AREA
       ================================================== */}
 
-      <div className="relative overflow-hidden rounded-[28px]">
+      <div className="relative overflow-visible rounded-[28px]">
 
         {/* ==================================================
             SOFT MULTI-STOP GRADIENT BACKGROUND
@@ -1964,7 +1964,7 @@ return (
 
               {showSortOptions && (
 
-                <div className="absolute right-0 top-full z-[100] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
+                <div className="absolute right-0 top-full z-[9999] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
 
                   <div className="mb-4 flex items-center justify-between">
 
