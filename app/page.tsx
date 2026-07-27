@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import OpportunitiesRealtime from "./components/OpportunitiesRealtime";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const { data, error } = await supabase
     .from("Personal_BB")

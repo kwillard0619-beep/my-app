@@ -25,8 +25,9 @@ export default function OpportunitiesRealtime({
           schema: "public",
           table: "Personal_BB",
         },
+        
         (payload) => {
-          if (payload.eventType === "INSERT") {
+         if (payload.eventType === "INSERT") {
             setCustomers((current) => [
               ...current,
               payload.new as Customer,
