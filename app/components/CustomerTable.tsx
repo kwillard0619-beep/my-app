@@ -1694,30 +1694,31 @@ return (
             No box / no backdrop blur / no hard edge.
         ================================================== */}
 
-        <div className="pointer-events-none absolute right-0 top-0 hidden h-[240px] w-[58%] overflow-hidden rounded-r-[28px] sm:block lg:h-[260px]">
+    {/* ==================================================
+            LOGO
+            Soft blended placement with no hard container edge
+      ================================================== */}
 
-          {/* Soft lightening layer behind logo */}
-          <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#8FAEBD]/10 to-transparent opacity-70" />
+          <div className="pointer-events-none absolute right-0 top-0 hidden h-[230px] w-[48%] overflow-hidden rounded-r-[28px] sm:block lg:right-0 lg:top-0">
 
-          {/* Soft dark blend from the left side */}
-          <div className="absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#263B49]/20 via-[#405D6D]/10 to-transparent blur-[30px]" />
+            {/* Soft ambient light behind logo */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_45%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.08)_28%,rgba(255,255,255,0)_68%)]" />
 
-          {/* Very soft logo fade */}
-          <div className="absolute right-0 top-0 h-full w-[75%] bg-gradient-to-l from-transparent via-[#AFC4D0]/10 to-transparent blur-[25px]" />
+            {/* Subtle gradient blend to prevent a visible transition */}
+            <div className="absolute inset-0 bg-gradient-to-l from-white/[0.04] via-white/[0.02] to-transparent" />
 
-          {/* Logo */}
-          <img
-            src="/lg-listings-logo.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute right-8 top-1/2 h-28 w-auto -translate-y-1/2 object-contain opacity-[0.22] mix-blend-multiply blur-[0.15px] sm:right-10 sm:h-32 lg:right-14 lg:h-36 xl:right-20 xl:h-40"
-          />
+            {/* Logo */}
+            <div className="absolute right-8 top-1/2 -translate-y-1/2 xl:right-14">
 
-          {/* Soft fade directly over logo edge */}
-          <div className="absolute inset-y-0 left-0 w-[45%] bg-gradient-to-r from-[#344F60]/35 via-[#4F6B7B]/15 to-transparent" />
+              <img
+                src="/lg-listings-logo.png"
+                alt="LG Listings"
+                className="h-28 w-auto max-w-[220px] object-contain object-center opacity-90 drop-shadow-[0_2px_8px_rgba(38,59,73,0.18)] xl:h-36 xl:max-w-[260px]"
+              />
 
-        </div>
+            </div>
 
+          </div>
         {/* ==================================================
             BRANDING AREA
         ================================================== */}
