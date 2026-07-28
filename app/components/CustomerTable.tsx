@@ -1653,7 +1653,7 @@ export default function CustomerTable({
 // --------------------------------------------------
 
 return (
-  <div className="min-h-screen bg-[#F7F9FA] py-4 sm:py-6">
+  <div className="min-h-screen bg-[#EEF2F4] py-4 sm:py-6">
     <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
 
       {/* ==================================================
@@ -2214,7 +2214,7 @@ return (
 
           {showQuickFilters && (
 
-            <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
+            <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-[#F8FAFB] p-6 shadow-sm">
 
               <div className="mb-5 flex items-center justify-between">
 
@@ -2494,8 +2494,8 @@ return (
           ================================================== */}
 
           {showAdvancedFilters && (
-
-            <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7] bg-white/95 p-6 shadow-sm">
+            
+            <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7]  p-6 shadow-sm">
 
               <div className="flex items-center justify-between gap-4">
 
@@ -3013,13 +3013,13 @@ return (
           the same color as the page background.
       ================================================== */}
 
-      <div className="h-6 bg-[#F7F9FA] sm:h-8" />
+      <div className="h-6 bg-[#EEF2F4] sm:h-8" />
 
       {/* ==================================================
           OPPORTUNITIES TABLE
       ================================================== */}
 
-      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#D5E0E7] bg-white shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
+      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#D5E0E7] bg-[#F8FAFB] shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
 
         <div className="overflow-x-auto">
 
@@ -3099,8 +3099,8 @@ return (
                         isSelected
                           ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
                           : index % 2 === 0
-                            ? "bg-white hover:bg-[#F1F6F8]"
-                            : "bg-[#FAFBFC] hover:bg-[#F1F6F8]"
+                            ? "bg-[#F8FAFB] hover:bg-[#EAF0F3]"
+                            : "bg-[#F1F5F7] hover:bg-[#EAF0F3]"
                       }`}
                     >
 
@@ -3293,9 +3293,9 @@ return (
         {filteredCustomers.length ===
           0 && (
 
-          <div className="bg-[#FAFBFC] px-6 py-20 text-center">
+          <div className="bg-[#F1F5F7] px-6 py-20 text-center">
 
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E0E7] bg-white text-[#9AAAB4] shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E0E7] bg-[#F8FAFB] text-[#9AAAB4] shadow-sm">
 
               <svg
                 xmlns="http://www.w3.org/2000/svg"
