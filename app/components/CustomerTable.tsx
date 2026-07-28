@@ -69,10 +69,33 @@ export default function CustomerTable({
   const [selectedCustomerId, setSelectedCustomerId] =
     useState<string | null>(null);
 
+  const rowRefs = useRef<
+  Record<string, HTMLTableRowElement | null>
+>({});
+
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) {
       return null;
     }
+
+    useEffect(() => {
+  if (!selectedCustomerId) {
+    return;
+  }
+
+  const selectedRow =
+    rowRefs.current[
+      String(selectedCustomerId)
+    ];
+
+  if (selectedRow) {
+    selectedRow.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
+  }
+}, [selectedCustomerId]);
 
     return (
       customers.find(
@@ -2494,7 +2517,7 @@ return (
           ================================================== */}
 
           {showAdvancedFilters && (
-            
+
             <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7]  p-6 shadow-sm">
 
               <div className="flex items-center justify-between gap-4">
@@ -3088,13 +3111,19 @@ return (
 
                   return (
 
-                    <tr
+                      <tr
                       key={customer.id}
+                      ref={(element) => {
+                        rowRefs.current[
+                          String(customer.id)
+                        ] = element;
+                      }}
                       onClick={() =>
                         setSelectedCustomerId(
                           String(customer.id)
                         )
                       }
+                      
                       className={`group cursor-pointer transition-all duration-200 ${
                         isSelected
                           ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
