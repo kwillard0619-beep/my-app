@@ -114,8 +114,8 @@ export default function CustomerTable({
   // Search
   // --------------------------------------------------
 
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-
   // --------------------------------------------------
   // Stackable Sort State
   // --------------------------------------------------
@@ -941,171 +941,291 @@ export default function CustomerTable({
   // Filtered Customers
   // --------------------------------------------------
 
-  const filteredCustomers = useMemo(() => {
-    let result = customers.filter(
-      (customer) =>
-        customer.Category ===
-        "active"
-    );
+ const filteredCustomers = useMemo(() => {
+  let result = customers.filter(
+    (customer) =>
+      customer.Category === "active"
+  );
 
-    if (search.trim()) {
-      const searchTerm =
-        search
-          .trim()
-          .toLowerCase();
+  // --------------------------------------------------
+  // SEARCH
+  // Only runs after the user presses Enter.
+  // Supports partial and close/fuzzy matches.
+  // --------------------------------------------------
 
-      result = result.filter(
-        (customer) => {
-          const searchableFields = [
-            customer.grantor,
-            customer.opportunity_name,
-            customer.maximum_grant,
-            customer.deadline,
-            customer.anticipated_deadline,
-            customer.website_link,
-            customer.abstract,
-            customer.additional_information,
-            customer.limited_opportunity,
-            customer.fellowship_opportunity,
-            ...(customer.rfp_categories ??
-              []),
-          ];
+  if (search.trim()) {
+    const searchTerm = search
+      .trim()
+      .toLowerCase();
 
-          return searchableFields.some(
-            (value) =>
-              String(value ?? "")
-                .toLowerCase()
-                .includes(
-                  searchTerm
-                )
-          );
-        }
+    // Calculate how many character changes are
+    // needed to turn one word into another.
+    const levenshteinDistance = (
+      a: string,
+      b: string
+    ) => {
+      const matrix = Array.from(
+        { length: b.length + 1 },
+        (_, i) => [i]
       );
-    }
 
-    if (
-      quickGrantors.length > 0
-    ) {
-      result = result.filter(
-        (customer) =>
-          customer.grantor &&
-          quickGrantors.includes(
-            customer.grantor
-          )
-      );
-    }
+      for (
+        let j = 0;
+        j <= a.length;
+        j++
+      ) {
+        matrix[0][j] = j;
+      }
 
-    if (
-      quickMaximumGrants.length >
-      0
-    ) {
-      result = result.filter(
-        (customer) =>
-          customer.maximum_grant &&
-          quickMaximumGrants.includes(
-            String(
-              customer.maximum_grant
-            )
-          )
-      );
-    }
-
-    if (
-      quickDeadline !== "all"
-    ) {
-      result = result.filter(
-        (customer) =>
-          matchesQuickDeadline(
-            customer.deadline
-          )
-      );
-    }
-
-    if (
-      quickMonths.length > 0
-    ) {
-      result = result.filter(
-        (customer) =>
-          customer.anticipated_deadline &&
-          quickMonths.some(
-            (month) =>
-              month.toLowerCase() ===
-              customer.anticipated_deadline?.toLowerCase()
-          )
-      );
-    }
-
-    if (
-      quickCategories.length > 0
-    ) {
-      result = result.filter(
-        (customer) =>
-          Array.isArray(
-            customer.rfp_categories
-          ) &&
-          quickCategories.some(
-            (selectedCategory) =>
-              customer.rfp_categories?.some(
-                (category) =>
-                  category
-                    .trim()
-                    .toLowerCase() ===
-                  selectedCategory
-                    .trim()
-                    .toLowerCase()
-              )
-          )
-      );
-    }
-
-    if (
-      advancedFilters.length > 0
-    ) {
-      result = result.filter(
-        (customer) =>
-          advancedFilters.every(
-            (filter) =>
-              filter.values.length ===
-                0 ||
-              matchesAdvancedFilter(
-                customer,
-                filter
-              )
-          )
-      );
-    }
-
-    result.sort((a, b) => {
-      for (const rule of sortRules) {
-        const comparison =
-          compareBySortRule(
-            a,
-            b,
-            rule
-          );
-
-        if (
-          comparison !== 0
+      for (
+        let i = 1;
+        i <= b.length;
+        i++
+      ) {
+        for (
+          let j = 1;
+          j <= a.length;
+          j++
         ) {
-          return comparison;
+          if (
+            b[i - 1] ===
+            a[j - 1]
+          ) {
+            matrix[i][j] =
+              matrix[i - 1][j - 1];
+          } else {
+            matrix[i][j] =
+              Math.min(
+                matrix[i - 1][j - 1] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j] + 1
+              );
+          }
         }
       }
 
-      return 0;
-    });
+      return matrix[b.length][
+        a.length
+      ];
+    };
 
-    return result;
-  }, [
-    customers,
-    search,
-    sortRules,
-    quickGrantors,
-    quickMaximumGrants,
-    quickDeadline,
-    quickMonths,
-    quickCategories,
-    advancedFilters,
-  ]);
+    // Determines whether a search term is an
+    // exact, partial, or close spelling match.
+    const fuzzyMatch = (
+      text: string,
+      term: string
+    ) => {
+      const normalizedText =
+        text.toLowerCase();
+
+      // Exact or partial match
+      if (
+        normalizedText.includes(
+          term
+        )
+      ) {
+        return true;
+      }
+
+      // Break the text into individual words
+      // so "racoon" can match "raccoon".
+      const words =
+        normalizedText.split(
+          /[\s,.;:!?()[\]{}"'\/\\|_-]+/
+        );
+
+      return words.some(
+        (word) => {
+          if (!word) {
+            return false;
+          }
+
+          const distance =
+            levenshteinDistance(
+              term,
+              word
+            );
+
+          // Allow a small number of spelling
+          // differences based on word length.
+          const allowedDistance =
+            term.length <= 4
+              ? 1
+              : term.length <= 8
+                ? 2
+                : 3;
+
+          return (
+            distance <=
+            allowedDistance
+          );
+        }
+      );
+    };
+
+    result = result.filter(
+      (customer) => {
+        const searchableFields = [
+          customer.grantor,
+          customer.opportunity_name,
+          customer.maximum_grant,
+          customer.deadline,
+          customer.anticipated_deadline,
+          customer.website_link,
+          customer.abstract,
+          customer.additional_information,
+          customer.limited_opportunity,
+          customer.fellowship_opportunity,
+          ...(customer.rfp_categories ??
+            []),
+        ];
+
+        return searchableFields.some(
+          (value) =>
+            fuzzyMatch(
+              String(value ?? ""),
+              searchTerm
+            )
+        );
+      }
+    );
+  }
+
+  // --------------------------------------------------
+  // QUICK FILTERS
+  // --------------------------------------------------
+
+  if (
+    quickGrantors.length > 0
+  ) {
+    result = result.filter(
+      (customer) =>
+        customer.grantor &&
+        quickGrantors.includes(
+          customer.grantor
+        )
+    );
+  }
+
+  if (
+    quickMaximumGrants.length >
+    0
+  ) {
+    result = result.filter(
+      (customer) =>
+        customer.maximum_grant &&
+        quickMaximumGrants.includes(
+          String(
+            customer.maximum_grant
+          )
+        )
+    );
+  }
+
+  if (
+    quickDeadline !== "all"
+  ) {
+    result = result.filter(
+      (customer) =>
+        matchesQuickDeadline(
+          customer.deadline
+        )
+    );
+  }
+
+  if (
+    quickMonths.length > 0
+  ) {
+    result = result.filter(
+      (customer) =>
+        customer.anticipated_deadline &&
+        quickMonths.some(
+          (month) =>
+            month.toLowerCase() ===
+            customer.anticipated_deadline?.toLowerCase()
+        )
+    );
+  }
+
+  if (
+    quickCategories.length > 0
+  ) {
+    result = result.filter(
+      (customer) =>
+        Array.isArray(
+          customer.rfp_categories
+        ) &&
+        quickCategories.some(
+          (selectedCategory) =>
+            customer.rfp_categories?.some(
+              (category) =>
+                category
+                  .trim()
+                  .toLowerCase() ===
+                selectedCategory
+                  .trim()
+                  .toLowerCase()
+            )
+        )
+    );
+  }
+
+  // --------------------------------------------------
+  // ADVANCED FILTERS
+  // --------------------------------------------------
+
+  if (
+    advancedFilters.length > 0
+  ) {
+    result = result.filter(
+      (customer) =>
+        advancedFilters.every(
+          (filter) =>
+            filter.values.length ===
+              0 ||
+            matchesAdvancedFilter(
+              customer,
+              filter
+            )
+        )
+    );
+  }
+
+  // --------------------------------------------------
+  // SORT
+  // --------------------------------------------------
+
+  result.sort((a, b) => {
+    for (const rule of sortRules) {
+      const comparison =
+        compareBySortRule(
+          a,
+          b,
+          rule
+        );
+
+      if (
+        comparison !== 0
+      ) {
+        return comparison;
+      }
+    }
+
+    return 0;
+  });
+
+  return result;
+}, [
+  customers,
+  search,
+  sortRules,
+  quickGrantors,
+  quickMaximumGrants,
+  quickDeadline,
+  quickMonths,
+  quickCategories,
+  advancedFilters,
+]);
 
   // --------------------------------------------------
   // Sort Functions
@@ -3394,7 +3514,7 @@ return (
           REALTIME-SYNCHRONIZED DRAWER
       ================================================== */}
 
-      <CustomerDrawer
+            <CustomerDrawer
         customer={selectedCustomer}
         availableCategories={availableCategories}
         navigationCustomers={filteredCustomers}
