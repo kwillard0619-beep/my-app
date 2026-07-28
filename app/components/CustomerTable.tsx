@@ -66,44 +66,49 @@ export default function CustomerTable({
   // Selected Customer / Realtime Drawer
   // --------------------------------------------------
 
+    // --------------------------------------------------
+  // Selected Customer / Realtime Drawer
+  // --------------------------------------------------
+
   const [selectedCustomerId, setSelectedCustomerId] =
     useState<string | null>(null);
 
   const rowRefs = useRef<
-  Record<string, HTMLTableRowElement | null>
->({});
+    Record<string, HTMLTableRowElement | null>
+  >({});
 
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) {
       return null;
     }
 
-    useEffect(() => {
-  if (!selectedCustomerId) {
-    return;
-  }
-
-  const selectedRow =
-    rowRefs.current[
-      String(selectedCustomerId)
-    ];
-
-  if (selectedRow) {
-    selectedRow.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "nearest",
-    });
-  }
-}, [selectedCustomerId]);
-
     return (
       customers.find(
         (customer) =>
-          String(customer.id) === String(selectedCustomerId)
+          String(customer.id) ===
+          String(selectedCustomerId)
       ) ?? null
     );
   }, [customers, selectedCustomerId]);
+
+  useEffect(() => {
+    if (!selectedCustomerId) {
+      return;
+    }
+
+    const selectedRow =
+      rowRefs.current[
+        String(selectedCustomerId)
+      ];
+
+    if (selectedRow) {
+      selectedRow.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [selectedCustomerId]);
 
   // --------------------------------------------------
   // Search
@@ -3123,7 +3128,7 @@ return (
                           String(customer.id)
                         )
                       }
-                      
+
                       className={`group cursor-pointer transition-all duration-200 ${
                         isSelected
                           ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
