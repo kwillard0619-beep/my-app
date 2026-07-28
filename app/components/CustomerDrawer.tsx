@@ -271,93 +271,133 @@ export default function CustomerDrawer({
       {/* Drawer */}
 
       <div
-        className="h-full w-full max-w-2xl overflow-y-auto bg-[#F1F4F5] shadow-2xl"
+        className="relative flex h-full w-full max-w-2xl overflow-hidden bg-[#F1F4F5] shadow-2xl"
         onClick={(e) =>
           e.stopPropagation()
         }
       >
-        {/* Header */}
 
-        <div className="sticky top-0 z-10 border-b border-[#C5D2D9] bg-[#DCE5E9]/95 px-8 py-8 backdrop-blur">
-          <div className="flex items-start justify-between gap-6">
-            <div className="min-w-0 pr-4">
-              {/* Grantor */}
+        {/* ==================================================
+            LEFT-SIDE NAVIGATION PANEL
+        ================================================== */}
 
-              <p className="text-lg font-bold uppercase tracking-[0.12em] text-[#6F8FA5] sm:text-xl">
-                {customer.grantor ||
-                  "Grant Opportunity"}
-              </p>
+        <div className="flex w-14 flex-shrink-0 flex-col items-center border-r border-[#C5D2D9] bg-[#DCE5E9]">
 
-              {/* Opportunity Name */}
+          {/* Top Spacer */}
 
-              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-[#263B49] sm:text-4xl">
-                {customer.opportunity_name ||
-                  "Untitled Opportunity"}
-              </h2>
-            </div>
+          <div className="flex-1" />
 
-            {/* Navigation + Close Buttons */}
+          {/* Previous Opportunity */}
 
-            <div className="flex flex-shrink-0 items-center gap-2">
-              {/* Previous Opportunity */}
+          <button
+            type="button"
+            onClick={handlePrevious}
+            disabled={!hasPrevious}
+            aria-label="Previous opportunity"
+            title="Previous opportunity"
+            className={`my-1 flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-[#687984] transition ${
+              hasPrevious
+                ? "hover:border-[#B8C9D2] hover:bg-[#F7F9FA] hover:text-[#263B49] hover:shadow-sm"
+                : "cursor-not-allowed opacity-25"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.8}
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m6 15 6-6 6 6"
+              />
+            </svg>
+          </button>
 
-              <button
-                type="button"
-                onClick={handlePrevious}
-                disabled={!hasPrevious}
-                aria-label="Previous opportunity"
-                title="Previous opportunity"
-                className={`flex h-10 w-10 items-center justify-center rounded-full bg-[#F7F9FA]/80 text-[#687984] shadow-sm transition ${
-                  hasPrevious
-                    ? "hover:bg-white hover:text-[#263B49]"
-                    : "cursor-not-allowed opacity-30"
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.8}
-                  stroke="currentColor"
-                  className="h-6 w-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m6 15 6-6 6 6"
-                  />
-                </svg>
-              </button>
+          {/* Position Indicator */}
 
-              {/* Next Opportunity */}
+          {currentIndex !== -1 &&
+            navigationCustomers.length > 0 && (
+              <div className="my-2 flex flex-col items-center">
+                <div className="h-1 w-1 rounded-full bg-[#8FA6B3]" />
 
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={!hasNext}
-                aria-label="Next opportunity"
-                title="Next opportunity"
-                className={`flex h-10 w-10 items-center justify-center rounded-full bg-[#F7F9FA]/80 text-[#687984] shadow-sm transition ${
-                  hasNext
-                    ? "hover:bg-white hover:text-[#263B49]"
-                    : "cursor-not-allowed opacity-30"
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.8}
-                  stroke="currentColor"
-                  className="h-6 w-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m6 9 6 6 6-6"
-                  />
-                </svg>
-              </button>
+                <span className="mt-2 text-[9px] font-semibold tracking-wide text-[#81929C] [writing-mode:vertical-rl]">
+                  {currentIndex + 1} OF{" "}
+                  {navigationCustomers.length}
+                </span>
+
+                <div className="mt-2 h-1 w-1 rounded-full bg-[#8FA6B3]" />
+              </div>
+            )}
+
+          {/* Next Opportunity */}
+
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={!hasNext}
+            aria-label="Next opportunity"
+            title="Next opportunity"
+            className={`my-1 flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-[#687984] transition ${
+              hasNext
+                ? "hover:border-[#B8C9D2] hover:bg-[#F7F9FA] hover:text-[#263B49] hover:shadow-sm"
+                : "cursor-not-allowed opacity-25"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.8}
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m6 9 6 6 6-6"
+              />
+            </svg>
+          </button>
+
+          {/* Bottom Spacer */}
+
+          <div className="flex-1" />
+
+        </div>
+
+        {/* ==================================================
+            MAIN DRAWER CONTENT
+        ================================================== */}
+
+        <div className="min-w-0 flex-1 overflow-y-auto">
+
+          {/* Header */}
+
+          <div className="sticky top-0 z-10 border-b border-[#C5D2D9] bg-[#DCE5E9]/95 px-8 py-8 backdrop-blur">
+
+            <div className="flex items-start justify-between gap-6">
+
+              <div className="min-w-0 pr-4">
+
+                {/* Grantor */}
+
+                <p className="text-lg font-bold uppercase tracking-[0.12em] text-[#6F8FA5] sm:text-xl">
+                  {customer.grantor ||
+                    "Grant Opportunity"}
+                </p>
+
+                {/* Opportunity Name */}
+
+                <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-[#263B49] sm:text-4xl">
+                  {customer.opportunity_name ||
+                    "Untitled Opportunity"}
+                </h2>
+
+              </div>
 
               {/* Close Button */}
 
@@ -365,6 +405,7 @@ export default function CustomerDrawer({
                 type="button"
                 onClick={onClose}
                 aria-label="Close opportunity details"
+                title="Close"
                 className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#F7F9FA]/80 text-[#687984] shadow-sm transition hover:bg-white hover:text-[#263B49]"
               >
                 <svg
@@ -382,275 +423,336 @@ export default function CustomerDrawer({
                   />
                 </svg>
               </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Content */}
-
-        <div className="px-8 py-8">
-          {/* Key Opportunity Information */}
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Maximum Grant */}
-
-            <div className="rounded-xl border border-[#D1DCE2] bg-[#E8EDEF] p-5">
-              <div className="text-sm font-medium text-[#71808A]">
-                Maximum Grant
-              </div>
-
-              <div className="mt-2 text-xl font-bold text-[#263B49]">
-                {customer.maximum_grant ||
-                  "Not specified"}
-              </div>
             </div>
 
-            {/* Deadline */}
-
-            <div className="rounded-xl border border-[#D1DCE2] bg-[#E8EDEF] p-5">
-              <div className="text-sm font-medium text-[#71808A]">
-                Deadline
-              </div>
-
-              <div className="mt-2 text-xl font-bold text-[#263B49]">
-                {formattedDeadline ||
-                  "Not set"}
-              </div>
-            </div>
           </div>
 
-          {/* Secondary Details */}
+          {/* Content */}
 
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Website */}
+          <div className="px-8 py-8">
 
-            <div>
-              <div className="text-sm font-medium text-[#71808A]">
-                Website
+            {/* Key Opportunity Information */}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              {/* Maximum Grant */}
+
+              <div className="rounded-xl border border-[#D1DCE2] bg-[#E8EDEF] p-5">
+
+                <div className="text-sm font-medium text-[#71808A]">
+                  Maximum Grant
+                </div>
+
+                <div className="mt-2 text-xl font-bold text-[#263B49]">
+                  {customer.maximum_grant ||
+                    "Not specified"}
+                </div>
+
               </div>
 
-              <div className="mt-2">
-                {customer.website_link ? (
-                  <a
-                    href={
-                      customer.website_link
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#AFC4D0] px-4 py-2.5 text-sm font-semibold text-[#263B49] shadow-sm transition hover:bg-[#9FB8C5] hover:shadow-md"
-                  >
-                    Visit Website
+              {/* Deadline */}
 
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="h-4 w-4"
+              <div className="rounded-xl border border-[#D1DCE2] bg-[#E8EDEF] p-5">
+
+                <div className="text-sm font-medium text-[#71808A]">
+                  Deadline
+                </div>
+
+                <div className="mt-2 text-xl font-bold text-[#263B49]">
+                  {formattedDeadline ||
+                    "Not set"}
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Secondary Details */}
+
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              {/* Website */}
+
+              <div>
+
+                <div className="text-sm font-medium text-[#71808A]">
+                  Website
+                </div>
+
+                <div className="mt-2">
+
+                  {customer.website_link ? (
+
+                    <a
+                      href={
+                        customer.website_link
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg bg-[#AFC4D0] px-4 py-2.5 text-sm font-semibold text-[#263B49] shadow-sm transition hover:bg-[#9FB8C5] hover:shadow-md"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
-                      />
+                      Visit Website
 
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M18 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H11"
-                      />
-                    </svg>
-                  </a>
-                ) : (
-                  <span className="text-[#8A969E]">
-                    Not provided
-                  </span>
-                )}
-              </div>
-            </div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="h-4 w-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
+                        />
 
-            {/* Deadline Countdown */}
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M18 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H11"
+                        />
+                      </svg>
 
-            <div>
-              <div className="text-sm font-medium text-[#71808A]">
-                Deadline Countdown
-              </div>
+                    </a>
 
-              <div className="mt-2">
-                <span
-                  className={
-                    deadlineCountdown.className
-                  }
-                >
-                  {deadlineCountdown.text}
-                </span>
-              </div>
-            </div>
-          </div>
+                  ) : (
 
-          {/* Divider */}
-
-          <div className="my-8 border-t border-[#D1DCE2]" />
-
-          {/* Abstract */}
-
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
-              Abstract
-            </h3>
-
-            <div className="mt-3 whitespace-pre-line text-base leading-7 text-[#53636D]">
-              {customer.abstract ||
-                "No abstract provided."}
-            </div>
-          </section>
-
-          {/* Categories */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
-              Categories
-            </h3>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              {Array.isArray(
-                customer.rfp_categories
-              ) &&
-              customer.rfp_categories
-                .length > 0 ? (
-                customer.rfp_categories.map(
-                  (category) => (
-                    <span
-                      key={category}
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-sm font-medium ${getCategoryStyle(
-                        category
-                      )}`}
-                    >
-                      {category}
+                    <span className="text-[#8A969E]">
+                      Not provided
                     </span>
+
+                  )}
+
+                </div>
+
+              </div>
+
+              {/* Deadline Countdown */}
+
+              <div>
+
+                <div className="text-sm font-medium text-[#71808A]">
+                  Deadline Countdown
+                </div>
+
+                <div className="mt-2">
+
+                  <span
+                    className={
+                      deadlineCountdown.className
+                    }
+                  >
+                    {deadlineCountdown.text}
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Divider */}
+
+            <div className="my-8 border-t border-[#D1DCE2]" />
+
+            {/* Abstract */}
+
+            <section>
+
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
+                Abstract
+              </h3>
+
+              <div className="mt-3 whitespace-pre-line text-base leading-7 text-[#53636D]">
+                {customer.abstract ||
+                  "No abstract provided."}
+              </div>
+
+            </section>
+
+            {/* Categories */}
+
+            <section className="mt-8">
+
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
+                Categories
+              </h3>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+
+                {Array.isArray(
+                  customer.rfp_categories
+                ) &&
+                customer.rfp_categories
+                  .length > 0 ? (
+
+                  customer.rfp_categories.map(
+                    (category) => (
+
+                      <span
+                        key={category}
+                        className={`inline-flex rounded-full border px-3 py-1.5 text-sm font-medium ${getCategoryStyle(
+                          category
+                        )}`}
+                      >
+                        {category}
+                      </span>
+
+                    )
                   )
-                )
-              ) : (
-                <span className="text-[#8A969E]">
-                  No categories listed.
-                </span>
-              )}
-            </div>
-          </section>
 
-          {/* Additional Details */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
-              Additional Details
-            </h3>
-
-            <div className="mt-3 whitespace-pre-line text-base leading-7 text-[#53636D]">
-              {customer.additional_information ||
-                "No additional details provided."}
-            </div>
-          </section>
-
-          {/* Opportunity Information */}
-
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
-              Opportunity Information
-            </h3>
-
-            <div className="mt-4 divide-y divide-[#DCE3E7] rounded-xl border border-[#D1DCE2] bg-[#E8EDEF]">
-              {/* Limited Opportunity */}
-
-              <div className="flex items-center justify-between gap-4 p-4">
-                <span className="text-sm font-medium text-[#5E6E78]">
-                  Limited Opportunity
-                </span>
-
-                {limitedOpportunity ? (
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      limitedOpportunity ===
-                      "Yes"
-                        ? "bg-[#DCE9E2] text-[#4D6B59]"
-                        : limitedOpportunity ===
-                            "No"
-                          ? "bg-[#DCE1E4] text-[#4D5960]"
-                          : "bg-[#E4E8EA] text-[#5E6A71]"
-                    }`}
-                  >
-                    {limitedOpportunity}
-                  </span>
                 ) : (
-                  <span className="text-sm text-[#8A969E]">
-                    Not specified
+
+                  <span className="text-[#8A969E]">
+                    No categories listed.
                   </span>
+
                 )}
+
               </div>
 
-              {/* Fellowship Opportunity */}
+            </section>
 
-              <div className="flex items-center justify-between gap-4 p-4">
-                <span className="text-sm font-medium text-[#5E6E78]">
-                  Fellowship Opportunity
-                </span>
+            {/* Additional Details */}
 
-                {fellowshipOpportunity ? (
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      fellowshipOpportunity ===
-                      "Yes"
-                        ? "bg-[#DCE9E2] text-[#4D6B59]"
-                        : fellowshipOpportunity ===
-                            "No"
-                          ? "bg-[#DCE1E4] text-[#4D5960]"
-                          : "bg-[#E4E8EA] text-[#5E6A71]"
-                    }`}
-                  >
-                    {fellowshipOpportunity}
-                  </span>
-                ) : (
-                  <span className="text-sm text-[#8A969E]">
-                    Not specified
-                  </span>
-                )}
+            <section className="mt-8">
+
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
+                Additional Details
+              </h3>
+
+              <div className="mt-3 whitespace-pre-line text-base leading-7 text-[#53636D]">
+                {customer.additional_information ||
+                  "No additional details provided."}
               </div>
-            </div>
-          </section>
 
-          {/* Attachments */}
+            </section>
 
-          <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
-              Attachments
-            </h3>
+            {/* Opportunity Information */}
 
-            <div className="mt-3 rounded-xl border border-dashed border-[#C8D4DA] bg-[#E8EDEF] p-6 text-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="mx-auto h-8 w-8 text-[#8A969E]"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m18.375 12.739-7.5 7.5a4.5 4.5 0 0 1-6.364-6.364l9-9a3 3 0 1 1 4.243 4.243l-9 9a1.5 1.5 0 0 1-2.121-2.121l8.25-8.25"
-                />
-              </svg>
+            <section className="mt-8">
 
-              <p className="mt-2 text-sm text-[#71808A]">
-                No attachments available.
-              </p>
-            </div>
-          </section>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
+                Opportunity Information
+              </h3>
 
-          {/* Bottom Spacing */}
+              <div className="mt-4 divide-y divide-[#DCE3E7] rounded-xl border border-[#D1DCE2] bg-[#E8EDEF]">
 
-          <div className="h-8" />
+                {/* Limited Opportunity */}
+
+                <div className="flex items-center justify-between gap-4 p-4">
+
+                  <span className="text-sm font-medium text-[#5E6E78]">
+                    Limited Opportunity
+                  </span>
+
+                  {limitedOpportunity ? (
+
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                        limitedOpportunity ===
+                        "Yes"
+                          ? "bg-[#DCE9E2] text-[#4D6B59]"
+                          : limitedOpportunity ===
+                              "No"
+                            ? "bg-[#DCE1E4] text-[#4D5960]"
+                            : "bg-[#E4E8EA] text-[#5E6A71]"
+                      }`}
+                    >
+                      {limitedOpportunity}
+                    </span>
+
+                  ) : (
+
+                    <span className="text-sm text-[#8A969E]">
+                      Not specified
+                    </span>
+
+                  )}
+
+                </div>
+
+                {/* Fellowship Opportunity */}
+
+                <div className="flex items-center justify-between gap-4 p-4">
+
+                  <span className="text-sm font-medium text-[#5E6E78]">
+                    Fellowship Opportunity
+                  </span>
+
+                  {fellowshipOpportunity ? (
+
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                        fellowshipOpportunity ===
+                        "Yes"
+                          ? "bg-[#DCE9E2] text-[#4D6B59]"
+                          : fellowshipOpportunity ===
+                              "No"
+                            ? "bg-[#DCE1E4] text-[#4D5960]"
+                            : "bg-[#E4E8EA] text-[#5E6A71]"
+                      }`}
+                    >
+                      {fellowshipOpportunity}
+                    </span>
+
+                  ) : (
+
+                    <span className="text-sm text-[#8A969E]">
+                      Not specified
+                    </span>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            </section>
+
+            {/* Attachments */}
+
+            <section className="mt-8">
+
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
+                Attachments
+              </h3>
+
+              <div className="mt-3 rounded-xl border border-dashed border-[#C8D4DA] bg-[#E8EDEF] p-6 text-center">
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="mx-auto h-8 w-8 text-[#8A969E]"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m18.375 12.739-7.5 7.5a4.5 4.5 0 0 1-6.364-6.364l9-9a3 3 0 1 1 4.243 4.243l-9 9a1.5 1.5 0 0 1-2.121-2.121l8.25-8.25"
+                  />
+                </svg>
+
+                <p className="mt-2 text-sm text-[#71808A]">
+                  No attachments available.
+                </p>
+
+              </div>
+
+            </section>
+
+            {/* Bottom Spacing */}
+
+            <div className="h-8" />
+
+          </div>
+
         </div>
+
       </div>
     </div>
   );
