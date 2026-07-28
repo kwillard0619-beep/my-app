@@ -98,7 +98,7 @@ export default function CustomerDrawer({
     if (!customer.deadline) {
       return {
         text: "No deadline set",
-        className: "text-gray-400",
+        className: "text-[#8A969E]",
       };
     }
 
@@ -127,7 +127,7 @@ export default function CustomerDrawer({
           daysAgo === 1 ? "day" : "days"
         } past deadline`,
         className:
-          "font-medium text-gray-500",
+          "font-medium text-[#7B858C]",
       };
     }
 
@@ -135,7 +135,7 @@ export default function CustomerDrawer({
       return {
         text: "Deadline is today",
         className:
-          "font-semibold text-red-600",
+          "font-semibold text-[#B85C5C]",
       };
     }
 
@@ -143,7 +143,7 @@ export default function CustomerDrawer({
       return {
         text: "1 day remaining",
         className:
-          "font-semibold text-red-600",
+          "font-semibold text-[#B85C5C]",
       };
     }
 
@@ -151,14 +151,14 @@ export default function CustomerDrawer({
       return {
         text: `${daysUntil} days remaining`,
         className:
-          "font-semibold text-amber-600",
+          "font-semibold text-[#B07A3E]",
       };
     }
 
     return {
       text: `${daysUntil} days remaining`,
       className:
-        "font-semibold text-emerald-600",
+        "font-semibold text-[#5F806C]",
     };
   };
 
@@ -216,14 +216,14 @@ export default function CustomerDrawer({
     category: string
   ) => {
     const colors = [
-      "bg-blue-100 text-blue-800 border-blue-300",
-      "bg-purple-100 text-purple-800 border-purple-300",
-      "bg-emerald-100 text-emerald-800 border-emerald-300",
-      "bg-amber-100 text-amber-800 border-amber-300",
-      "bg-rose-100 text-rose-800 border-rose-300",
-      "bg-cyan-100 text-cyan-800 border-cyan-300",
-      "bg-indigo-100 text-indigo-800 border-indigo-300",
-      "bg-orange-100 text-orange-800 border-orange-300",
+      "bg-[#DCE8EE] text-[#3E5C6D] border-[#B8CCD7]",
+      "bg-[#E4DDEB] text-[#665575] border-[#CFC1D9]",
+      "bg-[#DCE9E2] text-[#4D6B59] border-[#BCD2C4]",
+      "bg-[#EEE5D5] text-[#756044] border-[#DCCBAE]",
+      "bg-[#EADDDD] text-[#755656] border-[#D8C1C1]",
+      "bg-[#DCE8E9] text-[#4E6B6D] border-[#BCD1D2]",
+      "bg-[#E0E1ED] text-[#5A5F78] border-[#C5C7DA]",
+      "bg-[#E9DFD6] text-[#715E4D] border-[#D9C6B5]",
     ];
 
     const categoryIndex =
@@ -265,20 +265,20 @@ export default function CustomerDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/40"
+      className="fixed inset-0 z-50 flex justify-end bg-[#263B49]/45"
       onClick={onClose}
     >
       {/* Drawer */}
 
       <div
-        className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"
+        className="h-full w-full max-w-2xl overflow-y-auto bg-[#F1F4F5] shadow-2xl"
         onClick={(e) =>
           e.stopPropagation()
         }
       >
         {/* Header */}
 
-        <div className="sticky top-0 z-10 border-b border-[#C7D6E0] bg-[#EEF4F7]/95 px-8 py-8 backdrop-blur">
+        <div className="sticky top-0 z-10 border-b border-[#C5D2D9] bg-[#DCE5E9]/95 px-8 py-8 backdrop-blur">
           <div className="flex items-start justify-between gap-6">
             <div className="min-w-0 pr-4">
               {/* Grantor */}
@@ -290,7 +290,7 @@ export default function CustomerDrawer({
 
               {/* Opportunity Name */}
 
-              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-[#263B49] sm:text-4xl">
                 {customer.opportunity_name ||
                   "Untitled Opportunity"}
               </h2>
@@ -307,9 +307,9 @@ export default function CustomerDrawer({
                 disabled={!hasPrevious}
                 aria-label="Previous opportunity"
                 title="Previous opportunity"
-                className={`flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition ${
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-[#F7F9FA]/80 text-[#687984] shadow-sm transition ${
                   hasPrevious
-                    ? "hover:bg-white hover:text-slate-900"
+                    ? "hover:bg-white hover:text-[#263B49]"
                     : "cursor-not-allowed opacity-30"
                 }`}
               >
@@ -337,9 +337,9 @@ export default function CustomerDrawer({
                 disabled={!hasNext}
                 aria-label="Next opportunity"
                 title="Next opportunity"
-                className={`flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition ${
+                className={`flex h-10 w-10 items-center justify-center rounded-full bg-[#F7F9FA]/80 text-[#687984] shadow-sm transition ${
                   hasNext
-                    ? "hover:bg-white hover:text-slate-900"
+                    ? "hover:bg-white hover:text-[#263B49]"
                     : "cursor-not-allowed opacity-30"
                 }`}
               >
@@ -365,7 +365,7 @@ export default function CustomerDrawer({
                 type="button"
                 onClick={onClose}
                 aria-label="Close opportunity details"
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-gray-500 shadow-sm transition hover:bg-white hover:text-slate-900"
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#F7F9FA]/80 text-[#687984] shadow-sm transition hover:bg-white hover:text-[#263B49]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -394,12 +394,12 @@ export default function CustomerDrawer({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Maximum Grant */}
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-              <div className="text-sm font-medium text-gray-500">
+            <div className="rounded-xl border border-[#D1DCE2] bg-[#E8EDEF] p-5">
+              <div className="text-sm font-medium text-[#71808A]">
                 Maximum Grant
               </div>
 
-              <div className="mt-2 text-xl font-bold text-slate-900">
+              <div className="mt-2 text-xl font-bold text-[#263B49]">
                 {customer.maximum_grant ||
                   "Not specified"}
               </div>
@@ -407,12 +407,12 @@ export default function CustomerDrawer({
 
             {/* Deadline */}
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-              <div className="text-sm font-medium text-gray-500">
+            <div className="rounded-xl border border-[#D1DCE2] bg-[#E8EDEF] p-5">
+              <div className="text-sm font-medium text-[#71808A]">
                 Deadline
               </div>
 
-              <div className="mt-2 text-xl font-bold text-slate-900">
+              <div className="mt-2 text-xl font-bold text-[#263B49]">
                 {formattedDeadline ||
                   "Not set"}
               </div>
@@ -425,7 +425,7 @@ export default function CustomerDrawer({
             {/* Website */}
 
             <div>
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-sm font-medium text-[#71808A]">
                 Website
               </div>
 
@@ -437,7 +437,7 @@ export default function CustomerDrawer({
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#AFC4D4] px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#9FB7C8] hover:shadow-md"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#AFC4D0] px-4 py-2.5 text-sm font-semibold text-[#263B49] shadow-sm transition hover:bg-[#9FB8C5] hover:shadow-md"
                   >
                     Visit Website
 
@@ -463,7 +463,7 @@ export default function CustomerDrawer({
                     </svg>
                   </a>
                 ) : (
-                  <span className="text-gray-400">
+                  <span className="text-[#8A969E]">
                     Not provided
                   </span>
                 )}
@@ -473,7 +473,7 @@ export default function CustomerDrawer({
             {/* Deadline Countdown */}
 
             <div>
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-sm font-medium text-[#71808A]">
                 Deadline Countdown
               </div>
 
@@ -491,16 +491,16 @@ export default function CustomerDrawer({
 
           {/* Divider */}
 
-          <div className="my-8 border-t border-gray-200" />
+          <div className="my-8 border-t border-[#D1DCE2]" />
 
           {/* Abstract */}
 
           <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
               Abstract
             </h3>
 
-            <div className="mt-3 whitespace-pre-line text-base leading-7 text-gray-700">
+            <div className="mt-3 whitespace-pre-line text-base leading-7 text-[#53636D]">
               {customer.abstract ||
                 "No abstract provided."}
             </div>
@@ -509,7 +509,7 @@ export default function CustomerDrawer({
           {/* Categories */}
 
           <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
               Categories
             </h3>
 
@@ -532,7 +532,7 @@ export default function CustomerDrawer({
                   )
                 )
               ) : (
-                <span className="text-gray-400">
+                <span className="text-[#8A969E]">
                   No categories listed.
                 </span>
               )}
@@ -542,11 +542,11 @@ export default function CustomerDrawer({
           {/* Additional Details */}
 
           <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
               Additional Details
             </h3>
 
-            <div className="mt-3 whitespace-pre-line text-base leading-7 text-gray-700">
+            <div className="mt-3 whitespace-pre-line text-base leading-7 text-[#53636D]">
               {customer.additional_information ||
                 "No additional details provided."}
             </div>
@@ -555,15 +555,15 @@ export default function CustomerDrawer({
           {/* Opportunity Information */}
 
           <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
               Opportunity Information
             </h3>
 
-            <div className="mt-4 divide-y divide-gray-100 rounded-xl border border-gray-200">
+            <div className="mt-4 divide-y divide-[#DCE3E7] rounded-xl border border-[#D1DCE2] bg-[#E8EDEF]">
               {/* Limited Opportunity */}
 
               <div className="flex items-center justify-between gap-4 p-4">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-[#5E6E78]">
                   Limited Opportunity
                 </span>
 
@@ -572,17 +572,17 @@ export default function CustomerDrawer({
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                       limitedOpportunity ===
                       "Yes"
-                        ? "bg-emerald-100 text-emerald-800"
+                        ? "bg-[#DCE9E2] text-[#4D6B59]"
                         : limitedOpportunity ===
                             "No"
-                          ? "bg-slate-200 text-black"
-                          : "bg-slate-100 text-slate-700"
+                          ? "bg-[#DCE1E4] text-[#4D5960]"
+                          : "bg-[#E4E8EA] text-[#5E6A71]"
                     }`}
                   >
                     {limitedOpportunity}
                   </span>
                 ) : (
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-[#8A969E]">
                     Not specified
                   </span>
                 )}
@@ -591,7 +591,7 @@ export default function CustomerDrawer({
               {/* Fellowship Opportunity */}
 
               <div className="flex items-center justify-between gap-4 p-4">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-[#5E6E78]">
                   Fellowship Opportunity
                 </span>
 
@@ -600,17 +600,17 @@ export default function CustomerDrawer({
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                       fellowshipOpportunity ===
                       "Yes"
-                        ? "bg-emerald-100 text-emerald-800"
+                        ? "bg-[#DCE9E2] text-[#4D6B59]"
                         : fellowshipOpportunity ===
                             "No"
-                          ? "bg-slate-200 text-black"
-                          : "bg-slate-100 text-slate-700"
+                          ? "bg-[#DCE1E4] text-[#4D5960]"
+                          : "bg-[#E4E8EA] text-[#5E6A71]"
                     }`}
                   >
                     {fellowshipOpportunity}
                   </span>
                 ) : (
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-[#8A969E]">
                     Not specified
                   </span>
                 )}
@@ -621,18 +621,18 @@ export default function CustomerDrawer({
           {/* Attachments */}
 
           <section className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#71808A]">
               Attachments
             </h3>
 
-            <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+            <div className="mt-3 rounded-xl border border-dashed border-[#C8D4DA] bg-[#E8EDEF] p-6 text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="mx-auto h-8 w-8 text-gray-400"
+                className="mx-auto h-8 w-8 text-[#8A969E]"
               >
                 <path
                   strokeLinecap="round"
@@ -641,7 +641,7 @@ export default function CustomerDrawer({
                 />
               </svg>
 
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-[#71808A]">
                 No attachments available.
               </p>
             </div>
