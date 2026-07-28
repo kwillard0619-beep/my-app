@@ -5,6 +5,7 @@ import type { Customer } from "../types/customer";
 type Props = {
   customer: Customer | null;
   availableCategories?: string[];
+  categoryColorMap?: Record<string, string>;
   navigationCustomers?: Customer[];
   onNavigate?: (customerId: number) => void;
   onClose: () => void;
@@ -13,6 +14,7 @@ type Props = {
 export default function CustomerDrawer({
   customer,
   availableCategories = [],
+  categoryColorMap = {},
   navigationCustomers = [],
   onNavigate,
   onClose,
@@ -210,11 +212,31 @@ export default function CustomerDrawer({
 
   // --------------------------------------------------
   // Category Colors
+  // Uses the same categoryColorMap as the table
   // --------------------------------------------------
 
   const getCategoryStyle = (
     category: string
   ) => {
+    const normalizedCategory =
+      category.trim().toLowerCase();
+
+    const matchingCategory =
+      Object.keys(categoryColorMap).find(
+        (key) =>
+          key.trim().toLowerCase() ===
+          normalizedCategory
+      );
+
+    if (matchingCategory) {
+      return categoryColorMap[
+        matchingCategory
+      ];
+    }
+
+    // Fallback for categories that are not
+    // present in the shared color map.
+
     const colors = [
       "bg-[#DCE8EE] text-[#3E5C6D] border-[#B8CCD7]",
       "bg-[#E4DDEB] text-[#665575] border-[#CFC1D9]",
@@ -232,7 +254,7 @@ export default function CustomerDrawer({
           availableCategory
             .trim()
             .toLowerCase() ===
-          category.trim().toLowerCase()
+          normalizedCategory
       );
 
     if (categoryIndex !== -1) {
@@ -281,9 +303,9 @@ export default function CustomerDrawer({
             LEFT-SIDE NAVIGATION PANEL
         ================================================== */}
 
-        <div className="flex w-14 flex-shrink-0 flex-col items-center border-r border-[#C5D2D9] bg-[#DCE5E9]">
+        <div className="flex w-14 flex-shrink-0 flex-col items-center border-r border-[#D5E0E7] bg-[#F8FAFB]">
 
-          {/* Top Spacer */}
+          {/* Spacer */}
 
           <div className="flex-1" />
 
@@ -297,7 +319,7 @@ export default function CustomerDrawer({
             title="Previous opportunity"
             className={`my-1 flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-[#687984] transition ${
               hasPrevious
-                ? "hover:border-[#B8C9D2] hover:bg-[#F7F9FA] hover:text-[#263B49] hover:shadow-sm"
+                ? "hover:border-[#D5E0E7] hover:bg-white hover:text-[#263B49] hover:shadow-sm"
                 : "cursor-not-allowed opacity-25"
             }`}
           >
@@ -317,21 +339,9 @@ export default function CustomerDrawer({
             </svg>
           </button>
 
-          {/* Position Indicator */}
+          {/* Small Divider */}
 
-          {currentIndex !== -1 &&
-            navigationCustomers.length > 0 && (
-              <div className="my-2 flex flex-col items-center">
-                <div className="h-1 w-1 rounded-full bg-[#8FA6B3]" />
-
-                <span className="mt-2 text-[9px] font-semibold tracking-wide text-[#81929C] [writing-mode:vertical-rl]">
-                  {currentIndex + 1} OF{" "}
-                  {navigationCustomers.length}
-                </span>
-
-                <div className="mt-2 h-1 w-1 rounded-full bg-[#8FA6B3]" />
-              </div>
-            )}
+          <div className="my-3 h-px w-6 bg-[#D5E0E7]" />
 
           {/* Next Opportunity */}
 
@@ -343,7 +353,7 @@ export default function CustomerDrawer({
             title="Next opportunity"
             className={`my-1 flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-[#687984] transition ${
               hasNext
-                ? "hover:border-[#B8C9D2] hover:bg-[#F7F9FA] hover:text-[#263B49] hover:shadow-sm"
+                ? "hover:border-[#D5E0E7] hover:bg-white hover:text-[#263B49] hover:shadow-sm"
                 : "cursor-not-allowed opacity-25"
             }`}
           >
@@ -363,7 +373,7 @@ export default function CustomerDrawer({
             </svg>
           </button>
 
-          {/* Bottom Spacer */}
+          {/* Spacer */}
 
           <div className="flex-1" />
 
