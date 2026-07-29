@@ -1949,31 +1949,33 @@ return (
               <input
                 type="text"
                 placeholder="Search grants, organizations, categories, key words..."
-                value={search}
+                value={searchInput}
                 onChange={(e) =>
-                  setSearch(e.target.value)
+                  setSearchInput(e.target.value)
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setSearch(searchInput.trim());
+                  }
+                }}
                 className="w-full rounded-2xl border border-[#D2E0E7] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#91A2AC] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#AFC4D4]/30"
               />
 
-              {search.length > 0 && (
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSearch("")
-                  }
-                  aria-label="Clear search"
-                  className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#91A2AC] transition hover:text-[#405967]"
-                >
-
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
-                    ×
-                  </span>
-
-                </button>
-
-              )}
+              {searchInput.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput("");
+                  setSearch("");
+                }}
+                aria-label="Clear search"
+                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#91A2AC] transition hover:text-[#405967]"
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
+                  ×
+                </span>
+              </button>
+            )}
 
             </div>
 
