@@ -1796,13 +1796,216 @@ export default function CustomerTable({
     }
   };
 
+  // --------------------------------------------------
+  // Funding Timeline
+  // --------------------------------------------------
+
+  const [calendarMonth, setCalendarMonth] = useState(
+    () => {
+      const today = new Date();
+      return new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+    }
+  );
+
+  const deadlineCustomers = useMemo(
+    () =>
+      filteredCustomers
+        .filter(
+          (customer) =>
+            Boolean(customer.deadline) &&
+            !Number.isNaN(
+              new Date(
+                `${customer.deadline}T00:00:00`
+              ).getTime()
+            )
+        )
+        .sort(
+          (first, second) =>
+            new Date(
+              `${first.deadline}T00:00:00`
+            ).getTime() -
+            new Date(
+              `${second.deadline}T00:00:00`
+            ).getTime()
+        ),
+    [filteredCustomers]
+  );
+
+  const deadlinesByDate = useMemo(() => {
+    const grouped = new Map<string, Customer[]>();
+
+    deadlineCustomers.forEach((customer) => {
+      if (!customer.deadline) {
+        return;
+      }
+
+      const existing =
+        grouped.get(customer.deadline) ?? [];
+
+      grouped.set(customer.deadline, [
+        ...existing,
+        customer,
+      ]);
+    });
+
+    return grouped;
+  }, [deadlineCustomers]);
+
+  const upcomingDeadlines = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return deadlineCustomers
+      .filter(
+        (customer) =>
+          new Date(
+            `${customer.deadline}T00:00:00`
+          ) >= today
+      )
+      .slice(0, 4);
+  }, [deadlineCustomers]);
+
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstWeekday = new Date(
+      year,
+      month,
+      1
+    ).getDay();
+    const daysInMonth = new Date(
+      year,
+      month + 1,
+      0
+    ).getDate();
+
+    return [
+      ...Array.from(
+        { length: firstWeekday },
+        () => null
+      ),
+      ...Array.from(
+        { length: daysInMonth },
+        (_, index) => index + 1
+      ),
+    ];
+  }, [calendarMonth]);
+
+  const getCalendarDateKey = (day: number) =>
+    [
+      calendarMonth.getFullYear(),
+      String(
+        calendarMonth.getMonth() + 1
+      ).padStart(2, "0"),
+      String(day).padStart(2, "0"),
+    ].join("-");
+
+  const moveCalendarMonth = (amount: number) => {
+    setCalendarMonth(
+      (current) =>
+        new Date(
+          current.getFullYear(),
+          current.getMonth() + amount,
+          1
+        )
+    );
+  };
+
    // --------------------------------------------------
 // Render
 // --------------------------------------------------
 
 return (
-  <div className="min-h-screen bg-[#EEF2F4] py-4 sm:py-6">
-    <div className="mx-auto max-w-[1800px] px-3 sm:px-5 lg:px-6">
+  <div className="min-h-screen bg-[#EEF2F4] text-[#263B49]">
+    <div className="mx-auto flex min-h-screen max-w-[1920px]">
+
+      {/* ==================================================
+          PRIMARY NAVIGATION
+      ================================================== */}
+
+      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#D7E2E8] bg-[#E7EEF1] px-4 py-6 lg:flex">
+        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[#AFC4D0]/35 blur-3xl" />
+
+        <div className="relative flex items-center gap-3 px-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#263B49] text-sm font-bold tracking-wide text-white shadow-[0_10px_24px_rgba(38,59,73,0.18)]">
+            LG
+          </div>
+
+          <div>
+            <p className="text-base font-bold tracking-[-0.02em] text-[#263B49]">
+              LG Listings
+            </p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#78909E]">
+              Funding Intelligence
+            </p>
+          </div>
+        </div>
+
+        <nav className="relative mt-10 space-y-2" aria-label="Primary navigation">
+          <button
+            type="button"
+            className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#263B49] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#DDE8ED] text-[#496777]">
+              ◆
+            </span>
+            Opportunities
+            <span className="ml-auto h-2 w-2 rounded-full bg-[#6F91A8]" />
+          </button>
+
+          {[
+            ["Archived Opportunities", "◫"],
+            ["Prospect Library", "▤"],
+            ["Favorites", "☆"],
+          ].map(([label, icon]) => (
+            <button
+              key={label}
+              type="button"
+              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#607582] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#263B49]"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#D2DEE4] bg-[#EDF3F5] text-[#78909E] transition group-hover:border-[#BDCED7] group-hover:bg-white">
+                {icon}
+              </span>
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="relative mt-auto border-t border-[#CEDBE2] pt-5">
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#607582] transition hover:bg-white/70 hover:text-[#263B49]"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C8D8E1] text-sm font-bold">
+              ?
+            </span>
+            Help
+          </button>
+        </div>
+      </aside>
+
+      <main className="min-w-0 flex-1 py-4 sm:py-6">
+        <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
+
+          <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#D5E0E7] bg-white/75 px-4 py-3 backdrop-blur lg:hidden">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#263B49] text-xs font-bold text-white">
+                LG
+              </span>
+              <span className="font-bold">LG Listings</span>
+            </div>
+            <button
+              type="button"
+              aria-label="Open navigation"
+              className="rounded-xl border border-[#D5E0E7] bg-white px-3 py-2 text-[#607582]"
+            >
+              ☰
+            </button>
+          </div>
 
       {/* ==================================================
           HEADER / SEARCH / FILTER AREA
@@ -3166,6 +3369,289 @@ return (
       <div className="h-6 bg-[#EEF2F4] sm:h-8" />
 
       {/* ==================================================
+          FUNDING TIMELINE
+      ================================================== */}
+
+      <section className="mb-7">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#78909E]">
+              Planning workspace
+            </p>
+            <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#263B49]">
+              Your Funding Timeline
+            </h2>
+          </div>
+
+          <p className="max-w-md text-sm leading-6 text-[#71848F]">
+            Explore upcoming deadlines and open an opportunity directly from the calendar.
+          </p>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(340px,0.85fr)_minmax(520px,1.35fr)]">
+          {/* Calendar */}
+          <div className="group relative overflow-hidden rounded-[26px] border border-[#D5E0E7] bg-white p-5 shadow-[0_14px_36px_rgba(63,91,108,0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(63,91,108,0.12)] sm:p-6">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#D8E6EB]/70 blur-3xl transition duration-500 group-hover:scale-110" />
+
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#78909E]">
+                  Deadline calendar
+                </p>
+                <h3 className="mt-1 text-lg font-bold text-[#263B49]">
+                  {calendarMonth.toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}
+                </h3>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => moveCalendarMonth(-1)}
+                  aria-label="Previous month"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#D5E0E7] bg-[#F8FAFB] text-[#607582] transition hover:-translate-x-0.5 hover:border-[#AFC4D0] hover:bg-white hover:text-[#263B49]"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveCalendarMonth(1)}
+                  aria-label="Next month"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#D5E0E7] bg-[#F8FAFB] text-[#607582] transition hover:translate-x-0.5 hover:border-[#AFC4D0] hover:bg-white hover:text-[#263B49]"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
+            <div className="relative mt-5 grid grid-cols-7 gap-1 text-center">
+              {[
+                "S",
+                "M",
+                "T",
+                "W",
+                "T",
+                "F",
+                "S",
+              ].map((weekday, index) => (
+                <div
+                  key={`${weekday}-${index}`}
+                  className="pb-2 text-[10px] font-bold uppercase tracking-widest text-[#9AAAB4]"
+                >
+                  {weekday}
+                </div>
+              ))}
+
+              {calendarDays.map((day, index) => {
+                if (!day) {
+                  return (
+                    <div
+                      key={`empty-${index}`}
+                      className="aspect-square"
+                    />
+                  );
+                }
+
+                const dateKey =
+                  getCalendarDateKey(day);
+                const dayOpportunities =
+                  deadlinesByDate.get(dateKey) ?? [];
+                const hasDeadline =
+                  dayOpportunities.length > 0;
+                const today = new Date();
+                const isToday =
+                  today.getFullYear() ===
+                    calendarMonth.getFullYear() &&
+                  today.getMonth() ===
+                    calendarMonth.getMonth() &&
+                  today.getDate() === day;
+
+                return (
+                  <button
+                    key={dateKey}
+                    type="button"
+                    disabled={!hasDeadline}
+                    title={
+                      hasDeadline
+                        ? `${dayOpportunities.length} ${
+                            dayOpportunities.length === 1
+                              ? "opportunity"
+                              : "opportunities"
+                          }`
+                        : undefined
+                    }
+                    onClick={() =>
+                      setSelectedCustomerId(
+                        String(
+                          dayOpportunities[0].id
+                        )
+                      )
+                    }
+                    className={`group/day relative flex aspect-square min-h-10 flex-col items-center justify-center rounded-xl text-sm font-semibold transition duration-200 ${
+                      hasDeadline
+                        ? "cursor-pointer bg-[#E8F0F3] text-[#304B5C] hover:-translate-y-0.5 hover:bg-[#CADCE4] hover:shadow-md"
+                        : isToday
+                          ? "border border-[#AFC4D0] bg-white text-[#405967]"
+                          : "cursor-default text-[#71848F]"
+                    }`}
+                  >
+                    {day}
+                    {hasDeadline && (
+                      <span className="absolute bottom-1.5 flex gap-0.5">
+                        {Array.from({
+                          length: Math.min(
+                            dayOpportunities.length,
+                            3
+                          ),
+                        }).map((_, dotIndex) => (
+                          <span
+                            key={dotIndex}
+                            className="h-1 w-1 rounded-full bg-[#6F91A8] transition group-hover/day:bg-[#263B49]"
+                          />
+                        ))}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="relative mt-5 flex items-center justify-between border-t border-[#E3E9ED] pt-4 text-xs text-[#71848F]">
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#6F91A8]" />
+                Deadline date
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const today = new Date();
+                  setCalendarMonth(
+                    new Date(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      1
+                    )
+                  );
+                }}
+                className="font-semibold text-[#496777] transition hover:text-[#263B49]"
+              >
+                Return to today
+              </button>
+            </div>
+          </div>
+
+          {/* Upcoming deadlines */}
+          <div className="relative overflow-hidden rounded-[26px] bg-[#263B49] p-5 text-white shadow-[0_16px_40px_rgba(38,59,73,0.16)] sm:p-6">
+            <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full border-[42px] border-[#AFC4D0]/10" />
+            <div className="pointer-events-none absolute -bottom-32 right-20 h-64 w-64 rounded-full border border-white/10" />
+
+            <div className="relative flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#BFD0D8]">
+                  What&apos;s next
+                </p>
+                <h3 className="mt-1 text-xl font-bold">
+                  Upcoming Deadlines
+                </h3>
+              </div>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#DCE8ED]">
+                {upcomingDeadlines.length} shown
+              </span>
+            </div>
+
+            <div className="relative mt-5 space-y-2">
+              {upcomingDeadlines.length > 0 ? (
+                upcomingDeadlines.map(
+                  (customer, index) => {
+                    const deadline = new Date(
+                      `${customer.deadline}T00:00:00`
+                    );
+
+                    return (
+                      <button
+                        key={customer.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedCustomerId(
+                            String(customer.id)
+                          )
+                        }
+                        className="group/deadline flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3.5 text-left transition duration-200 hover:translate-x-1 hover:border-white/20 hover:bg-white/[0.13]"
+                      >
+                        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#DCE8ED] text-[#263B49] shadow-sm">
+                          <span className="text-[9px] font-bold uppercase tracking-wider">
+                            {deadline.toLocaleDateString(
+                              "en-US",
+                              { month: "short" }
+                            )}
+                          </span>
+                          <span className="text-lg font-bold leading-none">
+                            {deadline.getDate()}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold text-white">
+                            {customer.opportunity_name ||
+                              "Untitled opportunity"}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-[#BFD0D8]">
+                            {customer.grantor ||
+                              "Grantor not specified"}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          {index === 0 && (
+                            <span className="hidden rounded-full bg-[#F1D889] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#4D4423] sm:inline-flex">
+                              Next
+                            </span>
+                          )}
+                          <span className="translate-x-1 text-xl text-[#BFD0D8] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
+                            →
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  }
+                )
+              ) : (
+                <div className="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/[0.04] px-6 text-center">
+                  <div>
+                    <p className="font-semibold text-white">
+                      No upcoming deadlines
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[#BFD0D8]">
+                      Try adjusting your search or filters to reveal more opportunities.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#78909E]">
+            Opportunity directory
+          </p>
+          <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#263B49]">
+            All Opportunities
+          </h2>
+        </div>
+        <p className="text-sm font-semibold text-[#607582]">
+          {filteredCustomers.length} results
+        </p>
+      </div>
+
+      {/* ==================================================
           OPPORTUNITIES TABLE
       ================================================== */}
 
@@ -3197,10 +3683,6 @@ return (
 
                 <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
                   Anticipated Deadline Month
-                </th>
-
-                <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
-                  Abstract
                 </th>
 
                 <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
@@ -3371,17 +3853,6 @@ return (
 
                       </td>
 
-                      {/* Abstract */}
-
-                      <td className="p-5 align-top text-left">
-
-                        <div className="mx-auto max-w-sm line-clamp-3 text-sm leading-6 text-[#607582]">
-                          {customer.abstract ||
-                            "No abstract provided."}
-                        </div>
-
-                      </td>
-
                       {/* Categories */}
 
                       <td className="p-5 align-top">
@@ -3516,7 +3987,7 @@ return (
           REALTIME-SYNCHRONIZED DRAWER
       ================================================== */}
 
-            <CustomerDrawer
+      <CustomerDrawer
         customer={selectedCustomer}
         availableCategories={availableCategories}
         navigationCustomers={filteredCustomers}
@@ -3530,6 +4001,8 @@ return (
         }
       />
 
+        </div>
+      </main>
     </div>
   </div>
 );
