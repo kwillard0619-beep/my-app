@@ -57,12 +57,12 @@ const SORT_FIELD_LABELS: Record<SortField, string> = {
 
 const DEADLINE_ACCENTS = [
   "#C86F78",
-  "#8B78B5",
+  "#6F8292",
   "#D29B52",
-  "#B65F90",
-  "#737CA8",
+  "#B65F70",
+  "#7E8A96",
   "#D47D5F",
-  "#9B6FA6",
+  "#A86F79",
   "#B28A4B",
 ];
 
@@ -1871,21 +1871,14 @@ export default function CustomerTable({
     today.setHours(0, 0, 0, 0);
 
     return deadlineCustomers
-      .filter((customer) => {
-        const dueDate = new Date(
-          `${customer.deadline}T00:00:00`
-        );
-
-        return (
-          dueDate >= today &&
-          dueDate.getFullYear() ===
-            calendarMonth.getFullYear() &&
-          dueDate.getMonth() ===
-            calendarMonth.getMonth()
-        );
-      })
-      .slice(0, DEADLINE_ACCENTS.length);
-  }, [calendarMonth, deadlineCustomers]);
+      .filter(
+        (customer) =>
+          new Date(
+            `${customer.deadline}T00:00:00`
+          ) >= today
+      )
+      .slice(0, 5);
+  }, [deadlineCustomers]);
 
   const getDeadlineAccent = (
     customerId: Customer["id"]
@@ -1904,17 +1897,7 @@ export default function CustomerTable({
       ];
     }
 
-    const fallbackIndex = String(customerId)
-      .split("")
-      .reduce(
-        (total, character) =>
-          (total * 31 +
-            character.charCodeAt(0)) %
-          DEADLINE_ACCENTS.length,
-        0
-      );
-
-    return DEADLINE_ACCENTS[fallbackIndex];
+    return "#92989E";
   };
 
   const calendarDays = useMemo(() => {
@@ -1943,129 +1926,6 @@ export default function CustomerTable({
     ];
   }, [calendarMonth]);
 
-  const calendarTrackData = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const displayedYear =
-      calendarMonth.getFullYear();
-    const displayedMonth =
-      calendarMonth.getMonth();
-    const monthStart = new Date(
-      displayedYear,
-      displayedMonth,
-      1
-    );
-    const firstWeekday = monthStart.getDay();
-    const rowCount = Math.ceil(
-      calendarDays.length / 7
-    );
-    const isCurrentMonth =
-      today.getFullYear() === displayedYear &&
-      today.getMonth() === displayedMonth;
-
-    if (
-      monthStart <
-      new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-      )
-    ) {
-      return [];
-    }
-
-    const displayedDeadlines =
-      upcomingDeadlines;
-
-    const laneSpacing = Math.min(
-      1.7,
-      6 /
-        Math.max(
-          displayedDeadlines.length - 1,
-          1
-        )
-    );
-
-    return displayedDeadlines.map(
-      (customer, trackIndex) => {
-        const dueDate = new Date(
-          `${customer.deadline}T00:00:00`
-        );
-        const startDay = isCurrentMonth
-          ? today.getDate()
-          : 1;
-        const startIndex =
-          firstWeekday + startDay - 1;
-        const endIndex =
-          firstWeekday +
-          dueDate.getDate() -
-          1;
-        const startRow = Math.floor(
-          startIndex / 7
-        );
-        const endRow = Math.floor(
-          endIndex / 7
-        );
-        const verticalOffset =
-          (trackIndex -
-            (displayedDeadlines.length - 1) /
-              2) *
-          laneSpacing;
-
-        const segments = Array.from(
-          {
-            length:
-              endRow - startRow + 1,
-          },
-          (_, segmentIndex) => {
-            const row =
-              startRow + segmentIndex;
-            const firstColumn =
-              row === startRow
-                ? startIndex % 7
-                : 0;
-            const lastColumn =
-              row === endRow
-                ? endIndex % 7
-                : 6;
-
-            return {
-              x1:
-                ((firstColumn + 0.5) /
-                  7) *
-                100,
-              x2:
-                ((lastColumn + 0.5) /
-                  7) *
-                100,
-              y:
-                ((row + 0.5) /
-                  rowCount) *
-                  100 +
-                verticalOffset,
-              continuesFromPrevious:
-                row > startRow,
-              continuesToNext: row < endRow,
-            };
-          }
-        );
-
-        return {
-          customer,
-          accent: getDeadlineAccent(
-            customer.id
-          ),
-          segments,
-        };
-      }
-    );
-  }, [
-    calendarDays.length,
-    calendarMonth,
-    upcomingDeadlines,
-  ]);
-
   const getCalendarDateKey = (day: number) =>
     [
       calendarMonth.getFullYear(),
@@ -2091,15 +1951,15 @@ export default function CustomerTable({
 // --------------------------------------------------
 
 return (
-  <div className="min-h-screen bg-[#D8D8DE] text-[#2F3038]">
+  <div className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
     <div className="mx-auto flex min-h-screen max-w-[1920px]">
 
       {/* ==================================================
           PRIMARY NAVIGATION
       ================================================== */}
 
-      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#CECDD3] px-4 py-6 lg:flex">
-        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[#C5A35A]/35 blur-3xl" />
+      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#CACDCF] px-4 py-6 lg:flex">
+        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[#C2A05A]/35 blur-3xl" />
 
         <div className="relative flex items-center gap-3 px-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2F3038] text-sm font-bold tracking-wide text-white shadow-[0_10px_24px_rgba(38,59,73,0.18)]">
@@ -2110,7 +1970,7 @@ return (
             <p className="text-base font-bold tracking-[-0.02em] text-[#2F3038]">
               LG Listings
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8877A6]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7B8791]">
               Funding Intelligence
             </p>
           </div>
@@ -2121,11 +1981,11 @@ return (
             type="button"
             className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#2F3038] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#514653]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#444B51]">
               ◆
             </span>
             Opportunities
-            <span className="ml-auto h-2 w-2 rounded-full bg-[#B76878]" />
+            <span className="ml-auto h-2 w-2 rounded-full bg-[#B7655E]" />
           </button>
 
           {[
@@ -2136,9 +1996,9 @@ return (
             <button
               key={label}
               type="button"
-              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#5C5964] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#2F3038]"
+              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#2F3038]"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#CAB8B0] bg-[#EFE3DD] text-[#8877A6] transition group-hover:border-[#C99A85] group-hover:bg-white">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#CAB8B0] bg-[#EFE3DD] text-[#7B8791] transition group-hover:border-[#C99A85] group-hover:bg-white">
                 {icon}
               </span>
               {label}
@@ -2149,9 +2009,9 @@ return (
         <div className="relative mt-auto border-t border-[#C8B3AA] pt-5">
           <button
             type="button"
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#5C5964] transition hover:bg-white/70 hover:text-[#2F3038]"
+            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition hover:bg-white/70 hover:text-[#2F3038]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#CAC4CE] text-sm font-bold">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C8CBCC] text-sm font-bold">
               ?
             </span>
             Help
@@ -2162,7 +2022,7 @@ return (
       <main className="min-w-0 flex-1 py-4 sm:py-6">
         <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
 
-          <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#C9C6D0] bg-white/75 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/75 px-4 py-3 backdrop-blur lg:hidden">
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2F3038] text-xs font-bold text-white">
                 LG
@@ -2172,7 +2032,7 @@ return (
             <button
               type="button"
               aria-label="Open navigation"
-              className="rounded-xl border border-[#C9C6D0] bg-white px-3 py-2 text-[#5C5964]"
+              className="rounded-xl border border-[#C8CBCC] bg-white px-3 py-2 text-[#565E64]"
             >
               ☰
             </button>
@@ -2188,7 +2048,7 @@ return (
             SOFT MULTI-STOP GRADIENT BACKGROUND
         ================================================== */}
 
-        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#2F3038] via-[#4A3E50] via-[35%] via-[#695B75] via-[55%] via-[#8B78B5] via-[75%] to-[#C5A35A]" />
+        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#2F3038] via-[#3E454B] via-[35%] via-[#66717A] via-[55%] via-[#7A858E] via-[75%] to-[#C2A05A]" />
 
         {/* ==================================================
             LARGE SOFT BLEND OVERLAY
@@ -2196,7 +2056,7 @@ return (
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
 
-          <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#4A3E50]/20 via-[#6B8797]/30 to-[#C5A35A]/10 blur-[55px]" />
+          <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#3E454B]/20 via-[#6B8797]/30 to-[#C2A05A]/10 blur-[55px]" />
 
         </div>
 
@@ -2206,7 +2066,7 @@ return (
 
         <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
 
-          <div className="absolute inset-0 bg-gradient-to-l from-[#C5A35A]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#C2A05A]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
 
         </div>
 
@@ -2232,7 +2092,7 @@ return (
                 <div className="absolute inset-0 bg-gradient-to-l from-[#B8CBD5]/35 via-[#8FAEBD]/15 to-transparent blur-[18px]" />
 
                 {/* Additional soft glow to blend the logo into the background */}
-                <div className="absolute right-[-5%] top-1/2 h-[180px] w-[75%] -translate-y-1/2 rounded-full bg-[#E4DCE5]/10 blur-[45px]" />
+                <div className="absolute right-[-5%] top-1/2 h-[180px] w-[75%] -translate-y-1/2 rounded-full bg-[#E1DFDE]/10 blur-[45px]" />
 
                 {/* Logo */}
                 <img
@@ -2259,7 +2119,7 @@ return (
 
               <div className="max-w-3xl">
 
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#E4DCE5]">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#E1DFDE]">
                   Private Grant Funding
                 </p>
 
@@ -2267,7 +2127,7 @@ return (
                   Active RFP Opportunities
                 </h1>
 
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#EBE8EF] sm:text-base">
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#E9E9E7] sm:text-base">
                   Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
                 </p>
 
@@ -2281,7 +2141,7 @@ return (
               ACCENT LINE
           ================================================== */}
 
-          <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#E4DCE5]/60 to-transparent" />
+          <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#E1DFDE]/60 to-transparent" />
 
         </div>
 
@@ -2294,7 +2154,7 @@ return (
           the same color as the page background.
       ================================================== */}
 
-      <div className="h-6 bg-[#D8D8DE] sm:h-8" />
+      <div className="h-6 bg-[#D4D5D6] sm:h-8" />
 
       {/* ==================================================
           FUNDING TIMELINE
@@ -2303,26 +2163,26 @@ return (
       <section className="mb-7">
         <div className="mb-5">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8877A6]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#7B8791]">
               Planning workspace
             </p>
             <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
               Your Funding Timeline
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#686570]">
-              See when active opportunities are due. Colored deadline markers connect each calendar date to its matching opportunity, and clicking either one opens the full record.
+            <p className="mt-2 overflow-x-auto whitespace-nowrap pb-1 text-sm leading-6 text-[#626A70]">
+              The calendar highlights the next five deadlines—select a colored date or its matching opportunity to open the full record.
             </p>
           </div>
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[minmax(340px,0.85fr)_minmax(520px,1.35fr)]">
           {/* Calendar */}
-          <div className="group relative overflow-hidden rounded-[26px] border border-[#C9C6D0] bg-white p-5 shadow-[0_14px_36px_rgba(63,91,108,0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(63,91,108,0.12)] sm:p-6">
+          <div className="group relative overflow-hidden rounded-[26px] border border-[#C8CBCC] bg-white p-5 shadow-[0_14px_36px_rgba(63,91,108,0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(63,91,108,0.12)] sm:p-6">
             <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl transition duration-500 group-hover:scale-110" />
 
             <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#8877A6]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#7B8791]">
                   Deadline calendar
                 </p>
                 <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
@@ -2341,7 +2201,7 @@ return (
                   type="button"
                   onClick={() => moveCalendarMonth(-1)}
                   aria-label="Previous month"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#C9C6D0] bg-[#F5F4F7] text-[#5C5964] transition hover:-translate-x-0.5 hover:border-[#C5A35A] hover:bg-white hover:text-[#2F3038]"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#C8CBCC] bg-[#F4F3F1] text-[#565E64] transition hover:-translate-x-0.5 hover:border-[#C2A05A] hover:bg-white hover:text-[#2F3038]"
                 >
                   ‹
                 </button>
@@ -2349,7 +2209,7 @@ return (
                   type="button"
                   onClick={() => moveCalendarMonth(1)}
                   aria-label="Next month"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#C9C6D0] bg-[#F5F4F7] text-[#5C5964] transition hover:translate-x-0.5 hover:border-[#C5A35A] hover:bg-white hover:text-[#2F3038]"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#C8CBCC] bg-[#F4F3F1] text-[#565E64] transition hover:translate-x-0.5 hover:border-[#C2A05A] hover:bg-white hover:text-[#2F3038]"
                 >
                   ›
                 </button>
@@ -2368,7 +2228,7 @@ return (
               ].map((weekday, index) => (
                 <div
                   key={`${weekday}-${index}`}
-                  className="pb-2 text-[10px] font-bold uppercase tracking-widest text-[#81778C]"
+                  className="pb-2 text-[10px] font-bold uppercase tracking-widest text-[#747E85]"
                 >
                   {weekday}
                 </div>
@@ -2383,62 +2243,6 @@ return (
                 )}, minmax(0, 1fr))`,
               }}
             >
-              <svg
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-30 h-full w-full overflow-visible"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                {calendarTrackData.flatMap(
-                  ({
-                    customer,
-                    accent,
-                    segments,
-                  }) =>
-                    segments.map(
-                      (
-                        segment,
-                        segmentIndex
-                      ) => (
-                        <g
-                          key={`${customer.id}-${segmentIndex}`}
-                        >
-                          <line
-                            x1={
-                              segment.continuesFromPrevious
-                                ? 0
-                                : segment.x1
-                            }
-                            x2={
-                              segment.continuesToNext
-                                ? 100
-                                : segment.x2
-                            }
-                            y1={segment.y}
-                            y2={segment.y}
-                            stroke={accent}
-                            strokeWidth="1.35"
-                            strokeLinecap="round"
-                            opacity="0.82"
-                            vectorEffect="non-scaling-stroke"
-                          />
-                          {!segment.continuesToNext && (
-                            <circle
-                              cx={segment.x2}
-                              cy={segment.y}
-                              r="1.45"
-                              fill={accent}
-                              stroke="white"
-                              strokeWidth="0.65"
-                              vectorEffect="non-scaling-stroke"
-                            />
-                          )}
-                        </g>
-                      )
-                    )
-                )}
-              </svg>
-
               {calendarDays.map((day, index) => {
                 if (!day) {
                   return (
@@ -2484,15 +2288,25 @@ return (
                         )
                       )
                     }
-                    className={`group/day relative z-20 flex aspect-square min-h-10 flex-col items-center justify-center rounded-xl text-sm font-semibold transition duration-200 ${
+                    className={`group/day relative flex aspect-square min-h-10 flex-col items-center justify-center rounded-xl text-sm font-semibold transition duration-200 ${
                       hasDeadline
-                        ? "cursor-pointer bg-[#E7E3EA] text-[#2F3038] hover:-translate-y-0.5 hover:bg-[#D7C6D5] hover:shadow-md"
-                        : isToday
-                          ? "border border-[#C5A35A] bg-white text-[#514E59]"
-                          : "cursor-default text-[#686570]"
+                        ? "cursor-pointer bg-[#E5E4E1] text-[#2F3038] hover:-translate-y-0.5 hover:bg-[#D8CDC8] hover:shadow-md"
+                        : "cursor-default text-[#626A70]"
+                    } ${
+                      isToday
+                        ? "bg-white ring-2 ring-[#2F3038] ring-offset-2 ring-offset-white"
+                        : ""
                     }`}
                   >
-                    {day}
+                    <span
+                      className={
+                        isToday
+                          ? "flex h-7 w-7 items-center justify-center rounded-full bg-[#2F3038] font-bold text-white shadow-sm"
+                          : ""
+                      }
+                    >
+                      {day}
+                    </span>
                     {hasDeadline && (
                       <span className="absolute bottom-1.5 flex gap-0.5">
                         {dayOpportunities
@@ -2516,24 +2330,25 @@ return (
               })}
             </div>
 
-            <div className="relative mt-4 flex items-center justify-between border-t border-[#D9D6DE] pt-4 text-xs text-[#686570]">
+            <div className="relative mt-4 flex items-center justify-between border-t border-[#D7D9DA] pt-4 text-xs text-[#626A70]">
               <span className="flex items-center gap-2">
                 <span className="flex -space-x-1">
-                  {calendarTrackData
-                    .slice(0, 4)
-                    .map(({ accent, customer }) => (
+                  {upcomingDeadlines
+                    .slice(0, 5)
+                    .map((customer) => (
                     <span
                       key={customer.id}
                       className="h-2.5 w-2.5 rounded-full border border-white"
                       style={{
-                        backgroundColor: accent,
+                        backgroundColor:
+                          getDeadlineAccent(
+                            customer.id
+                          ),
                       }}
                     />
                   ))}
                 </span>
-                {calendarTrackData.length > 0
-                  ? "Each line keeps the same color as its matching opportunity"
-                  : "No future deadlines are scheduled in this month"}
+                Colored dots match the next five opportunities; later deadlines appear in gray
               </span>
               <button
                 type="button"
@@ -2547,7 +2362,7 @@ return (
                     )
                   );
                 }}
-                className="font-semibold text-[#514653] transition hover:text-[#2F3038]"
+                className="font-semibold text-[#444B51] transition hover:text-[#2F3038]"
               >
                 Return to today
               </button>
@@ -2556,29 +2371,22 @@ return (
 
           {/* Upcoming deadlines */}
           <div className="relative overflow-hidden rounded-[26px] bg-[#2F3038] p-5 text-white shadow-[0_16px_40px_rgba(38,59,73,0.16)] sm:p-6">
-            <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full border-[42px] border-[#C5A35A]/10" />
+            <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full border-[42px] border-[#C2A05A]/10" />
             <div className="pointer-events-none absolute -bottom-32 right-20 h-64 w-64 rounded-full border border-white/10" />
 
             <div className="relative flex items-end justify-between gap-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D7CEDF]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
                   What&apos;s next
                 </p>
                 <h3 className="mt-1 text-xl font-bold">
-                  Upcoming Deadlines
+                  Next Five Opportunities
                 </h3>
-                <p className="mt-1 text-xs text-[#D7CEDF]">
-                  {calendarMonth.toLocaleDateString(
-                    "en-US",
-                    {
-                      month: "long",
-                      year: "numeric",
-                    }
-                  )}{" "}
-                  · matched to the calendar
+                <p className="mt-1 text-xs text-[#D4D9DC]">
+                  Your nearest active deadlines, matched to the calendar
                 </p>
               </div>
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#EBE8EF]">
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#E9E9E7]">
                 {upcomingDeadlines.length} shown
               </span>
             </div>
@@ -2608,7 +2416,15 @@ return (
                             ),
                         }}
                       >
-                        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#EBE8EF] text-[#2F3038] shadow-sm">
+                        <div
+                          className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-[0_7px_18px_rgba(0,0,0,0.18)]"
+                          style={{
+                            backgroundColor:
+                              getDeadlineAccent(
+                                customer.id
+                              ),
+                          }}
+                        >
                           <span className="text-[9px] font-bold uppercase tracking-wider">
                             {deadline.toLocaleDateString(
                               "en-US",
@@ -2634,7 +2450,7 @@ return (
                             {customer.opportunity_name ||
                               "Untitled opportunity"}
                           </p>
-                          <p className="mt-1 truncate text-xs text-[#D7CEDF]">
+                          <p className="mt-1 truncate text-xs text-[#D4D9DC]">
                             {customer.grantor ||
                               "Grantor not specified"}
                           </p>
@@ -2646,7 +2462,7 @@ return (
                               Next
                             </span>
                           )}
-                          <span className="translate-x-1 text-xl text-[#D7CEDF] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
+                          <span className="translate-x-1 text-xl text-[#D4D9DC] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
                             →
                           </span>
                         </div>
@@ -2660,7 +2476,7 @@ return (
                     <p className="font-semibold text-white">
                       No upcoming deadlines
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-[#D7CEDF]">
+                    <p className="mt-2 text-sm leading-6 text-[#D4D9DC]">
                       Try adjusting your search or filters to reveal more opportunities.
                     </p>
                   </div>
@@ -2675,19 +2491,19 @@ return (
             SEARCH + FILTER TOOLBAR
         ================================================== */}
 
-        <div className="sticky top-3 z-40 mb-8 overflow-visible rounded-[26px] border border-[#4A3E50] bg-[#2F3038]/[0.97] px-5 py-5 shadow-[0_18px_42px_rgba(74,48,67,0.26)] backdrop-blur-xl sm:px-7">
+        <div className="sticky top-3 z-40 mb-8 overflow-visible rounded-[26px] border border-[#3E454B] bg-[#2F3038]/[0.97] px-5 py-5 shadow-[0_18px_42px_rgba(74,48,67,0.26)] backdrop-blur-xl sm:px-7">
 
           <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#D45D3B]/20 blur-3xl" />
 
           <div className="relative mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8C6D4]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8CCC7]">
               Search and refine
             </p>
             <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <h2 className="text-xl font-bold text-white">
                 Find the right opportunity
               </h2>
-              <p className="text-xs text-[#E0DCE4]">
+              <p className="text-xs text-[#DEE0E1]">
                 Search first, then narrow the results with filters or sorting.
               </p>
             </div>
@@ -2701,7 +2517,7 @@ return (
 
             <div className="relative flex-1">
 
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#8877A6]">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#7B8791]">
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -2734,7 +2550,7 @@ return (
                     setSearch(searchInput.trim());
                   }
                 }}
-                className="w-full rounded-2xl border border-[#D8C3B9] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#84798D] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#B99A61]/30"
+                className="w-full rounded-2xl border border-[#D8C3B9] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#778189] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#AF915A]/30"
               />
 
               {searchInput.length > 0 && (
@@ -2745,7 +2561,7 @@ return (
                   setSearch("");
                 }}
                 aria-label="Clear search"
-                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#84798D] transition hover:text-[#514E59]"
+                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#778189] transition hover:text-[#4B5359]"
               >
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
                   ×
@@ -2766,7 +2582,7 @@ return (
                 onClick={toggleQuickFilters}
                 className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                   showQuickFilters
-                    ? "border-[#987085] bg-white text-[#2F3038] shadow-sm"
+                    ? "border-[#8D7070] bg-white text-[#2F3038] shadow-sm"
                     : "border-white/20 bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
@@ -2792,7 +2608,7 @@ return (
 
                 {activeQuickFilterCount > 0 && (
 
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B76878] px-1.5 text-xs text-white">
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B7655E] px-1.5 text-xs text-white">
                     {activeQuickFilterCount}
                   </span>
 
@@ -2805,7 +2621,7 @@ return (
                 onClick={toggleAdvancedFilters}
                 className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                   showAdvancedFilters
-                    ? "border-[#987085] bg-white text-[#2F3038] shadow-sm"
+                    ? "border-[#8D7070] bg-white text-[#2F3038] shadow-sm"
                     : "border-white/20 bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
@@ -2831,7 +2647,7 @@ return (
 
                 {activeAdvancedFilterCount > 0 && (
 
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B76878] px-1.5 text-xs text-white">
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B7655E] px-1.5 text-xs text-white">
                     {activeAdvancedFilterCount}
                   </span>
 
@@ -2900,7 +2716,7 @@ return (
                         Sort by
                       </h3>
 
-                      <p className="mt-1 text-xs text-[#71677A]">
+                      <p className="mt-1 text-xs text-[#69747C]">
                         Drag and drop to change sort priority.
                       </p>
 
@@ -2909,7 +2725,7 @@ return (
                     <button
                       type="button"
                       onClick={resetSortRules}
-                      className="text-xs font-semibold text-[#8877A6] underline underline-offset-2 hover:text-[#456A82]"
+                      className="text-xs font-semibold text-[#7B8791] underline underline-offset-2 hover:text-[#456A82]"
                     >
                       Reset
                     </button>
@@ -2951,11 +2767,11 @@ return (
                           className={`rounded-xl border p-3 transition-all ${
                             draggedSortId ===
                             rule.id
-                              ? "border-[#B76878] bg-[#E7F0F5] opacity-50"
+                              ? "border-[#B7655E] bg-[#E7F0F5] opacity-50"
                               : dragOverSortId ===
                                 rule.id
-                              ? "border-[#B76878] bg-[#F2F7FA] shadow-md"
-                              : "border-[#E0E8ED] bg-[#F5F4F7]"
+                              ? "border-[#B7655E] bg-[#F2F7FA] shadow-md"
+                              : "border-[#E0E8ED] bg-[#F4F3F1]"
                           }`}
                         >
 
@@ -2964,7 +2780,7 @@ return (
                             <div className="flex items-center gap-2">
 
                               <span
-                                className="cursor-grab text-[#81778C] active:cursor-grabbing"
+                                className="cursor-grab text-[#747E85] active:cursor-grabbing"
                                 title="Drag to reorder"
                               >
 
@@ -2987,7 +2803,7 @@ return (
 
                               </span>
 
-                              <span className="text-xs font-semibold uppercase tracking-wide text-[#71677A]">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-[#69747C]">
                                 Sort level{" "}
                                 {index + 1}
                               </span>
@@ -3003,7 +2819,7 @@ return (
                                     rule.id
                                   )
                                 }
-                                className="text-xs font-semibold text-[#71677A] hover:text-red-600"
+                                className="text-xs font-semibold text-[#69747C] hover:text-red-600"
                               >
                                 Remove
                               </button>
@@ -3026,7 +2842,7 @@ return (
                                   }
                                 )
                               }
-                              className="rounded-lg border border-[#E1DCE4] bg-white px-3 py-2 text-sm text-[#493C52] outline-none focus:border-[#B76878]"
+                              className="rounded-lg border border-[#DFE0E0] bg-white px-3 py-2 text-sm text-[#394147] outline-none focus:border-[#B7655E]"
                             >
 
                               {(
@@ -3086,7 +2902,7 @@ return (
                                   }
                                 )
                               }
-                              className="rounded-lg border border-[#E1DCE4] bg-white px-3 py-2 text-sm text-[#493C52] outline-none focus:border-[#B76878]"
+                              className="rounded-lg border border-[#DFE0E0] bg-white px-3 py-2 text-sm text-[#394147] outline-none focus:border-[#B7655E]"
                             >
 
                               <option value="asc">
@@ -3119,7 +2935,7 @@ return (
                     <button
                       type="button"
                       onClick={addSortRule}
-                      className="mt-4 w-full rounded-xl border border-dashed border-[#D4C4D1] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#8877A6] transition hover:bg-[#E7F0F5]"
+                      className="mt-4 w-full rounded-xl border border-dashed border-[#D6CBC6] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#7B8791] transition hover:bg-[#E7F0F5]"
                     >
                       + Add Sort Level
                     </button>
@@ -3140,7 +2956,7 @@ return (
 
           {showQuickFilters && (
 
-            <div className="mt-5 rounded-2xl border border-[#DDCEC7] bg-[#F5F4F7] p-6 shadow-sm">
+            <div className="mt-5 rounded-2xl border border-[#DDCEC7] bg-[#F4F3F1] p-6 shadow-sm">
 
               <div className="mb-5 flex items-center justify-between">
 
@@ -3150,7 +2966,7 @@ return (
                     Quick Filters
                   </h3>
 
-                  <p className="mt-1 text-sm text-[#686570]">
+                  <p className="mt-1 text-sm text-[#626A70]">
                     Quickly narrow opportunities using common filters.
                   </p>
 
@@ -3159,7 +2975,7 @@ return (
                 <button
                   type="button"
                   onClick={clearQuickFilters}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#E4E2E8] hover:text-[#2F3038]"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#E2E3E3] hover:text-[#2F3038]"
                 >
                   Clear Filters
                 </button>
@@ -3172,18 +2988,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#686570]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
                     Grantor
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E4E2E8] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {availableGrantors.map(
                       (grantor) => (
 
                         <label
                           key={grantor}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#493C52] hover:bg-[#F6EFEA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -3201,7 +3017,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#B76878]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
                           <span>
@@ -3221,18 +3037,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#686570]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
                     Maximum Grant
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E4E2E8] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {availableMaximumGrants.map(
                       (amount) => (
 
                         <label
                           key={amount}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#493C52] hover:bg-[#F6EFEA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -3250,7 +3066,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#B76878]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
                           <span>
@@ -3270,7 +3086,7 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#686570]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
                     Deadline
                   </label>
 
@@ -3284,7 +3100,7 @@ return (
                           )
                       )
                     }
-                    className="mt-3 w-full rounded-xl border border-[#E4E2E8] bg-white px-4 py-3 text-sm text-[#493C52] outline-none focus:border-[#B76878] focus:ring-4 focus:ring-[#B99A61]/30"
+                    className="mt-3 w-full rounded-xl border border-[#E2E3E3] bg-white px-4 py-3 text-sm text-[#394147] outline-none focus:border-[#B7655E] focus:ring-4 focus:ring-[#AF915A]/30"
                   >
 
                     <option value="all">
@@ -3315,18 +3131,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#686570]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
                     Anticipated Deadline
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E4E2E8] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {availableMonths.map(
                       (month) => (
 
                         <label
                           key={month}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#493C52] hover:bg-[#F6EFEA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -3344,7 +3160,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#B76878]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
                           <span>
@@ -3364,18 +3180,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#686570]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
                     Categories
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E4E2E8] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {availableCategories.map(
                       (category) => (
 
                         <label
                           key={category}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#493C52] hover:bg-[#F6EFEA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -3393,7 +3209,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#B76878]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
                           <span>
@@ -3431,7 +3247,7 @@ return (
                     Advanced Filters
                   </h3>
 
-                  <p className="mt-1 text-sm text-[#686570]">
+                  <p className="mt-1 text-sm text-[#626A70]">
                     Build a custom filter using multiple AND rules.
                   </p>
 
@@ -3440,7 +3256,7 @@ return (
                 <button
                   type="button"
                   onClick={addAdvancedFilter}
-                  className="rounded-xl bg-[#B76878] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8877A6]"
+                  className="rounded-xl bg-[#B7655E] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#7B8791]"
                 >
                   + Add Filter
                 </button>
@@ -3451,7 +3267,7 @@ return (
 
                 <div className="mt-5 rounded-xl border border-dashed border-[#CBD9E1] bg-[#FAFCFD] p-6 text-center">
 
-                  <p className="text-sm text-[#686570]">
+                  <p className="text-sm text-[#626A70]">
                     No advanced filters added yet.
                   </p>
 
@@ -3483,10 +3299,10 @@ return (
 
                         <div
                           key={filter.id}
-                          className="relative flex flex-col gap-3 rounded-xl border border-[#E4E2E8] bg-white p-4 lg:flex-row lg:items-start"
+                          className="relative flex flex-col gap-3 rounded-xl border border-[#E2E3E3] bg-white p-4 lg:flex-row lg:items-start"
                         >
 
-                          <div className="rounded-lg border border-[#E4E2E8] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#71677A] lg:mt-0">
+                          <div className="rounded-lg border border-[#E2E3E3] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#69747C] lg:mt-0">
                             AND
                           </div>
 
@@ -3510,7 +3326,7 @@ return (
                               );
 
                             }}
-                            className="rounded-lg border border-[#E1DCE4] bg-white px-3 py-2 text-sm text-[#493C52] outline-none focus:border-[#B76878]"
+                            className="rounded-lg border border-[#DFE0E0] bg-white px-3 py-2 text-sm text-[#394147] outline-none focus:border-[#B7655E]"
                           >
 
                             <option value="grantor">
@@ -3555,7 +3371,7 @@ return (
                                 }
                               )
                             }
-                            className="rounded-lg border border-[#E1DCE4] bg-white px-3 py-2 text-sm text-[#493C52] outline-none focus:border-[#B76878]"
+                            className="rounded-lg border border-[#DFE0E0] bg-white px-3 py-2 text-sm text-[#394147] outline-none focus:border-[#B7655E]"
                           >
 
                             <option value="is">
@@ -3580,8 +3396,8 @@ return (
                             <div
                               className={`min-h-[42px] rounded-lg border bg-white p-1.5 transition ${
                                 dropdownIsOpen
-                                  ? "border-[#B76878] ring-2 ring-[#B99A61]/40"
-                                  : "border-[#E1DCE4]"
+                                  ? "border-[#B7655E] ring-2 ring-[#AF915A]/40"
+                                  : "border-[#DFE0E0]"
                               }`}
                             >
 
@@ -3598,7 +3414,7 @@ return (
                                           : filter.id
                                       )
                                     }
-                                    className="flex-1 px-2 py-1.5 text-left text-sm text-[#81778C]"
+                                    className="flex-1 px-2 py-1.5 text-left text-sm text-[#747E85]"
                                   >
                                     Select{" "}
                                     {getFieldLabel(
@@ -3622,7 +3438,7 @@ return (
                                           value
                                         )
                                       }
-                                      className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#D4C4D1] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#493C52] transition hover:bg-[#DCEAF1]"
+                                      className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#D6CBC6] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#394147] transition hover:bg-[#DCEAF1]"
                                     >
 
                                       <span className="max-w-[180px] truncate">
@@ -3636,7 +3452,7 @@ return (
 
                                       </span>
 
-                                      <span className="font-bold text-[#71677A]">
+                                      <span className="font-bold text-[#69747C]">
                                         ×
                                       </span>
 
@@ -3655,7 +3471,7 @@ return (
                                     )
                                   }
                                   aria-label="Add filter value"
-                                  className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#E4E2E8] hover:text-[#493C52]"
+                                  className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#E2E3E3] hover:text-[#394147]"
                                 >
 
                                   <svg
@@ -3704,7 +3520,7 @@ return (
 
                                       <label
                                         key={option}
-                                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#493C52] hover:bg-[#F6EFEA]"
+                                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                                       >
 
                                         <input
@@ -3739,7 +3555,7 @@ return (
                                             );
 
                                           }}
-                                          className="h-4 w-4 rounded border-slate-300 accent-[#B76878]"
+                                          className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                                         />
 
                                         <span>
@@ -3773,7 +3589,7 @@ return (
                                 filter.id
                               )
                             }
-                            className="rounded-lg px-3 py-2 text-sm font-semibold text-[#71677A] transition hover:bg-red-50 hover:text-red-700"
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-[#69747C] transition hover:bg-red-50 hover:text-red-700"
                           >
                             Remove
                           </button>
@@ -3794,7 +3610,7 @@ return (
                 <button
                   type="button"
                   onClick={clearAdvancedFilters}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#E4E2E8] hover:text-[#2F3038]"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#E2E3E3] hover:text-[#2F3038]"
                 >
                   Clear Advanced Filters
                 </button>
@@ -3915,7 +3731,7 @@ return (
 
             <div className="mt-4 flex items-center gap-2 text-sm text-[#EADCD4]">
 
-              <span className="inline-block h-2 w-2 rounded-full bg-[#E4DCE5]" />
+              <span className="inline-block h-2 w-2 rounded-full bg-[#E1DFDE]" />
 
               Showing{" "}
 
@@ -3933,7 +3749,7 @@ return (
 
       <div className="mb-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8877A6]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#7B8791]">
             Opportunity directory
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
@@ -3946,37 +3762,37 @@ return (
           OPPORTUNITIES TABLE
       ================================================== */}
 
-      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#C9C6D0] bg-[#F5F4F7] shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
+      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#C8CBCC] bg-[#F4F3F1] shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
 
         <div className="overflow-x-auto">
 
           <table className="w-full">
 
-            <thead className="bg-[#C5A35A] text-[#2F3038]">
+            <thead className="bg-[#2F3038] text-white">
 
               <tr>
 
-                <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
+                <th className="border-b border-white/10 p-5 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                   Grantor
                 </th>
 
-                <th className="p-5 text-left text-xs font-bold uppercase tracking-wider">
+                <th className="border-b border-white/10 p-5 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                   Opportunity
                 </th>
 
-                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                   Maximum Grant
                 </th>
 
-                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                   Deadline
                 </th>
 
-                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                   Anticipated Deadline Month
                 </th>
 
-                <th className="p-5 text-center text-xs font-bold uppercase tracking-wider">
+                <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                   Categories
                 </th>
 
@@ -3984,7 +3800,7 @@ return (
 
             </thead>
 
-            <tbody className="divide-y divide-[#D9D6DE]">
+            <tbody className="divide-y divide-[#D7D9DA]">
 
               {filteredCustomers.map(
                 (
@@ -4009,6 +3825,22 @@ return (
                     String(selectedCustomerId) ===
                     String(customer.id);
 
+                  const grantorInitials = (
+                    customer.grantor || "—"
+                  )
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((word) =>
+                      word.charAt(0).toUpperCase()
+                    )
+                    .join("");
+
+                  const daysUntilDeadline =
+                    getDeadlineDays(
+                      customer.deadline
+                    );
+
                   return (
 
                       <tr
@@ -4026,21 +3858,31 @@ return (
 
                       className={`group cursor-pointer transition-all duration-200 ${
                         isSelected
-                          ? "bg-[#F1D889] shadow-[inset_6px_0_0_#B76878]"
+                          ? "bg-[#F1D889] shadow-[inset_6px_0_0_#B7655E]"
                           : index % 2 === 0
-                            ? "bg-[#F5F4F7] hover:bg-[#E6D6CE]"
-                            : "bg-[#E4E2E8] hover:bg-[#E6D6CE]"
+                            ? "bg-[#F4F3F1] hover:bg-white"
+                            : "bg-[#ECEDEE] hover:bg-white"
                       }`}
                     >
 
                       {/* Grantor */}
 
-                      <td className="p-5 align-top text-left">
+                      <td className="border-l-4 border-transparent p-5 align-top text-left transition-colors group-hover:border-[#C2A05A]">
 
-                        <span className="font-semibold text-[#514E59]">
-                          {customer.grantor ||
-                            "-"}
-                        </span>
+                        <div className="flex min-w-[170px] items-center gap-3">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white text-xs font-bold tracking-wide text-[#444B51] shadow-sm">
+                            {grantorInitials}
+                          </span>
+                          <div>
+                            <span className="block font-semibold leading-5 text-[#3E454B]">
+                              {customer.grantor ||
+                                "-"}
+                            </span>
+                            <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+                              Grantor
+                            </span>
+                          </div>
+                        </div>
 
                       </td>
 
@@ -4048,9 +3890,19 @@ return (
 
                       <td className="p-5 align-top text-left">
 
-                        <div className="font-semibold text-[#2F3038]">
-                          {customer.opportunity_name ||
-                            "-"}
+                        <div className="flex min-w-[250px] items-start gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[15px] font-bold leading-6 text-[#2F3038]">
+                              {customer.opportunity_name ||
+                                "-"}
+                            </div>
+                            <p className="mt-1 text-xs text-[#626A70]">
+                              Open the record for complete opportunity details
+                            </p>
+                          </div>
+                          <span className="mt-1 translate-x-2 text-lg text-[#69747C] opacity-0 transition duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+                            →
+                          </span>
                         </div>
 
                       </td>
@@ -4059,10 +3911,15 @@ return (
 
                       <td className="p-5 align-top text-center">
 
-                        <span className="inline-flex rounded-lg border border-[#C9C6D0] bg-[#F1F4F6] px-3 py-2 text-sm font-semibold text-[#514E59]">
-                          {customer.maximum_grant ||
-                            "Not specified"}
-                        </span>
+                        <div className="inline-flex min-w-[120px] flex-col rounded-xl border border-[#C8CBCC] bg-white px-4 py-3 shadow-sm">
+                          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#778189]">
+                            Up to
+                          </span>
+                          <span className="mt-1 text-sm font-bold text-[#3E454B]">
+                            {customer.maximum_grant ||
+                              "Not specified"}
+                          </span>
+                        </div>
 
                       </td>
 
@@ -4076,7 +3933,7 @@ return (
 
                             <>
 
-                              <span className="font-semibold text-[#514E59]">
+                              <span className="font-semibold text-[#4B5359]">
 
                                 {new Date(
                                   `${customer.deadline}T00:00:00`
@@ -4091,6 +3948,17 @@ return (
                                 )}
 
                               </span>
+
+                              {!isPastDeadline &&
+                                daysUntilDeadline !==
+                                  null && (
+                                  <span className="rounded-full bg-[#2F3038] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                                    {daysUntilDeadline ===
+                                    0
+                                      ? "Due today"
+                                      : `${daysUntilDeadline} days`}
+                                  </span>
+                                )}
 
                               {isPastDeadline && (
 
@@ -4136,7 +4004,7 @@ return (
 
                         ) : (
 
-                          <span className="text-[#89818E]">
+                          <span className="text-[#7D858B]">
                             —
                           </span>
 
@@ -4181,7 +4049,7 @@ return (
 
                           ) : (
 
-                            <span className="text-[#89818E]">
+                            <span className="text-[#7D858B]">
                               —
                             </span>
 
@@ -4211,9 +4079,9 @@ return (
         {filteredCustomers.length ===
           0 && (
 
-          <div className="bg-[#E4E2E8] px-6 py-20 text-center">
+          <div className="bg-[#E2E3E3] px-6 py-20 text-center">
 
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C9C6D0] bg-[#F5F4F7] text-[#81778C] shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] text-[#747E85] shadow-sm">
 
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -4238,7 +4106,7 @@ return (
               No opportunities found
             </h3>
 
-            <p className="mt-2 text-sm text-[#686570]">
+            <p className="mt-2 text-sm text-[#626A70]">
               Try adjusting your search or
               filters to find matching funding
               opportunities.
@@ -4256,11 +4124,11 @@ return (
 
       <div className="mt-4 flex justify-start">
 
-        <div className="inline-flex items-center gap-3 rounded-xl border border-[#CAC4CE] bg-[#E8D7C8] px-5 py-3 shadow-sm">
+        <div className="inline-flex items-center gap-3 rounded-xl border border-[#C8CBCC] bg-[#E8D7C8] px-5 py-3 shadow-sm">
 
-          <span className="h-2.5 w-2.5 rounded-full bg-[#B76878]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#B7655E]" />
 
-          <span className="text-sm font-semibold text-[#514E59]">
+          <span className="text-sm font-semibold text-[#4B5359]">
 
             <span className="font-bold text-[#2F3038]">
               {activeCount}
