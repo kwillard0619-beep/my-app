@@ -2491,7 +2491,7 @@ return (
             SEARCH + FILTER TOOLBAR
         ================================================== */}
 
-        <div className="sticky top-0 z-40 isolate mb-8 overflow-visible rounded-[26px] border border-white/10 bg-black/80 px-5 py-5 shadow-[0_16px_34px_rgba(18,19,22,0.28)] backdrop-blur-xl before:pointer-events-none before:absolute before:-inset-x-3 before:-bottom-3 before:-top-6 before:-z-10 before:bg-[#D4D5D6] sm:px-7">
+        <div className="sticky top-3 z-40 mb-8 overflow-visible rounded-[26px] border border-white/15 bg-black/80 px-5 py-5 shadow-[0_16px_34px_rgba(18,19,22,0.32)] backdrop-blur-xl sm:px-7">
 
           <div className="pointer-events-none absolute right-0 top-0 h-full w-44 rounded-full bg-[#D45D3B]/15 blur-3xl" />
 
