@@ -1897,7 +1897,7 @@ export default function CustomerTable({
       ];
     }
 
-    return "#92989E";
+    return "#1F2024";
   };
 
   const calendarDays = useMemo(() => {
@@ -2348,7 +2348,7 @@ return (
                     />
                   ))}
                 </span>
-                Colored dots match the next five opportunities; later deadlines appear in gray
+                Colored dots match the next five opportunities; later deadlines appear in black
               </span>
               <button
                 type="button"
@@ -2491,9 +2491,9 @@ return (
             SEARCH + FILTER TOOLBAR
         ================================================== */}
 
-        <div className="sticky top-3 z-40 mb-8 overflow-visible rounded-[26px] border border-[#3E454B] bg-[#2F3038]/[0.97] px-5 py-5 shadow-[0_18px_42px_rgba(74,48,67,0.26)] backdrop-blur-xl sm:px-7">
+        <div className="sticky top-0 z-40 isolate mb-8 overflow-visible rounded-[26px] border border-[#3E454B] bg-[#34353D] px-5 py-5 shadow-[0_14px_30px_rgba(47,48,56,0.22)] before:pointer-events-none before:absolute before:-inset-x-3 before:-bottom-3 before:-top-6 before:-z-10 before:bg-[#D4D5D6] sm:px-7">
 
-          <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#D45D3B]/20 blur-3xl" />
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-44 rounded-full bg-[#D45D3B]/15 blur-3xl" />
 
           <div className="relative mb-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8CCC7]">
