@@ -1984,7 +1984,7 @@ return (
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#444B51]">
               ◆
             </span>
-            Opportunities
+            Active Opportunities
             <span className="ml-auto h-2 w-2 rounded-full bg-[#B7655E]" />
           </button>
 
@@ -2437,7 +2437,7 @@ return (
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p className="flex items-center gap-2 truncate font-semibold text-white">
+                          <p className="flex items-center gap-2 truncate text-sm font-bold text-white">
                             <span
                               className="h-2 w-2 shrink-0 rounded-full"
                               style={{
@@ -2447,12 +2447,12 @@ return (
                                   ),
                               }}
                             />
-                            {customer.opportunity_name ||
-                              "Untitled opportunity"}
-                          </p>
-                          <p className="mt-1 truncate text-xs text-[#D4D9DC]">
                             {customer.grantor ||
                               "Grantor not specified"}
+                          </p>
+                          <p className="mt-1 truncate text-base font-semibold leading-5 text-[#D4D9DC]">
+                            {customer.opportunity_name ||
+                              "Untitled opportunity"}
                           </p>
                         </div>
 
@@ -3753,7 +3753,7 @@ return (
             Opportunity directory
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
-            All Opportunities
+            Active Opportunities
           </h2>
         </div>
       </div>
@@ -3858,7 +3858,7 @@ return (
 
                       className={`group cursor-pointer transition-all duration-200 ${
                         isSelected
-                          ? "bg-[#F1D889] shadow-[inset_6px_0_0_#B7655E]"
+                          ? "bg-[#F2D9D5] shadow-[inset_6px_0_0_#2F3038,0_8px_24px_rgba(47,48,56,0.10)]"
                           : index % 2 === 0
                             ? "bg-[#F4F3F1] hover:bg-white"
                             : "bg-[#ECEDEE] hover:bg-white"
@@ -3878,9 +3878,6 @@ return (
                               {customer.grantor ||
                                 "-"}
                             </span>
-                            <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
-                              Grantor
-                            </span>
                           </div>
                         </div>
 
@@ -3896,9 +3893,6 @@ return (
                               {customer.opportunity_name ||
                                 "-"}
                             </div>
-                            <p className="mt-1 text-xs text-[#626A70]">
-                              Open the record for complete opportunity details
-                            </p>
                           </div>
                           <span className="mt-1 translate-x-2 text-lg text-[#69747C] opacity-0 transition duration-200 group-hover:translate-x-0 group-hover:opacity-100">
                             →
