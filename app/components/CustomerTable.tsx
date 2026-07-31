@@ -55,6 +55,13 @@ const SORT_FIELD_LABELS: Record<SortField, string> = {
   anticipated_deadline: "Anticipated Deadline",
 };
 
+const DEADLINE_ACCENTS = [
+  "#C7654B",
+  "#D79A35",
+  "#9A5A78",
+  "#7C5A92",
+];
+
 export default function CustomerTable({
   customers,
   activeCount,
@@ -1869,6 +1876,24 @@ export default function CustomerTable({
       .slice(0, 4);
   }, [deadlineCustomers]);
 
+  const getDeadlineAccent = (
+    customerId: Customer["id"]
+  ) => {
+    const matchingIndex =
+      upcomingDeadlines.findIndex(
+        (customer) =>
+          String(customer.id) ===
+          String(customerId)
+      );
+
+    return DEADLINE_ACCENTS[
+      matchingIndex >= 0
+        ? matchingIndex %
+          DEADLINE_ACCENTS.length
+        : 0
+    ];
+  };
+
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -1920,26 +1945,26 @@ export default function CustomerTable({
 // --------------------------------------------------
 
 return (
-  <div className="min-h-screen bg-[#EEF2F4] text-[#263B49]">
+  <div className="min-h-screen bg-[#D8CEC7] text-[#4A3043]">
     <div className="mx-auto flex min-h-screen max-w-[1920px]">
 
       {/* ==================================================
           PRIMARY NAVIGATION
       ================================================== */}
 
-      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#D7E2E8] bg-[#E7EEF1] px-4 py-6 lg:flex">
-        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[#AFC4D0]/35 blur-3xl" />
+      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#D8C9C2] px-4 py-6 lg:flex">
+        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[#D5A45D]/35 blur-3xl" />
 
         <div className="relative flex items-center gap-3 px-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#263B49] text-sm font-bold tracking-wide text-white shadow-[0_10px_24px_rgba(38,59,73,0.18)]">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#4A3043] text-sm font-bold tracking-wide text-white shadow-[0_10px_24px_rgba(38,59,73,0.18)]">
             LG
           </div>
 
           <div>
-            <p className="text-base font-bold tracking-[-0.02em] text-[#263B49]">
+            <p className="text-base font-bold tracking-[-0.02em] text-[#4A3043]">
               LG Listings
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#78909E]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8A6574]">
               Funding Intelligence
             </p>
           </div>
@@ -1948,13 +1973,13 @@ return (
         <nav className="relative mt-10 space-y-2" aria-label="Primary navigation">
           <button
             type="button"
-            className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#263B49] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
+            className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#4A3043] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#DDE8ED] text-[#496777]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#70475C]">
               ◆
             </span>
             Opportunities
-            <span className="ml-auto h-2 w-2 rounded-full bg-[#6F91A8]" />
+            <span className="ml-auto h-2 w-2 rounded-full bg-[#B86F52]" />
           </button>
 
           {[
@@ -1965,9 +1990,9 @@ return (
             <button
               key={label}
               type="button"
-              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#607582] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#263B49]"
+              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#705B66] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#4A3043]"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#D2DEE4] bg-[#EDF3F5] text-[#78909E] transition group-hover:border-[#BDCED7] group-hover:bg-white">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#CAB8B0] bg-[#EFE3DD] text-[#8A6574] transition group-hover:border-[#C99A85] group-hover:bg-white">
                 {icon}
               </span>
               {label}
@@ -1975,12 +2000,12 @@ return (
           ))}
         </nav>
 
-        <div className="relative mt-auto border-t border-[#CEDBE2] pt-5">
+        <div className="relative mt-auto border-t border-[#C8B3AA] pt-5">
           <button
             type="button"
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#607582] transition hover:bg-white/70 hover:text-[#263B49]"
+            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#705B66] transition hover:bg-white/70 hover:text-[#4A3043]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C8D8E1] text-sm font-bold">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C9B3AA] text-sm font-bold">
               ?
             </span>
             Help
@@ -1991,9 +2016,9 @@ return (
       <main className="min-w-0 flex-1 py-4 sm:py-6">
         <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
 
-          <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#D5E0E7] bg-white/75 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#CBB9B2] bg-white/75 px-4 py-3 backdrop-blur lg:hidden">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#263B49] text-xs font-bold text-white">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4A3043] text-xs font-bold text-white">
                 LG
               </span>
               <span className="font-bold">LG Listings</span>
@@ -2001,7 +2026,7 @@ return (
             <button
               type="button"
               aria-label="Open navigation"
-              className="rounded-xl border border-[#D5E0E7] bg-white px-3 py-2 text-[#607582]"
+              className="rounded-xl border border-[#CBB9B2] bg-white px-3 py-2 text-[#705B66]"
             >
               ☰
             </button>
@@ -2017,7 +2042,7 @@ return (
             SOFT MULTI-STOP GRADIENT BACKGROUND
         ================================================== */}
 
-        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#263B49] via-[#344F60] via-[35%] via-[#4F6B7B] via-[55%] via-[#718D9D] via-[75%] to-[#AFC4D0]" />
+        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#4A3043] via-[#63445A] via-[35%] via-[#845C69] via-[55%] via-[#B06F5D] via-[75%] to-[#D5A45D]" />
 
         {/* ==================================================
             LARGE SOFT BLEND OVERLAY
@@ -2025,7 +2050,7 @@ return (
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
 
-          <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#344F60]/20 via-[#6B8797]/30 to-[#AFC4D0]/10 blur-[55px]" />
+          <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#63445A]/20 via-[#6B8797]/30 to-[#D5A45D]/10 blur-[55px]" />
 
         </div>
 
@@ -2035,7 +2060,7 @@ return (
 
         <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
 
-          <div className="absolute inset-0 bg-gradient-to-l from-[#AFC4D0]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#D5A45D]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
 
         </div>
 
@@ -2061,7 +2086,7 @@ return (
                 <div className="absolute inset-0 bg-gradient-to-l from-[#B8CBD5]/35 via-[#8FAEBD]/15 to-transparent blur-[18px]" />
 
                 {/* Additional soft glow to blend the logo into the background */}
-                <div className="absolute right-[-5%] top-1/2 h-[180px] w-[75%] -translate-y-1/2 rounded-full bg-[#D7E4EA]/10 blur-[45px]" />
+                <div className="absolute right-[-5%] top-1/2 h-[180px] w-[75%] -translate-y-1/2 rounded-full bg-[#F3D9C7]/10 blur-[45px]" />
 
                 {/* Logo */}
                 <img
@@ -2088,7 +2113,7 @@ return (
 
               <div className="max-w-3xl">
 
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D7E4EA]">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#F3D9C7]">
                   Private Grant Funding
                 </p>
 
@@ -2096,7 +2121,7 @@ return (
                   Active RFP Opportunities
                 </h1>
 
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#DCE8ED] sm:text-base">
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#F1E5DA] sm:text-base">
                   Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
                 </p>
 
@@ -2110,17 +2135,415 @@ return (
               ACCENT LINE
           ================================================== */}
 
-          <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#D7E4EA]/60 to-transparent" />
+          <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#F3D9C7]/60 to-transparent" />
 
         </div>
+
+
+      </div>
+
+      {/* ==================================================
+          MATCHING BACKGROUND SPACE
+          Keeps the transition between header and table
+          the same color as the page background.
+      ================================================== */}
+
+      <div className="h-6 bg-[#D8CEC7] sm:h-8" />
+
+      {/* ==================================================
+          FUNDING TIMELINE
+      ================================================== */}
+
+      <section className="mb-7">
+        <div className="mb-5">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8A6574]">
+              Planning workspace
+            </p>
+            <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#4A3043]">
+              Your Funding Timeline
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#79636D]">
+              See when active opportunities are due. Colored deadline markers connect each calendar date to its matching opportunity, and clicking either one opens the full record.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(340px,0.85fr)_minmax(520px,1.35fr)]">
+          {/* Calendar */}
+          <div className="group relative overflow-hidden rounded-[26px] border border-[#CBB9B2] bg-white p-5 shadow-[0_14px_36px_rgba(63,91,108,0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(63,91,108,0.12)] sm:p-6">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl transition duration-500 group-hover:scale-110" />
+
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#8A6574]">
+                  Deadline calendar
+                </p>
+                <h3 className="mt-1 text-lg font-bold text-[#4A3043]">
+                  {calendarMonth.toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}
+                </h3>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => moveCalendarMonth(-1)}
+                  aria-label="Previous month"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#CBB9B2] bg-[#F7F1EC] text-[#705B66] transition hover:-translate-x-0.5 hover:border-[#D5A45D] hover:bg-white hover:text-[#4A3043]"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveCalendarMonth(1)}
+                  aria-label="Next month"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#CBB9B2] bg-[#F7F1EC] text-[#705B66] transition hover:translate-x-0.5 hover:border-[#D5A45D] hover:bg-white hover:text-[#4A3043]"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
+            <div className="relative mt-5 grid grid-cols-7 gap-1 text-center">
+              {[
+                "S",
+                "M",
+                "T",
+                "W",
+                "T",
+                "F",
+                "S",
+              ].map((weekday, index) => (
+                <div
+                  key={`${weekday}-${index}`}
+                  className="pb-2 text-[10px] font-bold uppercase tracking-widest text-[#9B7D86]"
+                >
+                  {weekday}
+                </div>
+              ))}
+
+              {calendarDays.map((day, index) => {
+                if (!day) {
+                  return (
+                    <div
+                      key={`empty-${index}`}
+                      className="aspect-square"
+                    />
+                  );
+                }
+
+                const dateKey =
+                  getCalendarDateKey(day);
+                const dayOpportunities =
+                  deadlinesByDate.get(dateKey) ?? [];
+                const hasDeadline =
+                  dayOpportunities.length > 0;
+                const today = new Date();
+                const isToday =
+                  today.getFullYear() ===
+                    calendarMonth.getFullYear() &&
+                  today.getMonth() ===
+                    calendarMonth.getMonth() &&
+                  today.getDate() === day;
+
+                return (
+                  <button
+                    key={dateKey}
+                    type="button"
+                    disabled={!hasDeadline}
+                    title={
+                      hasDeadline
+                        ? `${dayOpportunities.length} ${
+                            dayOpportunities.length === 1
+                              ? "opportunity"
+                              : "opportunities"
+                          }`
+                        : undefined
+                    }
+                    onClick={() =>
+                      setSelectedCustomerId(
+                        String(
+                          dayOpportunities[0].id
+                        )
+                      )
+                    }
+                    className={`group/day relative flex aspect-square min-h-10 flex-col items-center justify-center rounded-xl text-sm font-semibold transition duration-200 ${
+                      hasDeadline
+                        ? "cursor-pointer bg-[#EAD8CE] text-[#4A3043] hover:-translate-y-0.5 hover:bg-[#D8B29C] hover:shadow-md"
+                        : isToday
+                          ? "border border-[#D5A45D] bg-white text-[#5D4052]"
+                          : "cursor-default text-[#79636D]"
+                    }`}
+                  >
+                    {day}
+                    {hasDeadline && (
+                      <span className="absolute bottom-1.5 flex gap-0.5">
+                        {dayOpportunities
+                          .slice(0, 3)
+                          .map((opportunity) => (
+                          <span
+                            key={opportunity.id}
+                            className="h-1.5 w-1.5 rounded-full ring-1 ring-white/80"
+                            style={{
+                              backgroundColor:
+                                getDeadlineAccent(
+                                  opportunity.id
+                                ),
+                            }}
+                          />
+                        ))}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {upcomingDeadlines.length > 0 && (
+              <div className="relative mt-5 border-t border-[#D9CBC4] pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8A6574]">
+                    Today → due date
+                  </p>
+                  <p className="text-[10px] text-[#9B7D86]">
+                    Upcoming opportunity tracks
+                  </p>
+                </div>
+
+                <div className="space-y-2.5">
+                  {upcomingDeadlines
+                    .slice(0, 3)
+                    .map((customer) => {
+                      const accent =
+                        getDeadlineAccent(
+                          customer.id
+                        );
+                      const dueDate = new Date(
+                        `${customer.deadline}T00:00:00`
+                      );
+
+                      return (
+                        <button
+                          key={customer.id}
+                          type="button"
+                          onClick={() =>
+                            setSelectedCustomerId(
+                              String(customer.id)
+                            )
+                          }
+                          className="group/track grid w-full grid-cols-[52px_1fr_46px] items-center gap-2 text-left"
+                        >
+                          <span className="text-[10px] font-semibold text-[#79636D]">
+                            Today
+                          </span>
+                          <span className="relative h-1.5 overflow-visible rounded-full bg-[#D9CBC4]">
+                            <span
+                              className="absolute inset-y-0 left-0 right-0 rounded-full opacity-70 transition group-hover/track:opacity-100"
+                              style={{
+                                backgroundColor:
+                                  accent,
+                              }}
+                            />
+                            <span
+                              className="absolute right-0 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-white shadow-sm"
+                              style={{
+                                backgroundColor:
+                                  accent,
+                              }}
+                            />
+                          </span>
+                          <span
+                            className="text-right text-[10px] font-bold"
+                            style={{ color: accent }}
+                          >
+                            {dueDate.toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            <div className="relative mt-4 flex items-center justify-between border-t border-[#D9CBC4] pt-4 text-xs text-[#79636D]">
+              <span className="flex items-center gap-2">
+                <span className="flex -space-x-1">
+                  {DEADLINE_ACCENTS.slice(
+                    0,
+                    3
+                  ).map((accent) => (
+                    <span
+                      key={accent}
+                      className="h-2.5 w-2.5 rounded-full border border-white"
+                      style={{
+                        backgroundColor: accent,
+                      }}
+                    />
+                  ))}
+                </span>
+                Matching deadline markers
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const today = new Date();
+                  setCalendarMonth(
+                    new Date(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      1
+                    )
+                  );
+                }}
+                className="font-semibold text-[#70475C] transition hover:text-[#4A3043]"
+              >
+                Return to today
+              </button>
+            </div>
+          </div>
+
+          {/* Upcoming deadlines */}
+          <div className="relative overflow-hidden rounded-[26px] bg-[#4A3043] p-5 text-white shadow-[0_16px_40px_rgba(38,59,73,0.16)] sm:p-6">
+            <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full border-[42px] border-[#D5A45D]/10" />
+            <div className="pointer-events-none absolute -bottom-32 right-20 h-64 w-64 rounded-full border border-white/10" />
+
+            <div className="relative flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#E3C7B7]">
+                  What&apos;s next
+                </p>
+                <h3 className="mt-1 text-xl font-bold">
+                  Upcoming Deadlines
+                </h3>
+              </div>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#F1E5DA]">
+                {upcomingDeadlines.length} shown
+              </span>
+            </div>
+
+            <div className="relative mt-5 space-y-2">
+              {upcomingDeadlines.length > 0 ? (
+                upcomingDeadlines.map(
+                  (customer, index) => {
+                    const deadline = new Date(
+                      `${customer.deadline}T00:00:00`
+                    );
+
+                    return (
+                      <button
+                        key={customer.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedCustomerId(
+                            String(customer.id)
+                          )
+                        }
+                        className="group/deadline flex w-full items-center gap-4 rounded-2xl border border-l-[5px] border-white/10 bg-white/[0.07] px-4 py-3.5 text-left transition duration-200 hover:translate-x-1 hover:border-white/20 hover:bg-white/[0.13]"
+                        style={{
+                          borderLeftColor:
+                            getDeadlineAccent(
+                              customer.id
+                            ),
+                        }}
+                      >
+                        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#F1E5DA] text-[#4A3043] shadow-sm">
+                          <span className="text-[9px] font-bold uppercase tracking-wider">
+                            {deadline.toLocaleDateString(
+                              "en-US",
+                              { month: "short" }
+                            )}
+                          </span>
+                          <span className="text-lg font-bold leading-none">
+                            {deadline.getDate()}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="flex items-center gap-2 truncate font-semibold text-white">
+                            <span
+                              className="h-2 w-2 shrink-0 rounded-full"
+                              style={{
+                                backgroundColor:
+                                  getDeadlineAccent(
+                                    customer.id
+                                  ),
+                              }}
+                            />
+                            {customer.opportunity_name ||
+                              "Untitled opportunity"}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-[#E3C7B7]">
+                            {customer.grantor ||
+                              "Grantor not specified"}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          {index === 0 && (
+                            <span className="hidden rounded-full bg-[#F1D889] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#4D4423] sm:inline-flex">
+                              Next
+                            </span>
+                          )}
+                          <span className="translate-x-1 text-xl text-[#E3C7B7] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
+                            →
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  }
+                )
+              ) : (
+                <div className="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/[0.04] px-6 text-center">
+                  <div>
+                    <p className="font-semibold text-white">
+                      No upcoming deadlines
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[#E3C7B7]">
+                      Try adjusting your search or filters to reveal more opportunities.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
 
         {/* ==================================================
             SEARCH + FILTER TOOLBAR
         ================================================== */}
 
-        <div className="relative px-6 pb-7 sm:px-8 lg:px-10">
+        <div className="relative mb-8 overflow-visible rounded-[26px] border border-[#6E4B61] bg-[#4A3043] px-5 py-6 shadow-[0_16px_38px_rgba(74,48,67,0.20)] sm:px-7">
 
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+          <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#C7654B]/20 blur-3xl" />
+
+          <div className="relative mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E4BCA8]">
+              Search and refine
+            </p>
+            <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <h2 className="text-xl font-bold text-white">
+                Find the right opportunity
+              </h2>
+              <p className="text-xs text-[#E5D2C8]">
+                Search first, then narrow the results with filters or sorting.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative flex flex-col gap-3 xl:flex-row xl:items-center">
 
             {/* ==================================================
                 SEARCH
@@ -2128,7 +2551,7 @@ return (
 
             <div className="relative flex-1">
 
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#78909E]">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#8A6574]">
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -2161,7 +2584,7 @@ return (
                     setSearch(searchInput.trim());
                   }
                 }}
-                className="w-full rounded-2xl border border-[#D2E0E7] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#91A2AC] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#AFC4D4]/30"
+                className="w-full rounded-2xl border border-[#D8C3B9] bg-white py-3.5 pl-11 pr-12 text-sm text-[#334B59] shadow-[0_5px_18px_rgba(63,91,108,0.07)] outline-none transition placeholder:text-[#9C7E89] focus:border-[#7E9FB5] focus:ring-4 focus:ring-[#D7A96B]/30"
               />
 
               {searchInput.length > 0 && (
@@ -2172,7 +2595,7 @@ return (
                   setSearch("");
                 }}
                 aria-label="Clear search"
-                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#91A2AC] transition hover:text-[#405967]"
+                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#9C7E89] transition hover:text-[#5D4052]"
               >
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF2F5] text-sm font-bold leading-none transition hover:bg-[#DDE8EE]">
                   ×
@@ -2193,7 +2616,7 @@ return (
                 onClick={toggleQuickFilters}
                 className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                   showQuickFilters
-                    ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
+                    ? "border-[#A66A62] bg-white text-[#4A3043] shadow-sm"
                     : "border-white/20 bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
@@ -2219,7 +2642,7 @@ return (
 
                 {activeQuickFilterCount > 0 && (
 
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B86F52] px-1.5 text-xs text-white">
                     {activeQuickFilterCount}
                   </span>
 
@@ -2232,7 +2655,7 @@ return (
                 onClick={toggleAdvancedFilters}
                 className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
                   showAdvancedFilters
-                    ? "border-[#7899AD] bg-white text-[#304B5C] shadow-sm"
+                    ? "border-[#A66A62] bg-white text-[#4A3043] shadow-sm"
                     : "border-white/20 bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
@@ -2258,7 +2681,7 @@ return (
 
                 {activeAdvancedFilterCount > 0 && (
 
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#6F91A8] px-1.5 text-xs text-white">
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B86F52] px-1.5 text-xs text-white">
                     {activeAdvancedFilterCount}
                   </span>
 
@@ -2317,17 +2740,17 @@ return (
 
               {showSortOptions && (
 
-                <div className="absolute right-0 top-full z-[9999] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#D5E1E7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
+                <div className="absolute right-0 top-full z-[9999] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#DDCEC7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
 
                   <div className="mb-4 flex items-center justify-between">
 
                     <div>
 
-                      <h3 className="text-sm font-semibold text-[#304653]">
+                      <h3 className="text-sm font-semibold text-[#4A3043]">
                         Sort by
                       </h3>
 
-                      <p className="mt-1 text-xs text-[#81929C]">
+                      <p className="mt-1 text-xs text-[#8E747E]">
                         Drag and drop to change sort priority.
                       </p>
 
@@ -2336,7 +2759,7 @@ return (
                     <button
                       type="button"
                       onClick={resetSortRules}
-                      className="text-xs font-semibold text-[#5F829B] underline underline-offset-2 hover:text-[#456A82]"
+                      className="text-xs font-semibold text-[#9A5A78] underline underline-offset-2 hover:text-[#456A82]"
                     >
                       Reset
                     </button>
@@ -2378,11 +2801,11 @@ return (
                           className={`rounded-xl border p-3 transition-all ${
                             draggedSortId ===
                             rule.id
-                              ? "border-[#6F91A8] bg-[#E7F0F5] opacity-50"
+                              ? "border-[#B86F52] bg-[#E7F0F5] opacity-50"
                               : dragOverSortId ===
                                 rule.id
-                              ? "border-[#6F91A8] bg-[#F2F7FA] shadow-md"
-                              : "border-[#E0E8ED] bg-[#F8FAFB]"
+                              ? "border-[#B86F52] bg-[#F2F7FA] shadow-md"
+                              : "border-[#E0E8ED] bg-[#F7F1EC]"
                           }`}
                         >
 
@@ -2391,7 +2814,7 @@ return (
                             <div className="flex items-center gap-2">
 
                               <span
-                                className="cursor-grab text-[#9AAAB4] active:cursor-grabbing"
+                                className="cursor-grab text-[#9B7D86] active:cursor-grabbing"
                                 title="Drag to reorder"
                               >
 
@@ -2414,7 +2837,7 @@ return (
 
                               </span>
 
-                              <span className="text-xs font-semibold uppercase tracking-wide text-[#81929C]">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-[#8E747E]">
                                 Sort level{" "}
                                 {index + 1}
                               </span>
@@ -2430,7 +2853,7 @@ return (
                                     rule.id
                                   )
                                 }
-                                className="text-xs font-semibold text-[#81929C] hover:text-red-600"
+                                className="text-xs font-semibold text-[#8E747E] hover:text-red-600"
                               >
                                 Remove
                               </button>
@@ -2453,7 +2876,7 @@ return (
                                   }
                                 )
                               }
-                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                              className="rounded-lg border border-[#E3D5CF] bg-white px-3 py-2 text-sm text-[#6B4B5E] outline-none focus:border-[#B86F52]"
                             >
 
                               {(
@@ -2513,7 +2936,7 @@ return (
                                   }
                                 )
                               }
-                              className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                              className="rounded-lg border border-[#E3D5CF] bg-white px-3 py-2 text-sm text-[#6B4B5E] outline-none focus:border-[#B86F52]"
                             >
 
                               <option value="asc">
@@ -2546,7 +2969,7 @@ return (
                     <button
                       type="button"
                       onClick={addSortRule}
-                      className="mt-4 w-full rounded-xl border border-dashed border-[#B8CBD7] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#5F829B] transition hover:bg-[#E7F0F5]"
+                      className="mt-4 w-full rounded-xl border border-dashed border-[#D6B7A5] bg-[#F2F7FA] px-4 py-2.5 text-sm font-semibold text-[#9A5A78] transition hover:bg-[#E7F0F5]"
                     >
                       + Add Sort Level
                     </button>
@@ -2567,17 +2990,17 @@ return (
 
           {showQuickFilters && (
 
-            <div className="mt-5 rounded-2xl border border-[#D5E1E7] bg-[#F8FAFB] p-6 shadow-sm">
+            <div className="mt-5 rounded-2xl border border-[#DDCEC7] bg-[#F7F1EC] p-6 shadow-sm">
 
               <div className="mb-5 flex items-center justify-between">
 
                 <div>
 
-                  <h3 className="text-base font-semibold text-[#304653]">
+                  <h3 className="text-base font-semibold text-[#4A3043]">
                     Quick Filters
                   </h3>
 
-                  <p className="mt-1 text-sm text-[#71848F]">
+                  <p className="mt-1 text-sm text-[#79636D]">
                     Quickly narrow opportunities using common filters.
                   </p>
 
@@ -2586,7 +3009,7 @@ return (
                 <button
                   type="button"
                   onClick={clearQuickFilters}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#E9DED7] hover:text-[#4A3043]"
                 >
                   Clear Filters
                 </button>
@@ -2599,18 +3022,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#79636D]">
                     Grantor
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E5D9D4] bg-white p-3">
 
                     {availableGrantors.map(
                       (grantor) => (
 
                         <label
                           key={grantor}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#6B4B5E] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -2628,7 +3051,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B86F52]"
                           />
 
                           <span>
@@ -2648,18 +3071,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#79636D]">
                     Maximum Grant
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E5D9D4] bg-white p-3">
 
                     {availableMaximumGrants.map(
                       (amount) => (
 
                         <label
                           key={amount}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#6B4B5E] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -2677,7 +3100,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B86F52]"
                           />
 
                           <span>
@@ -2697,7 +3120,7 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#79636D]">
                     Deadline
                   </label>
 
@@ -2711,7 +3134,7 @@ return (
                           )
                       )
                     }
-                    className="mt-3 w-full rounded-xl border border-[#E0E7EB] bg-white px-4 py-3 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8] focus:ring-4 focus:ring-[#AFC4D4]/30"
+                    className="mt-3 w-full rounded-xl border border-[#E5D9D4] bg-white px-4 py-3 text-sm text-[#6B4B5E] outline-none focus:border-[#B86F52] focus:ring-4 focus:ring-[#D7A96B]/30"
                   >
 
                     <option value="all">
@@ -2742,18 +3165,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#79636D]">
                     Anticipated Deadline
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E5D9D4] bg-white p-3">
 
                     {availableMonths.map(
                       (month) => (
 
                         <label
                           key={month}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#6B4B5E] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -2771,7 +3194,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B86F52]"
                           />
 
                           <span>
@@ -2791,18 +3214,18 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#71848F]">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#79636D]">
                     Categories
                   </label>
 
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E0E7EB] bg-white p-3">
+                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E5D9D4] bg-white p-3">
 
                     {availableCategories.map(
                       (category) => (
 
                         <label
                           key={category}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#6B4B5E] hover:bg-[#F6EFEA]"
                         >
 
                           <input
@@ -2820,7 +3243,7 @@ return (
                                   )
                               )
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#B86F52]"
                           />
 
                           <span>
@@ -2848,17 +3271,17 @@ return (
 
           {showAdvancedFilters && (
 
-            <div className="relative z-[90] mt-5 rounded-2xl border border-[#D5E1E7]  p-6 shadow-sm">
+            <div className="relative z-[90] mt-5 rounded-2xl border border-[#DDCEC7]  p-6 shadow-sm">
 
               <div className="flex items-center justify-between gap-4">
 
                 <div>
 
-                  <h3 className="text-base font-semibold text-[#304653]">
+                  <h3 className="text-base font-semibold text-[#4A3043]">
                     Advanced Filters
                   </h3>
 
-                  <p className="mt-1 text-sm text-[#71848F]">
+                  <p className="mt-1 text-sm text-[#79636D]">
                     Build a custom filter using multiple AND rules.
                   </p>
 
@@ -2867,7 +3290,7 @@ return (
                 <button
                   type="button"
                   onClick={addAdvancedFilter}
-                  className="rounded-xl bg-[#6F91A8] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5F829B]"
+                  className="rounded-xl bg-[#B86F52] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#9A5A78]"
                 >
                   + Add Filter
                 </button>
@@ -2878,7 +3301,7 @@ return (
 
                 <div className="mt-5 rounded-xl border border-dashed border-[#CBD9E1] bg-[#FAFCFD] p-6 text-center">
 
-                  <p className="text-sm text-[#71848F]">
+                  <p className="text-sm text-[#79636D]">
                     No advanced filters added yet.
                   </p>
 
@@ -2910,10 +3333,10 @@ return (
 
                         <div
                           key={filter.id}
-                          className="relative flex flex-col gap-3 rounded-xl border border-[#E0E7EB] bg-white p-4 lg:flex-row lg:items-start"
+                          className="relative flex flex-col gap-3 rounded-xl border border-[#E5D9D4] bg-white p-4 lg:flex-row lg:items-start"
                         >
 
-                          <div className="rounded-lg border border-[#E0E7EB] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#81929C] lg:mt-0">
+                          <div className="rounded-lg border border-[#E5D9D4] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#8E747E] lg:mt-0">
                             AND
                           </div>
 
@@ -2937,7 +3360,7 @@ return (
                               );
 
                             }}
-                            className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                            className="rounded-lg border border-[#E3D5CF] bg-white px-3 py-2 text-sm text-[#6B4B5E] outline-none focus:border-[#B86F52]"
                           >
 
                             <option value="grantor">
@@ -2982,7 +3405,7 @@ return (
                                 }
                               )
                             }
-                            className="rounded-lg border border-[#DDE6EB] bg-white px-3 py-2 text-sm text-[#536C7B] outline-none focus:border-[#6F91A8]"
+                            className="rounded-lg border border-[#E3D5CF] bg-white px-3 py-2 text-sm text-[#6B4B5E] outline-none focus:border-[#B86F52]"
                           >
 
                             <option value="is">
@@ -3007,8 +3430,8 @@ return (
                             <div
                               className={`min-h-[42px] rounded-lg border bg-white p-1.5 transition ${
                                 dropdownIsOpen
-                                  ? "border-[#6F91A8] ring-2 ring-[#AFC4D4]/40"
-                                  : "border-[#DDE6EB]"
+                                  ? "border-[#B86F52] ring-2 ring-[#D7A96B]/40"
+                                  : "border-[#E3D5CF]"
                               }`}
                             >
 
@@ -3025,7 +3448,7 @@ return (
                                           : filter.id
                                       )
                                     }
-                                    className="flex-1 px-2 py-1.5 text-left text-sm text-[#9AAAB4]"
+                                    className="flex-1 px-2 py-1.5 text-left text-sm text-[#9B7D86]"
                                   >
                                     Select{" "}
                                     {getFieldLabel(
@@ -3049,7 +3472,7 @@ return (
                                           value
                                         )
                                       }
-                                      className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#B8CBD7] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#536C7B] transition hover:bg-[#DCEAF1]"
+                                      className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#D6B7A5] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#6B4B5E] transition hover:bg-[#DCEAF1]"
                                     >
 
                                       <span className="max-w-[180px] truncate">
@@ -3063,7 +3486,7 @@ return (
 
                                       </span>
 
-                                      <span className="font-bold text-[#81929C]">
+                                      <span className="font-bold text-[#8E747E]">
                                         ×
                                       </span>
 
@@ -3082,7 +3505,7 @@ return (
                                     )
                                   }
                                   aria-label="Add filter value"
-                                  className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#F1F5F7] hover:text-[#536C7B]"
+                                  className="ml-auto flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[#94A3AB] transition hover:bg-[#E9DED7] hover:text-[#6B4B5E]"
                                 >
 
                                   <svg
@@ -3114,7 +3537,7 @@ return (
 
                             {dropdownIsOpen && (
 
-                              <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#D5E1E7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
+                              <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#DDCEC7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
 
                                 {options.length === 0 ? (
 
@@ -3131,7 +3554,7 @@ return (
 
                                       <label
                                         key={option}
-                                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#536C7B] hover:bg-[#F5F8FA]"
+                                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#6B4B5E] hover:bg-[#F6EFEA]"
                                       >
 
                                         <input
@@ -3166,7 +3589,7 @@ return (
                                             );
 
                                           }}
-                                          className="h-4 w-4 rounded border-slate-300 accent-[#6F91A8]"
+                                          className="h-4 w-4 rounded border-slate-300 accent-[#B86F52]"
                                         />
 
                                         <span>
@@ -3200,7 +3623,7 @@ return (
                                 filter.id
                               )
                             }
-                            className="rounded-lg px-3 py-2 text-sm font-semibold text-[#81929C] transition hover:bg-red-50 hover:text-red-700"
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-[#8E747E] transition hover:bg-red-50 hover:text-red-700"
                           >
                             Remove
                           </button>
@@ -3221,7 +3644,7 @@ return (
                 <button
                   type="button"
                   onClick={clearAdvancedFilters}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#F1F5F7] hover:text-[#304653]"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-[#647781] transition hover:bg-[#E9DED7] hover:text-[#4A3043]"
                 >
                   Clear Advanced Filters
                 </button>
@@ -3340,9 +3763,9 @@ return (
           {(search.trim() ||
             totalActiveFilterCount > 0) && (
 
-            <div className="mt-4 flex items-center gap-2 text-sm text-[#E0EBEF]">
+            <div className="mt-4 flex items-center gap-2 text-sm text-[#EADCD4]">
 
-              <span className="inline-block h-2 w-2 rounded-full bg-[#D7E4EA]" />
+              <span className="inline-block h-2 w-2 rounded-full bg-[#F3D9C7]" />
 
               Showing{" "}
 
@@ -3358,295 +3781,16 @@ return (
 
         </div>
 
-      </div>
-
-      {/* ==================================================
-          MATCHING BACKGROUND SPACE
-          Keeps the transition between header and table
-          the same color as the page background.
-      ================================================== */}
-
-      <div className="h-6 bg-[#EEF2F4] sm:h-8" />
-
-      {/* ==================================================
-          FUNDING TIMELINE
-      ================================================== */}
-
-      <section className="mb-7">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#78909E]">
-              Planning workspace
-            </p>
-            <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#263B49]">
-              Your Funding Timeline
-            </h2>
-          </div>
-
-          <p className="max-w-md text-sm leading-6 text-[#71848F]">
-            Explore upcoming deadlines and open an opportunity directly from the calendar.
-          </p>
-        </div>
-
-        <div className="grid gap-4 xl:grid-cols-[minmax(340px,0.85fr)_minmax(520px,1.35fr)]">
-          {/* Calendar */}
-          <div className="group relative overflow-hidden rounded-[26px] border border-[#D5E0E7] bg-white p-5 shadow-[0_14px_36px_rgba(63,91,108,0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(63,91,108,0.12)] sm:p-6">
-            <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#D8E6EB]/70 blur-3xl transition duration-500 group-hover:scale-110" />
-
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#78909E]">
-                  Deadline calendar
-                </p>
-                <h3 className="mt-1 text-lg font-bold text-[#263B49]">
-                  {calendarMonth.toLocaleDateString(
-                    "en-US",
-                    {
-                      month: "long",
-                      year: "numeric",
-                    }
-                  )}
-                </h3>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => moveCalendarMonth(-1)}
-                  aria-label="Previous month"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#D5E0E7] bg-[#F8FAFB] text-[#607582] transition hover:-translate-x-0.5 hover:border-[#AFC4D0] hover:bg-white hover:text-[#263B49]"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moveCalendarMonth(1)}
-                  aria-label="Next month"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#D5E0E7] bg-[#F8FAFB] text-[#607582] transition hover:translate-x-0.5 hover:border-[#AFC4D0] hover:bg-white hover:text-[#263B49]"
-                >
-                  ›
-                </button>
-              </div>
-            </div>
-
-            <div className="relative mt-5 grid grid-cols-7 gap-1 text-center">
-              {[
-                "S",
-                "M",
-                "T",
-                "W",
-                "T",
-                "F",
-                "S",
-              ].map((weekday, index) => (
-                <div
-                  key={`${weekday}-${index}`}
-                  className="pb-2 text-[10px] font-bold uppercase tracking-widest text-[#9AAAB4]"
-                >
-                  {weekday}
-                </div>
-              ))}
-
-              {calendarDays.map((day, index) => {
-                if (!day) {
-                  return (
-                    <div
-                      key={`empty-${index}`}
-                      className="aspect-square"
-                    />
-                  );
-                }
-
-                const dateKey =
-                  getCalendarDateKey(day);
-                const dayOpportunities =
-                  deadlinesByDate.get(dateKey) ?? [];
-                const hasDeadline =
-                  dayOpportunities.length > 0;
-                const today = new Date();
-                const isToday =
-                  today.getFullYear() ===
-                    calendarMonth.getFullYear() &&
-                  today.getMonth() ===
-                    calendarMonth.getMonth() &&
-                  today.getDate() === day;
-
-                return (
-                  <button
-                    key={dateKey}
-                    type="button"
-                    disabled={!hasDeadline}
-                    title={
-                      hasDeadline
-                        ? `${dayOpportunities.length} ${
-                            dayOpportunities.length === 1
-                              ? "opportunity"
-                              : "opportunities"
-                          }`
-                        : undefined
-                    }
-                    onClick={() =>
-                      setSelectedCustomerId(
-                        String(
-                          dayOpportunities[0].id
-                        )
-                      )
-                    }
-                    className={`group/day relative flex aspect-square min-h-10 flex-col items-center justify-center rounded-xl text-sm font-semibold transition duration-200 ${
-                      hasDeadline
-                        ? "cursor-pointer bg-[#E8F0F3] text-[#304B5C] hover:-translate-y-0.5 hover:bg-[#CADCE4] hover:shadow-md"
-                        : isToday
-                          ? "border border-[#AFC4D0] bg-white text-[#405967]"
-                          : "cursor-default text-[#71848F]"
-                    }`}
-                  >
-                    {day}
-                    {hasDeadline && (
-                      <span className="absolute bottom-1.5 flex gap-0.5">
-                        {Array.from({
-                          length: Math.min(
-                            dayOpportunities.length,
-                            3
-                          ),
-                        }).map((_, dotIndex) => (
-                          <span
-                            key={dotIndex}
-                            className="h-1 w-1 rounded-full bg-[#6F91A8] transition group-hover/day:bg-[#263B49]"
-                          />
-                        ))}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="relative mt-5 flex items-center justify-between border-t border-[#E3E9ED] pt-4 text-xs text-[#71848F]">
-              <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#6F91A8]" />
-                Deadline date
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  const today = new Date();
-                  setCalendarMonth(
-                    new Date(
-                      today.getFullYear(),
-                      today.getMonth(),
-                      1
-                    )
-                  );
-                }}
-                className="font-semibold text-[#496777] transition hover:text-[#263B49]"
-              >
-                Return to today
-              </button>
-            </div>
-          </div>
-
-          {/* Upcoming deadlines */}
-          <div className="relative overflow-hidden rounded-[26px] bg-[#263B49] p-5 text-white shadow-[0_16px_40px_rgba(38,59,73,0.16)] sm:p-6">
-            <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full border-[42px] border-[#AFC4D0]/10" />
-            <div className="pointer-events-none absolute -bottom-32 right-20 h-64 w-64 rounded-full border border-white/10" />
-
-            <div className="relative flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#BFD0D8]">
-                  What&apos;s next
-                </p>
-                <h3 className="mt-1 text-xl font-bold">
-                  Upcoming Deadlines
-                </h3>
-              </div>
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#DCE8ED]">
-                {upcomingDeadlines.length} shown
-              </span>
-            </div>
-
-            <div className="relative mt-5 space-y-2">
-              {upcomingDeadlines.length > 0 ? (
-                upcomingDeadlines.map(
-                  (customer, index) => {
-                    const deadline = new Date(
-                      `${customer.deadline}T00:00:00`
-                    );
-
-                    return (
-                      <button
-                        key={customer.id}
-                        type="button"
-                        onClick={() =>
-                          setSelectedCustomerId(
-                            String(customer.id)
-                          )
-                        }
-                        className="group/deadline flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3.5 text-left transition duration-200 hover:translate-x-1 hover:border-white/20 hover:bg-white/[0.13]"
-                      >
-                        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#DCE8ED] text-[#263B49] shadow-sm">
-                          <span className="text-[9px] font-bold uppercase tracking-wider">
-                            {deadline.toLocaleDateString(
-                              "en-US",
-                              { month: "short" }
-                            )}
-                          </span>
-                          <span className="text-lg font-bold leading-none">
-                            {deadline.getDate()}
-                          </span>
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-semibold text-white">
-                            {customer.opportunity_name ||
-                              "Untitled opportunity"}
-                          </p>
-                          <p className="mt-1 truncate text-xs text-[#BFD0D8]">
-                            {customer.grantor ||
-                              "Grantor not specified"}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {index === 0 && (
-                            <span className="hidden rounded-full bg-[#F1D889] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#4D4423] sm:inline-flex">
-                              Next
-                            </span>
-                          )}
-                          <span className="translate-x-1 text-xl text-[#BFD0D8] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
-                            →
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  }
-                )
-              ) : (
-                <div className="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/[0.04] px-6 text-center">
-                  <div>
-                    <p className="font-semibold text-white">
-                      No upcoming deadlines
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-[#BFD0D8]">
-                      Try adjusting your search or filters to reveal more opportunities.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#78909E]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8A6574]">
             Opportunity directory
           </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#263B49]">
+          <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#4A3043]">
             All Opportunities
           </h2>
         </div>
-        <p className="text-sm font-semibold text-[#607582]">
+        <p className="text-sm font-semibold text-[#705B66]">
           {filteredCustomers.length} results
         </p>
       </div>
@@ -3655,13 +3799,13 @@ return (
           OPPORTUNITIES TABLE
       ================================================== */}
 
-      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#D5E0E7] bg-[#F8FAFB] shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
+      <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#CBB9B2] bg-[#F7F1EC] shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
 
         <div className="overflow-x-auto">
 
           <table className="w-full">
 
-            <thead className="bg-[#AFC4D0] text-[#263B49]">
+            <thead className="bg-[#D5A45D] text-[#4A3043]">
 
               <tr>
 
@@ -3693,7 +3837,7 @@ return (
 
             </thead>
 
-            <tbody className="divide-y divide-[#E3E9ED]">
+            <tbody className="divide-y divide-[#D9CBC4]">
 
               {filteredCustomers.map(
                 (
@@ -3735,10 +3879,10 @@ return (
 
                       className={`group cursor-pointer transition-all duration-200 ${
                         isSelected
-                          ? "bg-[#F1D889] shadow-[inset_6px_0_0_#6F91A8]"
+                          ? "bg-[#F1D889] shadow-[inset_6px_0_0_#B86F52]"
                           : index % 2 === 0
-                            ? "bg-[#F8FAFB] hover:bg-[#EAF0F3]"
-                            : "bg-[#F1F5F7] hover:bg-[#EAF0F3]"
+                            ? "bg-[#F7F1EC] hover:bg-[#E6D6CE]"
+                            : "bg-[#E9DED7] hover:bg-[#E6D6CE]"
                       }`}
                     >
 
@@ -3746,7 +3890,7 @@ return (
 
                       <td className="p-5 align-top text-left">
 
-                        <span className="font-semibold text-[#405967]">
+                        <span className="font-semibold text-[#5D4052]">
                           {customer.grantor ||
                             "-"}
                         </span>
@@ -3757,7 +3901,7 @@ return (
 
                       <td className="p-5 align-top text-left">
 
-                        <div className="font-semibold text-[#263B49]">
+                        <div className="font-semibold text-[#4A3043]">
                           {customer.opportunity_name ||
                             "-"}
                         </div>
@@ -3768,7 +3912,7 @@ return (
 
                       <td className="p-5 align-top text-center">
 
-                        <span className="inline-flex rounded-lg border border-[#D5E0E7] bg-[#F1F4F6] px-3 py-2 text-sm font-semibold text-[#405967]">
+                        <span className="inline-flex rounded-lg border border-[#CBB9B2] bg-[#F1F4F6] px-3 py-2 text-sm font-semibold text-[#5D4052]">
                           {customer.maximum_grant ||
                             "Not specified"}
                         </span>
@@ -3785,7 +3929,7 @@ return (
 
                             <>
 
-                              <span className="font-semibold text-[#405967]">
+                              <span className="font-semibold text-[#5D4052]">
 
                                 {new Date(
                                   `${customer.deadline}T00:00:00`
@@ -3845,7 +3989,7 @@ return (
 
                         ) : (
 
-                          <span className="text-[#A0ADB5]">
+                          <span className="text-[#9B858C]">
                             —
                           </span>
 
@@ -3890,7 +4034,7 @@ return (
 
                           ) : (
 
-                            <span className="text-[#A0ADB5]">
+                            <span className="text-[#9B858C]">
                               —
                             </span>
 
@@ -3920,9 +4064,9 @@ return (
         {filteredCustomers.length ===
           0 && (
 
-          <div className="bg-[#F1F5F7] px-6 py-20 text-center">
+          <div className="bg-[#E9DED7] px-6 py-20 text-center">
 
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#D5E0E7] bg-[#F8FAFB] text-[#9AAAB4] shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#CBB9B2] bg-[#F7F1EC] text-[#9B7D86] shadow-sm">
 
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -3943,11 +4087,11 @@ return (
 
             </div>
 
-            <h3 className="mt-5 text-lg font-semibold text-[#304653]">
+            <h3 className="mt-5 text-lg font-semibold text-[#4A3043]">
               No opportunities found
             </h3>
 
-            <p className="mt-2 text-sm text-[#71848F]">
+            <p className="mt-2 text-sm text-[#79636D]">
               Try adjusting your search or
               filters to find matching funding
               opportunities.
@@ -3965,13 +4109,13 @@ return (
 
       <div className="mt-4 flex justify-start">
 
-        <div className="inline-flex items-center gap-3 rounded-xl border border-[#C8D8E1] bg-[#E6EFF3] px-5 py-3 shadow-sm">
+        <div className="inline-flex items-center gap-3 rounded-xl border border-[#C9B3AA] bg-[#E8D7C8] px-5 py-3 shadow-sm">
 
-          <span className="h-2.5 w-2.5 rounded-full bg-[#6F91A8]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#B86F52]" />
 
-          <span className="text-sm font-semibold text-[#405967]">
+          <span className="text-sm font-semibold text-[#5D4052]">
 
-            <span className="font-bold text-[#263B49]">
+            <span className="font-bold text-[#4A3043]">
               {activeCount}
             </span>{" "}
 
