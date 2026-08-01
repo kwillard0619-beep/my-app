@@ -285,17 +285,6 @@ export default function CustomerDrawer({
   // Render
   // --------------------------------------------------
 
-  const grantorInitials = (
-    customer.grantor || "LG"
-  )
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) =>
-      word.charAt(0).toUpperCase()
-    )
-    .join("");
-
   const recordPosition =
     currentIndex >= 0
       ? currentIndex + 1
@@ -326,11 +315,7 @@ export default function CustomerDrawer({
           <div className="pointer-events-none absolute -bottom-24 right-28 h-52 w-52 rounded-full bg-[#B7655E]/10 blur-3xl" />
 
           <div className="relative flex items-start justify-between gap-5">
-            <div className="flex min-w-0 items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-sm font-bold tracking-[0.12em] text-white shadow-lg">
-                {grantorInitials}
-              </div>
-
+            <div className="min-w-0 pr-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
                   {customer.grantor ||
@@ -370,30 +355,6 @@ export default function CustomerDrawer({
             </button>
           </div>
 
-          <div className="relative mt-6 flex flex-wrap items-center gap-2">
-            {Array.isArray(
-              customer.rfp_categories
-            ) &&
-            customer.rfp_categories.length >
-              0 ? (
-              customer.rfp_categories.map(
-                (category) => (
-                  <span
-                    key={category}
-                    className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getCategoryStyle(
-                      category
-                    )}`}
-                  >
-                    {category}
-                  </span>
-                )
-              )
-            ) : (
-              <span className="text-xs text-white/60">
-                No categories listed
-              </span>
-            )}
-          </div>
         </header>
 
         {/* Scrollable details */}
@@ -401,7 +362,7 @@ export default function CustomerDrawer({
           <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
             {/* Opportunity snapshot */}
             <section aria-labelledby="snapshot-heading">
-              <div className="mb-3 flex items-end justify-between gap-4">
+              <div className="mb-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
                     At a glance
@@ -413,18 +374,6 @@ export default function CustomerDrawer({
                     Opportunity Snapshot
                   </h3>
                 </div>
-
-                {customer.website_link && (
-                  <a
-                    href={customer.website_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#2F3038] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-black hover:shadow-md"
-                  >
-                    Visit Website
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                )}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -445,19 +394,6 @@ export default function CustomerDrawer({
                   <p className="mt-2 text-lg font-bold text-[#2F3038]">
                     {formattedDeadline || "Not set"}
                   </p>
-                  <p className={`mt-1 text-xs ${deadlineCountdown.className}`}>
-                    {deadlineCountdown.text}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-[#C8CBCC] bg-[#E9E9E7] p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#778189]">
-                    Anticipated Deadline
-                  </p>
-                  <p className="mt-2 text-base font-bold text-[#3E454B]">
-                    {customer.anticipated_deadline ||
-                      "Not specified"}
-                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-[#C8CBCC] bg-[#E9E9E7] p-5">
@@ -465,14 +401,29 @@ export default function CustomerDrawer({
                     Website
                   </p>
                   {customer.website_link ? (
-                    <p className="mt-2 truncate text-sm font-semibold text-[#444B51]">
-                      Available
-                    </p>
+                    <a
+                      href={customer.website_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-2 rounded-xl bg-[#2F3038] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-black hover:shadow-md"
+                    >
+                      Visit Website
+                      <span aria-hidden="true">↗</span>
+                    </a>
                   ) : (
                     <p className="mt-2 text-sm text-[#7D858B]">
                       Not provided
                     </p>
                   )}
+                </div>
+
+                <div className="rounded-2xl border border-[#C8CBCC] bg-[#E9E9E7] p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#778189]">
+                    Deadline Countdown
+                  </p>
+                  <p className={`mt-2 text-sm ${deadlineCountdown.className}`}>
+                    {deadlineCountdown.text}
+                  </p>
                 </div>
               </div>
             </section>
@@ -489,6 +440,76 @@ export default function CustomerDrawer({
                 {customer.abstract ||
                   "No abstract provided."}
               </div>
+            </section>
+
+            {/* Categories */}
+            <section className="rounded-[22px] border border-[#C8CBCC] bg-[#E9E9E7] p-6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
+                Classification
+              </p>
+              <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                Categories
+              </h3>
+
+              <div className="mt-4 flex flex-wrap gap-2.5">
+                {Array.isArray(
+                  customer.rfp_categories
+                ) &&
+                customer.rfp_categories.length >
+                  0 ? (
+                  customer.rfp_categories.map(
+                    (category) => (
+                      <span
+                        key={category}
+                        className={`inline-flex rounded-full border px-4 py-2 text-sm font-semibold shadow-sm ${getCategoryStyle(
+                          category
+                        )}`}
+                      >
+                        {category}
+                      </span>
+                    )
+                  )
+                ) : (
+                  <span className="text-sm text-[#7D858B]">
+                    No categories listed.
+                  </span>
+                )}
+              </div>
+            </section>
+
+            {/* Contact placeholder */}
+            <section className="rounded-[22px] border border-[#C8CBCC] bg-white p-6 shadow-[0_10px_28px_rgba(47,48,56,0.06)]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
+                Point of Contact
+              </p>
+              <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                Contact
+              </h3>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {[
+                  "First Name",
+                  "Last Name",
+                  "Email",
+                  "Organization",
+                ].map((label) => (
+                  <div
+                    key={label}
+                    className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4"
+                  >
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+                      {label}
+                    </p>
+                    <p className="mt-2 text-sm text-[#9AA0A5]">
+                      —
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-3 text-xs text-[#778189]">
+                Contact information will appear here once it is added to the opportunity record.
+              </p>
             </section>
 
             {/* Additional information */}
