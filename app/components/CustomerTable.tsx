@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 
 import CustomerDrawer from "./CustomerDrawer";
 import type { Customer } from "../types/customer";
@@ -1977,8 +1978,8 @@ return (
         </div>
 
         <nav className="relative mt-10 space-y-2" aria-label="Primary navigation">
-          <button
-            type="button"
+          <Link
+            href="/"
             className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#2F3038] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#444B51]">
@@ -1986,36 +1987,36 @@ return (
             </span>
             Active Opportunities
             <span className="ml-auto h-2 w-2 rounded-full bg-[#B7655E]" />
-          </button>
+          </Link>
 
           {[
-            ["Archived Opportunities", "◫"],
-            ["Prospect Library", "▤"],
-            ["Favorites", "☆"],
-          ].map(([label, icon]) => (
-            <button
+            ["Archived Opportunities", "◫", "/archived"],
+            ["Prospect Library", "▤", "/prospect-library"],
+            ["Favorites", "☆", "/favorites"],
+          ].map(([label, icon, href]) => (
+            <Link
               key={label}
-              type="button"
+              href={href}
               className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#2F3038]"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#CAB8B0] bg-[#EFE3DD] text-[#7B8791] transition group-hover:border-[#C99A85] group-hover:bg-white">
                 {icon}
               </span>
               {label}
-            </button>
+            </Link>
           ))}
         </nav>
 
         <div className="relative mt-auto border-t border-[#C8B3AA] pt-5">
-          <button
-            type="button"
+          <Link
+            href="/help"
             className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition hover:bg-white/70 hover:text-[#2F3038]"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C8CBCC] text-sm font-bold">
               ?
             </span>
             Help
-          </button>
+          </Link>
         </div>
       </aside>
 
