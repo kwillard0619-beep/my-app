@@ -238,14 +238,14 @@ export default function CustomerDrawer({
     // present in the shared color map.
 
     const colors = [
-      "bg-[#DCE8EE] text-[#3E5C6D] border-[#B8CCD7]",
-      "bg-[#E4DDEB] text-[#665575] border-[#CFC1D9]",
-      "bg-[#DCE9E2] text-[#4D6B59] border-[#BCD2C4]",
-      "bg-[#EEE5D5] text-[#756044] border-[#DCCBAE]",
-      "bg-[#EADDDD] text-[#755656] border-[#D8C1C1]",
-      "bg-[#DCE8E9] text-[#4E6B6D] border-[#BCD1D2]",
-      "bg-[#E0E1ED] text-[#5A5F78] border-[#C5C7DA]",
-      "bg-[#E9DFD6] text-[#715E4D] border-[#D9C6B5]",
+      "border-[#D5A632] bg-[#F2C14E] text-[#171719]",
+      "border-[#D9877E] bg-[#EFA39A] text-[#171719]",
+      "border-[#8EAEDF] bg-[#AFCBFF] text-[#171719]",
+      "border-[#A797D2] bg-[#C7B8EA] text-[#171719]",
+      "border-[#7CB8A7] bg-[#9FD4C5] text-[#171719]",
+      "border-[#D994B3] bg-[#F3B6D2] text-[#171719]",
+      "border-[#C29F64] bg-[#E2C28D] text-[#171719]",
+      "border-[#8FAAB1] bg-[#AFC6CC] text-[#171719]",
     ];
 
     const categoryIndex =
@@ -304,13 +304,70 @@ export default function CustomerDrawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby="opportunity-drawer-title"
-        className="flex h-full w-full max-w-[780px] flex-col overflow-hidden border-l border-white/10 bg-[#F4F3F1] shadow-[-24px_0_70px_rgba(18,19,22,0.30)]"
+        className="relative flex h-full w-full max-w-[780px] flex-col overflow-hidden border-l border-white/10 bg-[#F4F3F1] shadow-[-24px_0_70px_rgba(18,19,22,0.30)]"
         onClick={(event) =>
           event.stopPropagation()
         }
       >
+        {/* Left-side record navigation */}
+        <nav
+          aria-label="Opportunity navigation"
+          className="absolute inset-y-0 left-0 z-30 flex w-16 flex-col items-center border-r border-[#C8CBCC] bg-white/95 py-4 shadow-[8px_0_24px_rgba(47,48,56,0.06)] backdrop-blur"
+        >
+          <div className="flex-1" />
+
+          <button
+            type="button"
+            onClick={handlePrevious}
+            disabled={!hasPrevious}
+            aria-label="Previous opportunity"
+            title="Previous opportunity"
+            className={`flex h-11 w-11 items-center justify-center rounded-xl border transition ${
+              hasPrevious
+                ? "border-[#C8CBCC] bg-[#F4F3F1] text-[#3E454B] hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                : "cursor-not-allowed border-[#DEE0E1] bg-[#F4F3F1] text-[#A0A5A9] opacity-45"
+            }`}
+          >
+            <span className="text-xl" aria-hidden="true">
+              ↑
+            </span>
+          </button>
+
+          <div className="my-4 text-center">
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#778189]">
+              Record
+            </p>
+            <p className="mt-1 text-xs font-bold text-[#2F3038]">
+              {recordPosition}
+            </p>
+            <div className="mx-auto my-1 h-px w-5 bg-[#C8CBCC]" />
+            <p className="text-[10px] font-semibold text-[#778189]">
+              {recordTotal}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={!hasNext}
+            aria-label="Next opportunity"
+            title="Next opportunity"
+            className={`flex h-11 w-11 items-center justify-center rounded-xl border transition ${
+              hasNext
+                ? "border-[#2F3038] bg-[#2F3038] text-white hover:translate-y-0.5 hover:bg-black hover:shadow-md"
+                : "cursor-not-allowed border-[#DEE0E1] bg-[#E2E3E3] text-[#A0A5A9] opacity-45"
+            }`}
+          >
+            <span className="text-xl" aria-hidden="true">
+              ↓
+            </span>
+          </button>
+
+          <div className="flex-1" />
+        </nav>
+
         {/* Header */}
-        <header className="relative shrink-0 overflow-hidden bg-[#2F3038] px-6 pb-7 pt-6 text-white sm:px-8 sm:pb-8 sm:pt-7">
+        <header className="relative ml-16 shrink-0 overflow-hidden bg-[#2F3038] px-6 pb-7 pt-6 text-white sm:px-8 sm:pb-8 sm:pt-7">
           <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full border-[38px] border-[#C2A05A]/10" />
           <div className="pointer-events-none absolute -bottom-24 right-28 h-52 w-52 rounded-full bg-[#B7655E]/10 blur-3xl" />
 
@@ -358,7 +415,7 @@ export default function CustomerDrawer({
         </header>
 
         {/* Scrollable details */}
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="ml-16 min-h-0 flex-1 overflow-y-auto">
           <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
             {/* Opportunity snapshot */}
             <section aria-labelledby="snapshot-heading">
@@ -554,8 +611,10 @@ export default function CustomerDrawer({
                   </span>
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${
                     limitedOpportunity === "Yes"
-                      ? "bg-[#EADCD4] text-[#8D4F45]"
-                      : "bg-[#DEE0E1] text-[#565E64]"
+                      ? "border border-[#65A87C] bg-[#83C99B] text-[#111214]"
+                      : limitedOpportunity === "No"
+                        ? "border border-[#9EA4A8] bg-[#BCC1C4] text-[#111214]"
+                        : "border border-[#C6C9CB] bg-[#D9DBDC] text-[#303236]"
                   }`}>
                     {limitedOpportunity ||
                       "Not specified"}
@@ -568,8 +627,10 @@ export default function CustomerDrawer({
                   </span>
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${
                     fellowshipOpportunity === "Yes"
-                      ? "bg-[#EADCD4] text-[#8D4F45]"
-                      : "bg-[#DEE0E1] text-[#565E64]"
+                      ? "border border-[#65A87C] bg-[#83C99B] text-[#111214]"
+                      : fellowshipOpportunity === "No"
+                        ? "border border-[#9EA4A8] bg-[#BCC1C4] text-[#111214]"
+                        : "border border-[#C6C9CB] bg-[#D9DBDC] text-[#303236]"
                   }`}>
                     {fellowshipOpportunity ||
                       "Not specified"}
@@ -593,47 +654,6 @@ export default function CustomerDrawer({
           </div>
         </div>
 
-        {/* Persistent record navigation */}
-        <footer className="shrink-0 border-t border-[#C8CBCC] bg-white/95 px-5 py-4 shadow-[0_-10px_30px_rgba(47,48,56,0.08)] backdrop-blur sm:px-8">
-          <div className="flex items-center justify-between gap-4">
-            <button
-              type="button"
-              onClick={handlePrevious}
-              disabled={!hasPrevious}
-              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-                hasPrevious
-                  ? "border-[#C8CBCC] bg-[#F4F3F1] text-[#3E454B] hover:-translate-x-0.5 hover:bg-white hover:shadow-sm"
-                  : "cursor-not-allowed border-[#DEE0E1] bg-[#F4F3F1] text-[#A0A5A9] opacity-60"
-              }`}
-            >
-              <span aria-hidden="true">←</span>
-              Previous
-            </button>
-
-            <div className="text-center">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#778189]">
-                Opportunity
-              </p>
-              <p className="mt-0.5 text-sm font-bold text-[#2F3038]">
-                {recordPosition} of {recordTotal}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleNext}
-              disabled={!hasNext}
-              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-                hasNext
-                  ? "border-[#C8CBCC] bg-[#2F3038] text-white hover:translate-x-0.5 hover:bg-black hover:shadow-md"
-                  : "cursor-not-allowed border-[#DEE0E1] bg-[#E2E3E3] text-[#A0A5A9] opacity-60"
-              }`}
-            >
-              Next
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        </footer>
       </aside>
     </div>
   );

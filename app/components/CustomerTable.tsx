@@ -1535,38 +1535,38 @@ export default function CustomerTable({
       string
     > = {
       january:
-        "bg-[#D9E8F0] text-[#31566B] border-[#AFC9D8]",
+        "border-[#8EAEDF] bg-[#AFCBFF] text-[#171719]",
       february:
-        "bg-[#E5DDF0] text-[#5B4772] border-[#C8B8DA]",
+        "border-[#A797D2] bg-[#C7B8EA] text-[#171719]",
       march:
-        "bg-[#DDE8D8] text-[#46613F] border-[#B8CCAF]",
+        "border-[#7CB8A7] bg-[#9FD4C5] text-[#171719]",
       april:
-        "bg-[#E9E0D3] text-[#66523D] border-[#D2C0A8]",
+        "border-[#D5A632] bg-[#F2C14E] text-[#171719]",
       may:
-        "bg-[#E8D9DF] text-[#704B5A] border-[#CEB5BF]",
+        "border-[#D994B3] bg-[#F3B6D2] text-[#171719]",
       june:
-        "bg-[#D8E5E7] text-[#3F5E63] border-[#B0C9CD]",
+        "border-[#8FAAB1] bg-[#AFC6CC] text-[#171719]",
       july:
-        "bg-[#E1DCD2] text-[#5E574B] border-[#C8BDAA]",
+        "border-[#C29F64] bg-[#E2C28D] text-[#171719]",
       august:
-        "bg-[#DCDDE5] text-[#4E5265] border-[#BCBFCE]",
+        "border-[#95A4CE] bg-[#B8C4E6] text-[#171719]",
       september:
-        "bg-[#E5DED4] text-[#62574A] border-[#CEC2B2]",
+        "border-[#A7BB70] bg-[#C8D992] text-[#171719]",
       october:
-        "bg-[#E7D9D0] text-[#694F43] border-[#CDB7A9]",
+        "border-[#D58A55] bg-[#F0A76E] text-[#171719]",
       november:
-        "bg-[#DADFE4] text-[#4B5660] border-[#B8C2CA]",
+        "border-[#9EA4A8] bg-[#BCC1C4] text-[#171719]",
       december:
-        "bg-[#E2DDE7] text-[#5D5267] border-[#C5BBCD]",
+        "border-[#BD9181] bg-[#D9B5A7] text-[#171719]",
       rolling:
-        "bg-[#E3E0D8] text-[#5D574B] border-[#C9C3B7]",
+        "border-[#73797D] bg-[#949A9E] text-[#111214]",
     };
 
     return (
       monthColors[
         normalizedMonth
       ] ||
-      "bg-[#E1E3E5] text-[#555B60] border-[#C5C8CB]"
+      "border-[#9EA4A8] bg-[#BCC1C4] text-[#171719]"
     );
   };
 
@@ -1666,6 +1666,32 @@ export default function CustomerTable({
     }
 
     callback();
+  };
+
+  const addMonthQuickFilter = (
+    month: string
+  ) => {
+    activateQuickFilter(() => {
+      setQuickMonths((current) =>
+        current.includes(month)
+          ? current
+          : [...current, month]
+      );
+      setShowQuickFilters(true);
+    });
+  };
+
+  const addCategoryQuickFilter = (
+    category: string
+  ) => {
+    activateQuickFilter(() => {
+      setQuickCategories((current) =>
+        current.includes(category)
+          ? current
+          : [...current, category]
+      );
+      setShowQuickFilters(true);
+    });
   };
 
   // --------------------------------------------------
@@ -3988,15 +4014,26 @@ return (
 
                         {customer.anticipated_deadline ? (
 
-                          <span
+                          <button
+                            type="button"
+                            aria-label={`Filter by anticipated deadline ${customer.anticipated_deadline}`}
+                            title="Add to Quick Filters"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              addMonthQuickFilter(
+                                String(
+                                  customer.anticipated_deadline
+                                )
+                              );
+                            }}
                             className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
                               customer.anticipated_deadline
-                            )}`}
+                            )} transition hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md`}
                           >
                             {
                               customer.anticipated_deadline
                             }
-                          </span>
+                          </button>
 
                         ) : (
 
@@ -4026,19 +4063,28 @@ return (
                                 category
                               ) => (
 
-                                <span
+                                <button
+                                  type="button"
+                                  aria-label={`Filter by category ${category}`}
+                                  title="Add to Quick Filters"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    addCategoryQuickFilter(
+                                      category
+                                    );
+                                  }}
                                   key={
                                     category
                                   }
                                   className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
                                     category,
                                     categoryColorMap
-                                  )}`}
+                                  )} transition hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md`}
                                 >
                                   {
                                     category
                                   }
-                                </span>
+                                </button>
 
                               )
                             )
@@ -4145,6 +4191,7 @@ return (
       <CustomerDrawer
         customer={selectedCustomer}
         availableCategories={availableCategories}
+        categoryColorMap={categoryColorMap}
         navigationCustomers={filteredCustomers}
         onNavigate={(customerId) =>
           setSelectedCustomerId(
