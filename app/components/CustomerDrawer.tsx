@@ -297,7 +297,7 @@ export default function CustomerDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex justify-end bg-[#15171A]/60 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[200] flex justify-end bg-[#15171A]/60"
       onClick={onClose}
     >
       <aside
@@ -488,14 +488,26 @@ export default function CustomerDrawer({
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {[
-                  "First Name",
-                  "Last Name",
-                  "Email",
-                  "Organization",
-                ].map((label) => (
+                  {
+                    label: "Name",
+                    fullWidth: true,
+                  },
+                  {
+                    label: "Email",
+                    fullWidth: false,
+                  },
+                  {
+                    label: "Organization",
+                    fullWidth: false,
+                  },
+                ].map(({ label, fullWidth }) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4"
+                    className={`rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 ${
+                      fullWidth
+                        ? "sm:col-span-2"
+                        : ""
+                    }`}
                   >
                     <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
                       {label}
