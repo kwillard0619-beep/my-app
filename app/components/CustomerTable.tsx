@@ -2493,7 +2493,7 @@ return (
             SEARCH + FILTER TOOLBAR
         ================================================== */}
 
-        <div className="sticky top-0 z-[100] isolate mb-8 overflow-visible rounded-[26px] border border-white/15 bg-black/85 px-5 py-5 shadow-[0_18px_42px_rgba(18,19,22,0.34)] backdrop-blur-xl sm:px-7">
+        <div className="sticky top-0 z-30 isolate mb-8 overflow-visible rounded-[26px] border border-white/15 bg-black/85 px-5 py-5 shadow-[0_18px_42px_rgba(18,19,22,0.34)] backdrop-blur-xl sm:px-7">
 
           <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#D45D3B]/20 blur-3xl" />
 
