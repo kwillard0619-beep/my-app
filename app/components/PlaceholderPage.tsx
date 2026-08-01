@@ -28,6 +28,11 @@ const navigationItems = [
     icon: "☆",
     href: "/favorites",
   },
+  {
+    label: "Subscribe to RFP Alerts",
+    icon: "✦",
+    href: "/subscribe",
+  },
 ];
 
 export default function PlaceholderPage({

@@ -1993,6 +1993,7 @@ return (
             ["Archived Opportunities", "◫", "/archived"],
             ["Prospect Library", "▤", "/prospect-library"],
             ["Favorites", "☆", "/favorites"],
+            ["Subscribe to RFP Alerts", "✦", "/subscribe"],
           ].map(([label, icon, href]) => (
             <Link
               key={label}
