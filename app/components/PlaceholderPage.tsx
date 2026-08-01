@@ -10,7 +10,7 @@ type PlaceholderPageProps = {
 const navigationItems = [
   {
     label: "Active Opportunities",
-    icon: "◆",
+    icon: "▦",
     href: "/",
   },
   {
@@ -30,7 +30,7 @@ const navigationItems = [
   },
   {
     label: "Subscribe to RFP Alerts",
-    icon: "✦",
+    icon: "✉",
     href: "/subscribe",
   },
 ];

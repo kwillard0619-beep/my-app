@@ -67,6 +67,39 @@ const DEADLINE_ACCENTS = [
   "#B28A4B",
 ];
 
+const MAXIMUM_GRANT_RANGES = [
+  {
+    label: "Under $50,000",
+    min: 0,
+    max: 50000,
+  },
+  {
+    label: "$50,000 – $99,999",
+    min: 50000,
+    max: 100000,
+  },
+  {
+    label: "$100,000 – $249,999",
+    min: 100000,
+    max: 250000,
+  },
+  {
+    label: "$250,000 – $499,999",
+    min: 250000,
+    max: 500000,
+  },
+  {
+    label: "$500,000 – $999,999",
+    min: 500000,
+    max: 1000000,
+  },
+  {
+    label: "$1,000,000+",
+    min: 1000000,
+    max: null,
+  },
+] as const;
+
 export default function CustomerTable({
   customers,
   activeCount,
@@ -328,22 +361,52 @@ export default function CustomerTable({
       : numericValue;
   };
 
-  const availableMaximumGrants = useMemo(() => {
-    return Array.from(
-      new Set(
-        customers
-          .map((customer) =>
-            String(
-              customer.maximum_grant ?? ""
-            ).trim()
-          )
-          .filter(Boolean)
-      )
-    ).sort(
-      (a, b) =>
-        parseMaximumGrant(b) -
-        parseMaximumGrant(a)
+  const matchesMaximumGrantRange = (
+    value:
+      | string
+      | number
+      | null
+      | undefined,
+    rangeLabel: string
+  ) => {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+      return false;
+    }
+
+    const amount =
+      parseMaximumGrant(value);
+    const range =
+      MAXIMUM_GRANT_RANGES.find(
+        (candidate) =>
+          candidate.label ===
+          rangeLabel
+      );
+
+    if (!range) {
+      return false;
+    }
+
+    return (
+      amount >= range.min &&
+      (range.max === null ||
+        amount < range.max)
     );
+  };
+
+  const availableMaximumGrants = useMemo(() => {
+    return MAXIMUM_GRANT_RANGES.filter(
+      (range) =>
+        customers.some((customer) =>
+          matchesMaximumGrantRange(
+            customer.maximum_grant,
+            range.label
+          )
+        )
+    ).map((range) => range.label);
   }, [customers]);
 
   const availableMonths = useMemo(() => {
@@ -662,6 +725,25 @@ export default function CustomerTable({
       filter.values.length === 0
     ) {
       return true;
+    }
+
+    if (
+      filter.field ===
+      "maximum_grant"
+    ) {
+      const hasRangeMatch =
+        filter.values.some(
+          (rangeLabel) =>
+            matchesMaximumGrantRange(
+              customer.maximum_grant,
+              rangeLabel
+            )
+        );
+
+      return filter.operator ===
+        "is_not"
+        ? !hasRangeMatch
+        : hasRangeMatch;
     }
 
     const customerValues =
@@ -1125,11 +1207,12 @@ export default function CustomerTable({
   ) {
     result = result.filter(
       (customer) =>
-        customer.maximum_grant &&
-        quickMaximumGrants.includes(
-          String(
-            customer.maximum_grant
-          )
+        quickMaximumGrants.some(
+          (rangeLabel) =>
+            matchesMaximumGrantRange(
+              customer.maximum_grant,
+              rangeLabel
+            )
         )
     );
   }
@@ -1238,6 +1321,163 @@ export default function CustomerTable({
   quickCategories,
   advancedFilters,
 ]);
+
+  // --------------------------------------------------
+  // Conditional Quick Filter Options
+  // Each facet is calculated from the selections made
+  // in every other Quick Filter section.
+  // --------------------------------------------------
+
+  type QuickFilterFacet =
+    | "grantor"
+    | "maximum_grant"
+    | "deadline"
+    | "anticipated_deadline"
+    | "category";
+
+  const getQuickFacetCustomers = (
+    excludedFacet: QuickFilterFacet
+  ) => {
+    return customers.filter((customer) => {
+      if (customer.Category !== "active") {
+        return false;
+      }
+
+      if (
+        excludedFacet !== "grantor" &&
+        quickGrantors.length > 0 &&
+        (!customer.grantor ||
+          !quickGrantors.includes(
+            customer.grantor
+          ))
+      ) {
+        return false;
+      }
+
+      if (
+        excludedFacet !==
+          "maximum_grant" &&
+        quickMaximumGrants.length > 0 &&
+        !quickMaximumGrants.some(
+          (rangeLabel) =>
+            matchesMaximumGrantRange(
+              customer.maximum_grant,
+              rangeLabel
+            )
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        excludedFacet !== "deadline" &&
+        quickDeadline !== "all" &&
+        !matchesQuickDeadline(
+          customer.deadline
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        excludedFacet !==
+          "anticipated_deadline" &&
+        quickMonths.length > 0 &&
+        (!customer.anticipated_deadline ||
+          !quickMonths.some(
+            (month) =>
+              month.toLowerCase() ===
+              customer.anticipated_deadline?.toLowerCase()
+          ))
+      ) {
+        return false;
+      }
+
+      if (
+        excludedFacet !== "category" &&
+        quickCategories.length > 0 &&
+        (!Array.isArray(
+          customer.rfp_categories
+        ) ||
+          !quickCategories.some(
+            (selectedCategory) =>
+              customer.rfp_categories?.some(
+                (category) =>
+                  category
+                    .trim()
+                    .toLowerCase() ===
+                  selectedCategory
+                    .trim()
+                    .toLowerCase()
+              )
+          ))
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  const conditionalGrantors =
+    availableGrantors.filter(
+      (grantor) =>
+        quickGrantors.includes(grantor) ||
+        getQuickFacetCustomers(
+          "grantor"
+        ).some(
+          (customer) =>
+            customer.grantor === grantor
+        )
+    );
+
+  const conditionalMaximumGrantRanges =
+    availableMaximumGrants.filter(
+      (rangeLabel) =>
+        quickMaximumGrants.includes(
+          rangeLabel
+        ) ||
+        getQuickFacetCustomers(
+          "maximum_grant"
+        ).some((customer) =>
+          matchesMaximumGrantRange(
+            customer.maximum_grant,
+            rangeLabel
+          )
+        )
+    );
+
+  const conditionalMonths =
+    availableMonths.filter(
+      (month) =>
+        quickMonths.includes(month) ||
+        getQuickFacetCustomers(
+          "anticipated_deadline"
+        ).some(
+          (customer) =>
+            customer.anticipated_deadline?.toLowerCase() ===
+            month.toLowerCase()
+        )
+    );
+
+  const conditionalCategories =
+    availableCategories.filter(
+      (category) =>
+        quickCategories.includes(category) ||
+        getQuickFacetCustomers(
+          "category"
+        ).some((customer) =>
+          customer.rfp_categories?.some(
+            (customerCategory) =>
+              customerCategory
+                .trim()
+                .toLowerCase() ===
+              category
+                .trim()
+                .toLowerCase()
+          )
+        )
+    );
 
   // --------------------------------------------------
   // Sort Functions
@@ -2009,7 +2249,7 @@ return (
             className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#2F3038] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#444B51]">
-              ◆
+              ▦
             </span>
             Active Opportunities
             <span className="ml-auto h-2 w-2 rounded-full bg-[#B7655E]" />
@@ -2019,7 +2259,7 @@ return (
             ["Archived Opportunities", "◫", "/archived"],
             ["Prospect Library", "▤", "/prospect-library"],
             ["Favorites", "☆", "/favorites"],
-            ["Subscribe to RFP Alerts", "✦", "/subscribe"],
+            ["Subscribe to RFP Alerts", "✉", "/subscribe"],
           ].map(([label, icon, href]) => (
             <Link
               key={label}
@@ -3022,7 +3262,7 @@ return (
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
-                    {availableGrantors.map(
+                    {conditionalGrantors.map(
                       (grantor) => (
 
                         <label
@@ -3071,7 +3311,7 @@ return (
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
-                    {availableMaximumGrants.map(
+                    {conditionalMaximumGrantRanges.map(
                       (amount) => (
 
                         <label
@@ -3165,7 +3405,7 @@ return (
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
-                    {availableMonths.map(
+                    {conditionalMonths.map(
                       (month) => (
 
                         <label
@@ -3214,7 +3454,7 @@ return (
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
-                    {availableCategories.map(
+                    {conditionalCategories.map(
                       (category) => (
 
                         <label

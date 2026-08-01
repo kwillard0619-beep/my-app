@@ -129,7 +129,7 @@ export default function CustomerDrawer({
           daysAgo === 1 ? "day" : "days"
         } past deadline`,
         className:
-          "font-medium text-[#7B858C]",
+          "font-bold text-[#424A52]",
       };
     }
 
@@ -137,7 +137,7 @@ export default function CustomerDrawer({
       return {
         text: "Deadline is today",
         className:
-          "font-semibold text-[#B85C5C]",
+          "font-bold text-[#C21F35]",
       };
     }
 
@@ -145,7 +145,7 @@ export default function CustomerDrawer({
       return {
         text: "1 day remaining",
         className:
-          "font-semibold text-[#B85C5C]",
+          "font-bold text-[#C21F35]",
       };
     }
 
@@ -153,14 +153,14 @@ export default function CustomerDrawer({
       return {
         text: `${daysUntil} days remaining`,
         className:
-          "font-semibold text-[#B07A3E]",
+          "font-bold text-[#A84F0F]",
       };
     }
 
     return {
       text: `${daysUntil} days remaining`,
       className:
-        "font-semibold text-[#5F806C]",
+        "font-bold text-[#216B45]",
     };
   };
 
