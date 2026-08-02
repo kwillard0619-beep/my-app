@@ -1847,19 +1847,19 @@ export default function CustomerTable({
     | "category";
 
   const getQuickFacetCustomers = (
-  excludedFacet: QuickFilterFacet
-) => {
-  return customers.filter((customer) => {
-    if (
-      String(customer.status)
-        .trim()
-        .toLowerCase() !==
-      (mode === "favorites"
-        ? favoriteView
-        : mode)
-    ) {
-      return false;
-    }
+    excludedFacet: QuickFilterFacet
+  ) => {
+    return customers.filter((customer) => {
+      if (
+        String(customer.status)
+          .trim()
+          .toLowerCase() !==
+          (mode === "favorites"
+            ? favoriteView
+            : mode)
+      ) {
+        return false;
+      }
 
       if (
         excludedFacet !== "grantor" &&
@@ -2789,6 +2789,32 @@ export default function CustomerTable({
     }).length;
   }, [filteredCustomers]);
 
+  const topArchivedCategories = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    filteredCustomers.forEach((customer) => {
+      (customer.rfp_categories ?? []).forEach(
+        (category) => {
+          const cleaned = category.trim();
+          if (!cleaned) return;
+
+          counts.set(
+            cleaned,
+            (counts.get(cleaned) ?? 0) + 1
+          );
+        }
+      );
+    });
+
+    return [...counts.entries()]
+      .sort(
+        (first, second) =>
+          second[1] - first[1] ||
+          first[0].localeCompare(second[0])
+      )
+      .slice(0, 3);
+  }, [filteredCustomers]);
+
   const getDeadlineAccent = (
     customerId: Customer["id"]
   ) => {
@@ -3449,83 +3475,86 @@ return (
               <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl" />
               <div className="relative">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
-                  Most recently closed
+                  Recent archive activity
                 </p>
-                {recentlyClosedCustomers[0] ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedCustomerId(
-                        String(recentlyClosedCustomers[0].id)
-                      )
-                    }
-                    className="group/closed mt-4 w-full rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
-                  >
-                    <span className="block text-xs font-bold uppercase tracking-[0.12em] text-[#778189]">
-                      {recentlyClosedCustomers[0].grantor ||
-                        "Grantor not specified"}
-                    </span>
-                    <span className="mt-2 block text-base font-bold leading-5 text-[#2F3038]">
-                      {recentlyClosedCustomers[0].opportunity_name ||
-                        "Untitled opportunity"}
-                    </span>
-                    <span className="mt-4 flex items-center justify-between text-xs font-semibold text-[#626A70]">
-                      {formatDeadline(
-                        recentlyClosedCustomers[0].deadline ?? ""
-                      )}
-                      <span className="transition group-hover/closed:translate-x-1">
-                        →
-                      </span>
-                    </span>
-                  </button>
-                ) : (
-                  <div className="mt-4 flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-[#C8CBCC] bg-[#F4F3F1] px-5 text-center text-sm text-[#778189]">
-                    No archived deadlines are currently available.
-                  </div>
-                )}
+                <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                  Recently Closed
+                </h3>
+
+                <div className="mt-4 space-y-2">
+                  {recentlyClosedCustomers.length > 0 ? (
+                    recentlyClosedCustomers.map((customer) => (
+                      <button
+                        key={customer.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedCustomerId(
+                            String(customer.id)
+                          )
+                        }
+                        className="group/recent-closed flex w-full items-center gap-3 rounded-xl border border-[#E2E3E3] bg-[#F4F3F1] px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-xs font-semibold text-[#2F3038]">
+                            {customer.opportunity_name ||
+                              "Untitled opportunity"}
+                          </span>
+                          <span className="mt-0.5 block truncate text-[10px] text-[#778189]">
+                            {customer.grantor ||
+                              "Grantor not specified"}
+                            {" · "}
+                            {formatDeadline(
+                              customer.deadline ?? ""
+                            )}
+                          </span>
+                        </span>
+                        <span className="text-[#778189] opacity-40 transition group-hover/recent-closed:translate-x-1 group-hover/recent-closed:opacity-100">
+                          →
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-[#C8CBCC] bg-[#F4F3F1] px-5 text-center text-sm text-[#778189]">
+                      No recently closed opportunities are available.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="min-h-[210px] rounded-[26px] border border-[#C8CBCC] bg-[#E9E9E7] p-6 shadow-[0_12px_30px_rgba(47,48,56,0.06)]">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
-                Recent archive activity
+                Historical pattern
               </p>
               <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
-                Recently Closed
+                Archive Mix
               </h3>
 
-              <div className="mt-4 space-y-2">
-                {recentlyClosedCustomers.length > 0 ? (
-                  recentlyClosedCustomers.map((customer) => (
-                    <button
-                      key={customer.id}
-                      type="button"
-                      onClick={() =>
-                        setSelectedCustomerId(
-                          String(customer.id)
-                        )
-                      }
-                      className="group/recent-closed flex w-full items-center gap-3 rounded-xl border border-transparent bg-white/75 px-3 py-2.5 text-left transition hover:border-[#C8CBCC] hover:bg-white hover:shadow-sm"
-                    >
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-xs font-semibold text-[#2F3038]">
-                          {customer.opportunity_name ||
-                            "Untitled opportunity"}
+              <div className="mt-4 space-y-3">
+                {topArchivedCategories.length > 0 ? (
+                  topArchivedCategories.map(
+                    ([category, count]) => (
+                      <div
+                        key={category}
+                        className="flex items-center justify-between gap-3 rounded-xl bg-white/75 px-3 py-3"
+                      >
+                        <span
+                          className={`min-w-0 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                            category,
+                            categoryColorMap
+                          )}`}
+                        >
+                          {category}
                         </span>
-                        <span className="mt-0.5 block truncate text-[10px] text-[#778189]">
-                          {formatDeadline(
-                            customer.deadline ?? ""
-                          )}
+                        <span className="shrink-0 rounded-full bg-[#2F3038] px-2.5 py-1 text-xs font-bold text-white">
+                          {count}
                         </span>
-                      </span>
-                      <span className="text-[#778189] opacity-40 transition group-hover/recent-closed:translate-x-1 group-hover/recent-closed:opacity-100">
-                        →
-                      </span>
-                    </button>
-                  ))
+                      </div>
+                    )
+                  )
                 ) : (
                   <p className="rounded-xl border border-dashed border-[#C8CBCC] bg-white/50 p-4 text-center text-sm text-[#778189]">
-                    No recently closed opportunities are available.
+                    No archived categories are available.
                   </p>
                 )}
               </div>
