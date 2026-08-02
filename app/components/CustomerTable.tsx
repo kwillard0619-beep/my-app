@@ -25,11 +25,17 @@ type FilterField =
   | "limited_opportunity"
   | "fellowship_opportunity";
 
-type FilterOperator = "is" | "is_not";
+type FilterOperator =
+  | "is"
+  | "is_not"
+  | "contains"
+  | "not_contains"
+  | "before"
+  | "after";
 
 type AdvancedFilter = {
   id: number;
-  connector: "AND";
+  connector: "AND" | "OR";
   field: FilterField;
   operator: FilterOperator;
   values: string[];
@@ -208,6 +214,12 @@ export default function CustomerTable({
   const [showQuickFilters, setShowQuickFilters] =
     useState(false);
 
+  const quickFilterButtonRef =
+    useRef<HTMLButtonElement | null>(null);
+
+  const quickFilterPopoverRef =
+    useRef<HTMLDivElement | null>(null);
+
   const [quickGrantors, setQuickGrantors] =
     useState<string[]>([]);
 
@@ -229,6 +241,12 @@ export default function CustomerTable({
 
   const [showAdvancedFilters, setShowAdvancedFilters] =
     useState(false);
+
+  const advancedFilterButtonRef =
+    useRef<HTMLButtonElement | null>(null);
+
+  const advancedFilterPopoverRef =
+    useRef<HTMLDivElement | null>(null);
 
   const [advancedFilters, setAdvancedFilters] =
     useState<AdvancedFilter[]>([]);
@@ -269,6 +287,33 @@ export default function CustomerTable({
       ) {
         setOpenAdvancedDropdownId(null);
       }
+
+      if (
+        showQuickFilters &&
+        quickFilterPopoverRef.current &&
+        !quickFilterPopoverRef.current.contains(
+          target
+        ) &&
+        !quickFilterButtonRef.current?.contains(
+          target
+        )
+      ) {
+        setShowQuickFilters(false);
+      }
+
+      if (
+        showAdvancedFilters &&
+        advancedFilterPopoverRef.current &&
+        !advancedFilterPopoverRef.current.contains(
+          target
+        ) &&
+        !advancedFilterButtonRef.current?.contains(
+          target
+        )
+      ) {
+        setShowAdvancedFilters(false);
+        setOpenAdvancedDropdownId(null);
+      }
     };
 
     document.addEventListener(
@@ -282,7 +327,10 @@ export default function CustomerTable({
         handleOutsideClick
       );
     };
-  }, []);
+  }, [
+    showQuickFilters,
+    showAdvancedFilters,
+  ]);
 
   // --------------------------------------------------
   // Dynamic Filter Options
@@ -717,6 +765,66 @@ export default function CustomerTable({
     }
   };
 
+  const getAdvancedOperators = (
+    field: FilterField
+  ): FilterOperator[] => {
+    if (
+      field === "grantor" ||
+      field === "category"
+    ) {
+      return [
+        "is",
+        "is_not",
+        "contains",
+        "not_contains",
+      ];
+    }
+
+    if (field === "deadline") {
+      return [
+        "is",
+        "is_not",
+        "before",
+        "after",
+      ];
+    }
+
+    return ["is", "is_not"];
+  };
+
+  const getOperatorLabel = (
+    operator: FilterOperator,
+    field: FilterField
+  ) => {
+    if (
+      field === "maximum_grant" &&
+      operator === "is"
+    ) {
+      return "is within";
+    }
+
+    if (
+      field === "maximum_grant" &&
+      operator === "is_not"
+    ) {
+      return "is not within";
+    }
+
+    const labels: Record<
+      FilterOperator,
+      string
+    > = {
+      is: "is",
+      is_not: "is not",
+      contains: "contains",
+      not_contains: "does not contain",
+      before: "is before",
+      after: "is after",
+    };
+
+    return labels[operator];
+  };
+
   const matchesAdvancedFilter = (
     customer: Customer,
     filter: AdvancedFilter
@@ -770,6 +878,61 @@ export default function CustomerTable({
             selectedValue
           )
       );
+
+    if (
+      filter.operator === "contains" ||
+      filter.operator ===
+        "not_contains"
+    ) {
+      const containsMatch =
+        selectedValues.some(
+          (selectedValue) =>
+            customerValues.some(
+              (customerValue) =>
+                customerValue.includes(
+                  selectedValue
+                )
+            )
+        );
+
+      return filter.operator ===
+        "not_contains"
+        ? !containsMatch
+        : containsMatch;
+    }
+
+    if (
+      (filter.operator === "before" ||
+        filter.operator === "after") &&
+      filter.field === "deadline"
+    ) {
+      const customerDeadline =
+        customer.deadline
+          ? new Date(
+              `${customer.deadline}T00:00:00`
+            ).getTime()
+          : null;
+
+      if (customerDeadline === null) {
+        return false;
+      }
+
+      return filter.values.some(
+        (value) => {
+          const comparisonDeadline =
+            new Date(
+              `${value}T00:00:00`
+            ).getTime();
+
+          return filter.operator ===
+            "before"
+            ? customerDeadline <
+                comparisonDeadline
+            : customerDeadline >
+                comparisonDeadline;
+        }
+      );
+    }
 
     if (
       filter.operator ===
@@ -1272,18 +1435,44 @@ export default function CustomerTable({
   if (
     advancedFilters.length > 0
   ) {
-    result = result.filter(
-      (customer) =>
-        advancedFilters.every(
-          (filter) =>
-            filter.values.length ===
-              0 ||
+    const activeRules =
+      advancedFilters.filter(
+        (filter) =>
+          filter.values.length > 0
+      );
+
+    if (activeRules.length > 0) {
+      result = result.filter(
+        (customer) => {
+          let matches =
             matchesAdvancedFilter(
               customer,
-              filter
-            )
-        )
-    );
+              activeRules[0]
+            );
+
+          for (
+            let index = 1;
+            index < activeRules.length;
+            index++
+          ) {
+            const rule =
+              activeRules[index];
+            const ruleMatches =
+              matchesAdvancedFilter(
+                customer,
+                rule
+              );
+
+            matches =
+              rule.connector === "OR"
+                ? matches || ruleMatches
+                : matches && ruleMatches;
+          }
+
+          return matches;
+        }
+      );
+    }
   }
 
   // --------------------------------------------------
@@ -1419,65 +1608,101 @@ export default function CustomerTable({
     });
   };
 
+  const grantorFacetCustomers =
+    getQuickFacetCustomers("grantor");
+  const maximumGrantFacetCustomers =
+    getQuickFacetCustomers(
+      "maximum_grant"
+    );
+  const monthFacetCustomers =
+    getQuickFacetCustomers(
+      "anticipated_deadline"
+    );
+  const categoryFacetCustomers =
+    getQuickFacetCustomers("category");
+
+  const pinSelectedFirst = (
+    values: string[],
+    selectedValues: string[]
+  ) =>
+    [...values].sort((a, b) => {
+      const aSelected =
+        selectedValues.includes(a);
+      const bSelected =
+        selectedValues.includes(b);
+
+      if (aSelected !== bSelected) {
+        return aSelected ? -1 : 1;
+      }
+
+      return a.localeCompare(b);
+    });
+
   const conditionalGrantors =
-    availableGrantors.filter(
-      (grantor) =>
-        quickGrantors.includes(grantor) ||
-        getQuickFacetCustomers(
-          "grantor"
-        ).some(
-          (customer) =>
-            customer.grantor === grantor
-        )
+    pinSelectedFirst(
+      availableGrantors,
+      quickGrantors
     );
 
   const conditionalMaximumGrantRanges =
-    availableMaximumGrants.filter(
-      (rangeLabel) =>
-        quickMaximumGrants.includes(
-          rangeLabel
-        ) ||
-        getQuickFacetCustomers(
-          "maximum_grant"
-        ).some((customer) =>
-          matchesMaximumGrantRange(
-            customer.maximum_grant,
-            rangeLabel
-          )
-        )
+    pinSelectedFirst(
+      availableMaximumGrants,
+      quickMaximumGrants
     );
 
   const conditionalMonths =
-    availableMonths.filter(
-      (month) =>
-        quickMonths.includes(month) ||
-        getQuickFacetCustomers(
-          "anticipated_deadline"
-        ).some(
-          (customer) =>
-            customer.anticipated_deadline?.toLowerCase() ===
-            month.toLowerCase()
-        )
+    pinSelectedFirst(
+      availableMonths,
+      quickMonths
     );
 
   const conditionalCategories =
-    availableCategories.filter(
-      (category) =>
-        quickCategories.includes(category) ||
-        getQuickFacetCustomers(
-          "category"
-        ).some((customer) =>
-          customer.rfp_categories?.some(
-            (customerCategory) =>
-              customerCategory
-                .trim()
-                .toLowerCase() ===
-              category
-                .trim()
-                .toLowerCase()
-          )
-        )
+    pinSelectedFirst(
+      availableCategories,
+      quickCategories
     );
+
+  const getGrantorFacetCount = (
+    grantor: string
+  ) =>
+    grantorFacetCustomers.filter(
+      (customer) =>
+        customer.grantor === grantor
+    ).length;
+
+  const getMaximumGrantFacetCount = (
+    rangeLabel: string
+  ) =>
+    maximumGrantFacetCustomers.filter(
+      (customer) =>
+        matchesMaximumGrantRange(
+          customer.maximum_grant,
+          rangeLabel
+        )
+    ).length;
+
+  const getMonthFacetCount = (
+    month: string
+  ) =>
+    monthFacetCustomers.filter(
+      (customer) =>
+        customer.anticipated_deadline?.toLowerCase() ===
+        month.toLowerCase()
+    ).length;
+
+  const getCategoryFacetCount = (
+    category: string
+  ) =>
+    categoryFacetCustomers.filter(
+      (customer) =>
+        customer.rfp_categories?.some(
+          (customerCategory) =>
+            customerCategory
+              .trim()
+              .toLowerCase() ===
+            category.trim().toLowerCase()
+        )
+    ).length;
 
   // --------------------------------------------------
   // Sort Functions
@@ -1941,6 +2166,7 @@ export default function CustomerTable({
   const toggleQuickFilters = () => {
     setShowAdvancedFilters(false);
     setOpenAdvancedDropdownId(null);
+    setShowSortOptions(false);
 
     setShowQuickFilters(
       (current) => !current
@@ -1949,6 +2175,7 @@ export default function CustomerTable({
 
   const toggleAdvancedFilters = () => {
     setShowQuickFilters(false);
+    setShowSortOptions(false);
 
     setShowAdvancedFilters(
       (current) => !current
@@ -2846,6 +3073,7 @@ return (
             <div className="flex flex-col gap-2 sm:flex-row">
 
               <button
+                ref={quickFilterButtonRef}
                 type="button"
                 onClick={toggleQuickFilters}
                 className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
@@ -2885,6 +3113,7 @@ return (
               </button>
 
               <button
+                ref={advancedFilterButtonRef}
                 type="button"
                 onClick={toggleAdvancedFilters}
                 className={`relative inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition ${
@@ -2936,12 +3165,14 @@ return (
 
               <button
                 type="button"
-                onClick={() =>
+                onClick={() => {
+                  setShowQuickFilters(false);
+                  setShowAdvancedFilters(false);
                   setShowSortOptions(
                     (current) =>
                       !current
-                  )
-                }
+                  );
+                }}
                 className="flex w-full items-center justify-between gap-4 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm outline-none transition hover:bg-white/20 xl:min-w-[210px]"
               >
 
@@ -3224,7 +3455,10 @@ return (
 
           {showQuickFilters && (
 
-            <div className="mt-5 rounded-2xl border border-[#DDCEC7] bg-[#F4F3F1] p-6 shadow-sm">
+            <div
+              ref={quickFilterPopoverRef}
+              className="absolute left-4 right-4 top-full z-[150] mt-3 max-h-[72vh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-6 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6"
+            >
 
               <div className="mb-5 flex items-center justify-between">
 
@@ -3235,7 +3469,7 @@ return (
                   </h3>
 
                   <p className="mt-1 text-sm text-[#626A70]">
-                    Quickly narrow opportunities using common filters.
+                    Options update from your other selections. Choices within a section use OR; sections combine with AND.
                   </p>
 
                 </div>
@@ -3256,25 +3490,52 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                    Grantor
-                  </label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                      Grantor
+                    </label>
+                    {quickGrantors.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setQuickGrantors([])}
+                        className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {conditionalGrantors.map(
-                      (grantor) => (
+                      (grantor) => {
+                        const count =
+                          getGrantorFacetCount(
+                            grantor
+                          );
+                        const selected =
+                          quickGrantors.includes(
+                            grantor
+                          );
+                        const disabled =
+                          count === 0 &&
+                          !selected;
+
+                        return (
 
                         <label
                           key={grantor}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
+                          className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                            disabled
+                              ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                              : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                          }`}
                         >
 
                           <input
                             type="checkbox"
-                            checked={quickGrantors.includes(
-                              grantor
-                            )}
+                            checked={selected}
+                            disabled={disabled}
                             onChange={() =>
                               activateQuickFilter(
                                 () =>
@@ -3288,13 +3549,18 @@ return (
                             className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
-                          <span>
+                          <span className="min-w-0 flex-1 truncate">
                             {grantor}
+                          </span>
+
+                          <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                            {count}
                           </span>
 
                         </label>
 
-                      )
+                        );
+                      }
                     )}
 
                   </div>
@@ -3305,25 +3571,52 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                    Maximum Grant
-                  </label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                      Maximum Grant
+                    </label>
+                    {quickMaximumGrants.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setQuickMaximumGrants([])}
+                        className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {conditionalMaximumGrantRanges.map(
-                      (amount) => (
+                      (amount) => {
+                        const count =
+                          getMaximumGrantFacetCount(
+                            amount
+                          );
+                        const selected =
+                          quickMaximumGrants.includes(
+                            amount
+                          );
+                        const disabled =
+                          count === 0 &&
+                          !selected;
+
+                        return (
 
                         <label
                           key={amount}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
+                          className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                            disabled
+                              ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                              : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                          }`}
                         >
 
                           <input
                             type="checkbox"
-                            checked={quickMaximumGrants.includes(
-                              amount
-                            )}
+                            checked={selected}
+                            disabled={disabled}
                             onChange={() =>
                               activateQuickFilter(
                                 () =>
@@ -3337,13 +3630,18 @@ return (
                             className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
-                          <span>
+                          <span className="min-w-0 flex-1 truncate">
                             {amount}
+                          </span>
+
+                          <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                            {count}
                           </span>
 
                         </label>
 
-                      )
+                        );
+                      }
                     )}
 
                   </div>
@@ -3354,9 +3652,20 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                    Deadline
-                  </label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                      Application Deadline
+                    </label>
+                    {quickDeadline !== "all" && (
+                      <button
+                        type="button"
+                        onClick={() => setQuickDeadline("all")}
+                        className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
 
                   <select
                     value={quickDeadline}
@@ -3399,25 +3708,52 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                    Anticipated Deadline
-                  </label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                      Anticipated Deadline
+                    </label>
+                    {quickMonths.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setQuickMonths([])}
+                        className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {conditionalMonths.map(
-                      (month) => (
+                      (month) => {
+                        const count =
+                          getMonthFacetCount(
+                            month
+                          );
+                        const selected =
+                          quickMonths.includes(
+                            month
+                          );
+                        const disabled =
+                          count === 0 &&
+                          !selected;
+
+                        return (
 
                         <label
                           key={month}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
+                          className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                            disabled
+                              ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                              : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                          }`}
                         >
 
                           <input
                             type="checkbox"
-                            checked={quickMonths.includes(
-                              month
-                            )}
+                            checked={selected}
+                            disabled={disabled}
                             onChange={() =>
                               activateQuickFilter(
                                 () =>
@@ -3431,13 +3767,18 @@ return (
                             className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
-                          <span>
+                          <span className="min-w-0 flex-1 truncate">
                             {month}
+                          </span>
+
+                          <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                            {count}
                           </span>
 
                         </label>
 
-                      )
+                        );
+                      }
                     )}
 
                   </div>
@@ -3448,25 +3789,52 @@ return (
 
                 <div>
 
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                    Categories
-                  </label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                      Categories
+                    </label>
+                    {quickCategories.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setQuickCategories([])}
+                        className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
 
                   <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
 
                     {conditionalCategories.map(
-                      (category) => (
+                      (category) => {
+                        const count =
+                          getCategoryFacetCount(
+                            category
+                          );
+                        const selected =
+                          quickCategories.includes(
+                            category
+                          );
+                        const disabled =
+                          count === 0 &&
+                          !selected;
+
+                        return (
 
                         <label
                           key={category}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
+                          className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                            disabled
+                              ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                              : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                          }`}
                         >
 
                           <input
                             type="checkbox"
-                            checked={quickCategories.includes(
-                              category
-                            )}
+                            checked={selected}
+                            disabled={disabled}
                             onChange={() =>
                               activateQuickFilter(
                                 () =>
@@ -3480,13 +3848,18 @@ return (
                             className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
-                          <span>
+                          <span className="min-w-0 flex-1 truncate">
                             {category}
+                          </span>
+
+                          <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                            {count}
                           </span>
 
                         </label>
 
-                      )
+                        );
+                      }
                     )}
 
                   </div>
@@ -3505,7 +3878,10 @@ return (
 
           {showAdvancedFilters && (
 
-            <div className="relative z-[90] mt-5 rounded-2xl border border-[#DDCEC7]  p-6 shadow-sm">
+            <div
+              ref={advancedFilterPopoverRef}
+              className="absolute left-4 right-4 top-full z-[150] mt-3 max-h-[72vh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-6 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6"
+            >
 
               <div className="flex items-center justify-between gap-4">
 
@@ -3516,7 +3892,7 @@ return (
                   </h3>
 
                   <p className="mt-1 text-sm text-[#626A70]">
-                    Build a custom filter using multiple AND rules.
+                    Build custom rules and choose how each one connects to the previous rule.
                   </p>
 
                 </div>
@@ -3551,7 +3927,8 @@ return (
 
                   {advancedFilters.map(
                     (
-                      filter
+                      filter,
+                      filterIndex
                     ) => {
 
                       const options =
@@ -3570,9 +3947,34 @@ return (
                           className="relative flex flex-col gap-3 rounded-xl border border-[#E2E3E3] bg-white p-4 lg:flex-row lg:items-start"
                         >
 
-                          <div className="rounded-lg border border-[#E2E3E3] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#69747C] lg:mt-0">
-                            AND
-                          </div>
+                          {filterIndex === 0 ? (
+                            <div className="rounded-lg border border-[#E2E3E3] bg-[#F7F9FA] px-3 py-2 text-sm font-semibold text-[#69747C] lg:mt-0">
+                              WHERE
+                            </div>
+                          ) : (
+                            <select
+                              value={filter.connector}
+                              onChange={(event) =>
+                                updateAdvancedFilter(
+                                  filter.id,
+                                  {
+                                    connector:
+                                      event.target.value as
+                                        | "AND"
+                                        | "OR",
+                                  }
+                                )
+                              }
+                              className="rounded-lg border border-[#DFE0E0] bg-[#F7F9FA] px-3 py-2 text-sm font-bold text-[#69747C] outline-none focus:border-[#B7655E]"
+                            >
+                              <option value="AND">
+                                AND
+                              </option>
+                              <option value="OR">
+                                OR
+                              </option>
+                            </select>
+                          )}
 
                           <select
                             value={filter.field}
@@ -3585,6 +3987,7 @@ return (
                                 filter.id,
                                 {
                                   field,
+                                  operator: "is",
                                   values: [],
                                 }
                               );
@@ -3642,13 +4045,19 @@ return (
                             className="rounded-lg border border-[#DFE0E0] bg-white px-3 py-2 text-sm text-[#394147] outline-none focus:border-[#B7655E]"
                           >
 
-                            <option value="is">
-                              is
-                            </option>
-
-                            <option value="is_not">
-                              is not
-                            </option>
+                            {getAdvancedOperators(
+                              filter.field
+                            ).map((operator) => (
+                              <option
+                                key={operator}
+                                value={operator}
+                              >
+                                {getOperatorLabel(
+                                  operator,
+                                  filter.field
+                                )}
+                              </option>
+                            ))}
 
                           </select>
 
