@@ -2679,6 +2679,43 @@ export default function CustomerTable({
       .slice(0, 5);
   }, [deadlineCustomers]);
 
+  const closingSoonCustomers = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const thirtyDaysFromToday = new Date(today);
+    thirtyDaysFromToday.setDate(
+      thirtyDaysFromToday.getDate() + 30
+    );
+
+    return deadlineCustomers.filter((customer) => {
+      const deadline = new Date(
+        `${customer.deadline}T00:00:00`
+      );
+
+      return (
+        deadline >= today &&
+        deadline <= thirtyDaysFromToday
+      );
+    });
+  }, [deadlineCustomers]);
+
+  const recentlyAddedCustomers = useMemo(
+    () =>
+      [...filteredCustomers]
+        .sort(
+          (first, second) =>
+            (Date.parse(
+              String(second.created_at ?? "")
+            ) || 0) -
+            (Date.parse(
+              String(first.created_at ?? "")
+            ) || 0)
+        )
+        .slice(0, 3),
+    [filteredCustomers]
+  );
+
   const getDeadlineAccent = (
     customerId: Customer["id"]
   ) => {
@@ -2965,6 +3002,7 @@ return (
           FUNDING TIMELINE
       ================================================== */}
 
+      {mode === "favorites" ? (
       <section className="mb-7">
         <div className="mb-5">
           <div>
@@ -3293,6 +3331,159 @@ return (
           </div>
         </div>
       </section>
+      ) : (
+        <section className="mb-7">
+          <div className="mb-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#7B8791]">
+              Current funding landscape
+            </p>
+            <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
+              Funding Pulse
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#626A70]">
+              A quick view of closing deadlines and newly added opportunities before you explore the full directory.
+            </p>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[0.72fr_1.18fr_1.1fr]">
+            <div className="group relative min-h-[210px] overflow-hidden rounded-[26px] bg-[#2F3038] p-6 text-white shadow-[0_16px_40px_rgba(47,48,56,0.16)]">
+              <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#B7655E]/25 blur-3xl transition duration-500 group-hover:scale-110" />
+              <div className="relative flex h-full flex-col">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-lg">
+                  ◷
+                </span>
+                <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
+                  Closing in 30 days
+                </p>
+                <p className="mt-1 text-5xl font-bold tracking-[-0.05em]">
+                  {closingSoonCustomers.length}
+                </p>
+                <p className="mt-auto pt-4 text-xs leading-5 text-[#BFC5C8]">
+                  {closingSoonCustomers.length === 1
+                    ? "One active opportunity needs attention soon."
+                    : `${closingSoonCustomers.length} active opportunities need attention soon.`}
+                </p>
+              </div>
+            </div>
+
+            <div className="relative min-h-[210px] overflow-hidden rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)]">
+              <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl" />
+              <div className="relative">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
+                  Nearest deadline
+                </p>
+                {upcomingDeadlines[0] ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedCustomerId(
+                        String(upcomingDeadlines[0].id)
+                      )
+                    }
+                    className="group/next mt-4 w-full rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                  >
+                    <div className="flex items-start gap-4">
+                      <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#B7655E] text-white shadow-sm">
+                        <span className="text-[9px] font-bold uppercase tracking-wider">
+                          {new Date(
+                            `${upcomingDeadlines[0].deadline}T00:00:00`
+                          ).toLocaleDateString("en-US", {
+                            month: "short",
+                          })}
+                        </span>
+                        <span className="text-xl font-bold leading-none">
+                          {new Date(
+                            `${upcomingDeadlines[0].deadline}T00:00:00`
+                          ).getDate()}
+                        </span>
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs font-bold uppercase tracking-[0.12em] text-[#778189]">
+                          {upcomingDeadlines[0].grantor ||
+                            "Grantor not specified"}
+                        </span>
+                        <span className="mt-1.5 block text-base font-bold leading-5 text-[#2F3038]">
+                          {upcomingDeadlines[0]
+                            .opportunity_name ||
+                            "Untitled opportunity"}
+                        </span>
+                      </span>
+                      <span className="translate-x-1 text-lg text-[#69747C] opacity-50 transition group-hover/next:translate-x-0 group-hover/next:opacity-100">
+                        →
+                      </span>
+                    </div>
+                  </button>
+                ) : (
+                  <div className="mt-4 flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-[#C8CBCC] bg-[#F4F3F1] px-5 text-center text-sm text-[#778189]">
+                    No upcoming deadlines are currently available.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="min-h-[210px] rounded-[26px] border border-[#C8CBCC] bg-[#E9E9E7] p-6 shadow-[0_12px_30px_rgba(47,48,56,0.06)]">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
+                    Fresh opportunities
+                  </p>
+                  <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                    Recently Added
+                  </h3>
+                </div>
+                <span className="rounded-full border border-[#C8CBCC] bg-white px-2.5 py-1 text-[10px] font-bold text-[#626A70]">
+                  {recentlyAddedCustomers.length}
+                </span>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {recentlyAddedCustomers.length > 0 ? (
+                  recentlyAddedCustomers.map((customer) => (
+                    <button
+                      key={customer.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedCustomerId(
+                          String(customer.id)
+                        )
+                      }
+                      className="group/recent flex w-full items-center gap-3 rounded-xl border border-transparent bg-white/70 px-3 py-2.5 text-left transition hover:border-[#C8CBCC] hover:bg-white hover:shadow-sm"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#2F3038] text-[10px] font-bold text-white">
+                        {(customer.grantor || "—")
+                          .split(/\s+/)
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .map((word) =>
+                            word.charAt(0).toUpperCase()
+                          )
+                          .join("")}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs font-semibold text-[#2F3038]">
+                          {customer.opportunity_name ||
+                            "Untitled opportunity"}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[10px] text-[#778189]">
+                          {customer.grantor ||
+                            "Grantor not specified"}
+                        </span>
+                      </span>
+                      <span className="text-[#778189] opacity-40 transition group-hover/recent:opacity-100">
+                        →
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="rounded-xl border border-dashed border-[#C8CBCC] bg-white/50 p-4 text-center text-sm text-[#778189]">
+                    No recently added opportunities.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
         {/* ==================================================
             SEARCH + FILTER TOOLBAR
