@@ -1,3 +1,5 @@
+import { Contact } from "resend";
+
 export type Customer = {
   id: number;
 
@@ -16,6 +18,8 @@ export type Customer = {
   additional_information: string | null;
   limited_opportunity: string | null;
   fellowship_opportunity: string | null;
+  contact_id: number | null;
+  contact: Contact | null;
 
   // System field
   created_at: string;

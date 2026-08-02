@@ -2,6 +2,13 @@
 
 import type { Customer } from "../types/customer";
 
+type DrawerContact = {
+  id: number;
+  name: string;
+  email: string | null;
+  organization: string | null;
+};
+
 type Props = {
   customer: Customer | null;
   availableCategories?: string[];
@@ -20,6 +27,11 @@ export default function CustomerDrawer({
   onClose,
 }: Props) {
   if (!customer) return null;
+
+  const contact = customer.contact as unknown as
+    | DrawerContact
+    | null
+    | undefined;
 
   // --------------------------------------------------
   // Navigation
@@ -534,52 +546,57 @@ export default function CustomerDrawer({
               </div>
             </section>
 
-            {/* Contact placeholder */}
-            <section className="rounded-[22px] border border-[#C8CBCC] bg-white p-6 shadow-[0_10px_28px_rgba(47,48,56,0.06)]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                Point of Contact
-              </p>
-              <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
-                Contact
-              </h3>
+            {/* Contact */}
+<section className="rounded-[22px] border border-[#C8CBCC] bg-white p-6 shadow-[0_10px_28px_rgba(47,48,56,0.06)]">
+  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
+    Point of Contact
+  </p>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {[
-                  {
-                    label: "Name",
-                    fullWidth: true,
-                  },
-                  {
-                    label: "Email",
-                    fullWidth: false,
-                  },
-                  {
-                    label: "Organization",
-                    fullWidth: false,
-                  },
-                ].map(({ label, fullWidth }) => (
-                  <div
-                    key={label}
-                    className={`rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 ${
-                      fullWidth
-                        ? "sm:col-span-2"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
-                      {label}
-                    </p>
-                    <p className="mt-2 text-sm text-[#9AA0A5]">
-                      —
-                    </p>
-                  </div>
-                ))}
-              </div>
+  <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+    Contact
+  </h3>
 
-              <p className="mt-3 text-xs text-[#778189]">
-                Contact information will appear here once it is added to the opportunity record.
-              </p>
-            </section>
+  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+    <div className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 sm:col-span-2">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+        Name
+      </p>
+
+      <p className="mt-2 text-sm font-semibold text-[#394147]">
+        {contact?.name || "Not provided"}
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+        Email
+      </p>
+
+      {contact?.email ? (
+        <a
+          href={`mailto:${contact.email}`}
+          className="mt-2 block break-all text-sm font-semibold text-[#8D4D45] underline decoration-[#8D4D45]/30 underline-offset-4 transition hover:text-[#62352F]"
+        >
+          {contact.email}
+        </a>
+      ) : (
+        <p className="mt-2 text-sm text-[#9AA0A5]">
+          Not provided
+        </p>
+      )}
+    </div>
+
+    <div className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+        Organization
+      </p>
+
+      <p className="mt-2 text-sm font-semibold text-[#394147]">
+        {contact?.organization || "Not provided"}
+      </p>
+    </div>
+  </div>
+</section>
 
             {/* Additional information */}
             <section className="rounded-[22px] border border-[#C8CBCC] bg-white p-6 shadow-[0_10px_28px_rgba(47,48,56,0.06)]">

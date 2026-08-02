@@ -5,9 +5,17 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { data, error } = await supabase
-    .from("Personal_BB")
-    .select("*");
-
+  .from("Personal_BB")
+  .select(`
+    *,
+    contact:contacts!Personal_BB_contact_id_fkey (
+      id,
+      name,
+      email,
+      organization
+    )
+  `);
+  
   if (error) {
     return (
       <div className="p-8 text-red-600">
