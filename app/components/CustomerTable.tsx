@@ -1512,6 +1512,123 @@ export default function CustomerTable({
 ]);
 
   // --------------------------------------------------
+  // CSV Export
+  // Exports the currently visible, filtered, and sorted rows.
+  // --------------------------------------------------
+
+  const exportOpportunitiesToCsv = () => {
+    const escapeCsvValue = (value: unknown) => {
+      const text = String(value ?? "");
+
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const getDeadlineExportStatus = (
+      deadline: string | null | undefined
+    ) => {
+      if (!deadline) {
+        return "No deadline set";
+      }
+
+      const deadlineDate = new Date(
+        `${deadline}T00:00:00`
+      );
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+
+      const daysUntil = Math.ceil(
+        (deadlineDate.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
+      if (daysUntil < 0) {
+        const daysAgo = Math.abs(daysUntil);
+
+        return `${daysAgo} ${
+          daysAgo === 1 ? "day" : "days"
+        } past deadline`;
+      }
+
+      if (daysUntil === 0) {
+        return "Deadline is today";
+      }
+
+      return `${daysUntil} ${
+        daysUntil === 1 ? "day" : "days"
+      } remaining`;
+    };
+
+    const headers = [
+      "Grantor",
+      "Opportunity",
+      "Maximum Grant",
+      "Deadline",
+      "Anticipated Deadline Month",
+      "Categories",
+      "Website",
+      "Deadline Countdown",
+      "Abstract",
+      "Contact Name",
+      "Contact Email",
+      "Contact Organization",
+      "Additional Information",
+      "Limited Opportunity",
+      "Fellowship Opportunity",
+    ];
+
+    const rows = filteredCustomers.map(
+      (customer) => {
+        const customerWithContact = customer as Customer & {
+          contact_name?: string | null;
+          contact_email?: string | null;
+          contact_organization?: string | null;
+        };
+
+        return [
+          customer.grantor,
+          customer.opportunity_name,
+          customer.maximum_grant,
+          customer.deadline,
+          customer.anticipated_deadline,
+          customer.rfp_categories?.join("; ") ?? "",
+          customer.website_link,
+          getDeadlineExportStatus(customer.deadline),
+          customer.abstract,
+          customerWithContact.contact_name,
+          customerWithContact.contact_email,
+          customerWithContact.contact_organization,
+          customer.additional_information,
+          customer.limited_opportunity,
+          customer.fellowship_opportunity,
+        ];
+      }
+    );
+
+    const csv = [headers, ...rows]
+      .map((row) =>
+        row.map(escapeCsvValue).join(",")
+      )
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF", csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const downloadUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    const date = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    downloadLink.href = downloadUrl;
+    downloadLink.download = `active-opportunities-${date}.csv`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+    URL.revokeObjectURL(downloadUrl);
+  };
+
+  // --------------------------------------------------
   // Conditional Quick Filter Options
   // Each facet is calculated from the selections made
   // in every other Quick Filter section.
@@ -2994,13 +3111,10 @@ return (
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8CCC7]">
               Search and refine
             </p>
-            <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mt-1">
               <h2 className="text-xl font-bold text-white">
                 Find the right opportunity
               </h2>
-              <p className="text-xs text-[#DEE0E1]">
-                Search first, then narrow the results with filters or sorting.
-              </p>
             </div>
           </div>
 
@@ -3447,6 +3561,29 @@ return (
 
             </div>
 
+            <button
+              type="button"
+              onClick={exportOpportunitiesToCsv}
+              disabled={filteredCustomers.length === 0}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white px-5 py-3 text-sm font-semibold text-[#2F3038] shadow-sm transition hover:bg-[#F3EDE9] disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M5.25 18.75h13.5"
+                />
+              </svg>
+              Export CSV
+            </button>
+
           </div>
 
           {/* ==================================================
@@ -3457,7 +3594,7 @@ return (
 
             <div
               ref={quickFilterPopoverRef}
-              className="absolute left-4 right-4 top-full z-[150] mt-3 max-h-[72vh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-6 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6"
+              className="absolute left-4 right-4 top-full z-[150] mt-3 max-h-[82vh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-6 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6"
             >
 
               <div className="mb-5 flex items-center justify-between">
@@ -3767,7 +3904,11 @@ return (
                             className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
-                          <span className="min-w-0 flex-1 truncate">
+                          <span
+                            className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
+                              month
+                            )}`}
+                          >
                             {month}
                           </span>
 
@@ -3848,7 +3989,12 @@ return (
                             className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                           />
 
-                          <span className="min-w-0 flex-1 truncate">
+                          <span
+                            className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                              category,
+                              categoryColorMap
+                            )}`}
+                          >
                             {category}
                           </span>
 
@@ -4115,7 +4261,20 @@ return (
                                           value
                                         )
                                       }
-                                      className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#D6CBC6] bg-[#EEF5F8] px-2.5 py-1.5 text-xs font-medium text-[#394147] transition hover:bg-[#DCEAF1]"
+                                      className={`inline-flex max-w-full items-center gap-1 border px-2.5 py-1.5 text-xs font-semibold transition hover:brightness-95 ${
+                                        filter.field ===
+                                        "anticipated_deadline"
+                                          ? `rounded-full ${getMonthStyle(
+                                              value
+                                            )}`
+                                          : filter.field ===
+                                            "category"
+                                          ? `rounded-full ${getCategoryStyle(
+                                              value,
+                                              categoryColorMap
+                                            )}`
+                                          : "rounded-md border-[#D6CBC6] bg-[#EEF5F8] text-[#394147] hover:bg-[#DCEAF1]"
+                                      }`}
                                     >
 
                                       <span className="max-w-[180px] truncate">
@@ -4180,7 +4339,7 @@ return (
 
                             {dropdownIsOpen && (
 
-                              <div className="absolute left-0 top-full z-[200] mt-2 max-h-64 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#DDCEC7] bg-white p-2 shadow-[0_20px_40px_rgba(42,64,76,0.16)]">
+                              <div className="relative mt-2 max-h-80 w-full min-w-[260px] overflow-y-auto rounded-xl border border-[#C8CBCC] bg-white p-3 shadow-[0_12px_28px_rgba(42,64,76,0.12)]">
 
                                 {options.length === 0 ? (
 
@@ -4190,7 +4349,9 @@ return (
 
                                 ) : (
 
-                                  options.map(
+                                  <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+
+                                  {options.map(
                                     (
                                       option
                                     ) => (
@@ -4235,21 +4396,52 @@ return (
                                           className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                                         />
 
-                                        <span>
+                                        {filter.field ===
+                                        "anticipated_deadline" ? (
 
-                                          {filter.field ===
-                                          "deadline"
-                                            ? formatDeadline(
-                                                option
-                                              )
-                                            : option}
+                                          <span
+                                            className={`inline-flex min-w-0 max-w-full rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
+                                              option
+                                            )}`}
+                                          >
+                                            <span className="truncate">
+                                              {option}
+                                            </span>
+                                          </span>
 
-                                        </span>
+                                        ) : filter.field ===
+                                          "category" ? (
+
+                                          <span
+                                            className={`inline-flex min-w-0 max-w-full rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                                              option,
+                                              categoryColorMap
+                                            )}`}
+                                          >
+                                            <span className="truncate">
+                                              {option}
+                                            </span>
+                                          </span>
+
+                                        ) : (
+
+                                          <span>
+                                            {filter.field ===
+                                            "deadline"
+                                              ? formatDeadline(
+                                                  option
+                                                )
+                                              : option}
+                                          </span>
+
+                                        )}
 
                                       </label>
 
                                     )
-                                  )
+                                  )}
+
+                                  </div>
 
                                 )}
 
@@ -4371,6 +4563,53 @@ return (
                   ×
                 </button>
 
+              )}
+
+              {quickMonths.map(
+                (month) => (
+
+                  <button
+                    key={`month-${month}`}
+                    type="button"
+                    onClick={() =>
+                      toggleArrayValue(
+                        month,
+                        quickMonths,
+                        setQuickMonths
+                      )
+                    }
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:brightness-95 ${getMonthStyle(
+                      month
+                    )}`}
+                  >
+                    {month} ×
+                  </button>
+
+                )
+              )}
+
+              {quickCategories.map(
+                (category) => (
+
+                  <button
+                    key={`category-${category}`}
+                    type="button"
+                    onClick={() =>
+                      toggleArrayValue(
+                        category,
+                        quickCategories,
+                        setQuickCategories
+                      )
+                    }
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:brightness-95 ${getCategoryStyle(
+                      category,
+                      categoryColorMap
+                    )}`}
+                  >
+                    {category} ×
+                  </button>
+
+                )
               )}
 
               {activeAdvancedFilterCount > 0 && (
