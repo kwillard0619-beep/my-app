@@ -126,6 +126,15 @@ export default function SubscribePage() {
     });
   };
 
+  const clearForm = () => {
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setSelected([]);
+    setStatus("idle");
+    setMessage("");
+  };
+
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -475,10 +484,15 @@ export default function SubscribePage() {
                   )}
                 </fieldset>
 
-                <div className="mt-8 flex flex-col gap-3 border-t border-[#E2E3E3] pt-6 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-xs leading-5 text-[#778189]">
-                    One email each week. Focused on the categories you choose.
-                  </p>
+                <div className="mt-8 flex flex-col gap-3 border-t border-[#E2E3E3] pt-6 sm:flex-row sm:items-center sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={clearForm}
+                    disabled={status === "submitting"}
+                    className="inline-flex items-center justify-center rounded-xl border border-[#C8CBCC] bg-[#F4F3F1] px-5 py-3.5 text-sm font-semibold text-[#565E64] transition hover:border-[#AEB3B6] hover:bg-white hover:text-[#2F3038] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Clear Form
+                  </button>
                   <button
                     type="submit"
                     disabled={
