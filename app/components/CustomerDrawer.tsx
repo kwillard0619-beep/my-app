@@ -11,6 +11,9 @@ type DrawerContact = {
 
 type Props = {
   customer: Customer | null;
+  isFavorite?: boolean;
+  favoriteDisabled?: boolean;
+  onToggleFavorite?: () => void;
   availableCategories?: string[];
   categoryColorMap?: Record<string, string>;
   navigationCustomers?: Customer[];
@@ -20,6 +23,9 @@ type Props = {
 
 export default function CustomerDrawer({
   customer,
+  isFavorite = false,
+  favoriteDisabled = false,
+  onToggleFavorite,
   availableCategories = [],
   categoryColorMap = {},
   navigationCustomers = [],
@@ -400,28 +406,55 @@ export default function CustomerDrawer({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close opportunity details"
-              title="Close"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/80 transition hover:rotate-90 hover:bg-white hover:text-[#2F3038]"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.8}
-                stroke="currentColor"
-                className="h-5 w-5"
+            <div className="flex shrink-0 items-center gap-2">
+              {onToggleFavorite && (
+                <button
+                  type="button"
+                  onClick={onToggleFavorite}
+                  disabled={favoriteDisabled}
+                  aria-label={
+                    isFavorite
+                      ? "Remove from favorites"
+                      : "Add to favorites"
+                  }
+                  title={
+                    isFavorite
+                      ? "Remove from Favorites"
+                      : "Add to Favorites"
+                  }
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border text-xl transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-wait disabled:opacity-50 ${
+                    isFavorite
+                      ? "border-[#C4932D] bg-[#F2C14E] text-[#171719]"
+                      : "border-white/20 bg-white/10 text-white hover:border-[#F2C14E] hover:text-[#F2C14E]"
+                  }`}
+                >
+                  {isFavorite ? "★" : "☆"}
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close opportunity details"
+                title="Close"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/80 transition hover:rotate-90 hover:bg-white hover:text-[#2F3038]"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.8}
+                  stroke="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
         </header>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import AppSidebar from "../components/AppSidebar";
 import {
   type FormEvent,
   useEffect,
@@ -24,34 +25,6 @@ type FormStatus =
   | "success"
   | "duplicate"
   | "error";
-
-const navigationItems = [
-  {
-    label: "Active Opportunities",
-    icon: "▦",
-    href: "/",
-  },
-  {
-    label: "Archived Opportunities",
-    icon: "◫",
-    href: "/archived",
-  },
-  {
-    label: "Prospect Library",
-    icon: "▤",
-    href: "/prospect-library",
-  },
-  {
-    label: "Favorites",
-    icon: "☆",
-    href: "/favorites",
-  },
-  {
-    label: "Subscribe to RFP Alerts",
-    icon: "✉",
-    href: "/subscribe",
-  },
-];
 
 export default function SubscribePage() {
   const [firstName, setFirstName] = useState("");
@@ -212,64 +185,7 @@ export default function SubscribePage() {
   return (
     <main className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
       <div className="mx-auto flex min-h-screen max-w-[1920px]">
-        <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#CACDCF] px-4 py-6 lg:flex">
-          <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-white/25 blur-3xl" />
-
-          <Link href="/" className="relative flex items-center gap-3 px-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2F3038] text-sm font-bold tracking-wide text-white shadow-[0_10px_24px_rgba(38,39,43,0.18)]">
-              LG
-            </span>
-            <span>
-              <span className="block text-base font-bold tracking-[-0.02em]">
-                LG Listings
-              </span>
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#747E85]">
-                Funding Intelligence
-              </span>
-            </span>
-          </Link>
-
-          <nav
-            className="relative mt-10 space-y-2"
-            aria-label="Primary navigation"
-          >
-            {navigationItems.map((item) => {
-              const isActive = item.href === "/subscribe";
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm transition duration-200 ${
-                    isActive
-                      ? "bg-white font-semibold text-[#2F3038] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
-                      : "font-medium text-[#565E64] hover:translate-x-0.5 hover:bg-white/70 hover:text-[#2F3038]"
-                  }`}
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white/60 text-[#444B51]">
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <span className="ml-auto h-2 w-2 rounded-full bg-[#B7655E]" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="relative mt-auto border-t border-[#C8CBCC] pt-5">
-            <Link
-              href="/help"
-              className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition hover:bg-white/70 hover:text-[#2F3038]"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C8CBCC] text-sm font-bold">
-                ?
-              </span>
-              Help
-            </Link>
-          </div>
-        </aside>
+        <AppSidebar activePath="/subscribe" />
 
         <section className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
           <div className="mb-5 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/80 px-4 py-3 backdrop-blur lg:hidden">

@@ -7,8 +7,11 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import CustomerDrawer from "./CustomerDrawer";
+import AppSidebar from "./AppSidebar";
 import type { Customer } from "../types/customer";
 
 import {
@@ -113,6 +116,137 @@ export default function CustomerTable({
   customers: Customer[];
   activeCount: number;
 }) {
+  const router = useRouter();
+  const supabase = useMemo(
+    () => createClient(),
+    []
+  );
+
+  const [currentUserId, setCurrentUserId] =
+    useState<string | null>(null);
+  const [favoritesReady, setFavoritesReady] =
+    useState(false);
+  const [favoriteIds, setFavoriteIds] =
+    useState<Set<string>>(() => new Set());
+  const [favoritePendingIds, setFavoritePendingIds] =
+    useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadFavorites() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!active) return;
+
+      if (!user) {
+        setCurrentUserId(null);
+        setFavoriteIds(new Set());
+        setFavoritesReady(true);
+        return;
+      }
+
+      setCurrentUserId(user.id);
+
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("opportunity_id")
+        .eq("user_id", user.id);
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Error loading favorites:", error);
+        setFavoriteIds(new Set());
+      } else {
+        setFavoriteIds(
+          new Set(
+            (data ?? []).map((favorite) =>
+              String(favorite.opportunity_id)
+            )
+          )
+        );
+      }
+
+      setFavoritesReady(true);
+    }
+
+    loadFavorites();
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
+
+  const toggleFavorite = async (
+    opportunityId: Customer["id"]
+  ) => {
+    const id = String(opportunityId);
+
+    if (!favoritesReady) return;
+
+    if (!currentUserId) {
+      router.push("/login?next=/");
+      return;
+    }
+
+    if (favoritePendingIds.has(id)) return;
+
+    const wasFavorite = favoriteIds.has(id);
+
+    setFavoritePendingIds((current) => {
+      const next = new Set(current);
+      next.add(id);
+      return next;
+    });
+
+    setFavoriteIds((current) => {
+      const next = new Set(current);
+
+      if (wasFavorite) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return next;
+    });
+
+    const { error } = wasFavorite
+      ? await supabase
+          .from("favorites")
+          .delete()
+          .eq("user_id", currentUserId)
+          .eq("opportunity_id", opportunityId)
+      : await supabase.from("favorites").insert({
+          user_id: currentUserId,
+          opportunity_id: opportunityId,
+        });
+
+    if (error) {
+      console.error("Error updating favorite:", error);
+      setFavoriteIds((current) => {
+        const next = new Set(current);
+
+        if (wasFavorite) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+
+        return next;
+      });
+    }
+
+    setFavoritePendingIds((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  };
+
   // --------------------------------------------------
   // Selected Customer / Realtime Drawer
   // --------------------------------------------------
@@ -2565,71 +2699,7 @@ return (
   <div className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
     <div className="mx-auto flex min-h-screen max-w-[1920px]">
 
-      {/* ==================================================
-          PRIMARY NAVIGATION
-      ================================================== */}
-
-      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#CACDCF] px-4 py-6 lg:flex">
-        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[#C2A05A]/35 blur-3xl" />
-
-        <div className="relative flex items-center gap-3 px-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2F3038] text-sm font-bold tracking-wide text-white shadow-[0_10px_24px_rgba(38,59,73,0.18)]">
-            LG
-          </div>
-
-          <div>
-            <p className="text-base font-bold tracking-[-0.02em] text-[#2F3038]">
-              LG Listings
-            </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7B8791]">
-              Funding Intelligence
-            </p>
-          </div>
-        </div>
-
-        <nav className="relative mt-10 space-y-2" aria-label="Primary navigation">
-          <Link
-            href="/"
-            className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-left text-sm font-semibold text-[#2F3038] shadow-[0_8px_24px_rgba(63,91,108,0.08)]"
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECD8CA] text-[#444B51]">
-              ▦
-            </span>
-            Active Opportunities
-            <span className="ml-auto h-2 w-2 rounded-full bg-[#B7655E]" />
-          </Link>
-
-          {[
-            ["Archived Opportunities", "◫", "/archived"],
-            ["Prospect Library", "▤", "/prospect-library"],
-            ["Favorites", "☆", "/favorites"],
-            ["Subscribe to RFP Alerts", "✉", "/subscribe"],
-          ].map(([label, icon, href]) => (
-            <Link
-              key={label}
-              href={href}
-              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition duration-200 hover:translate-x-0.5 hover:bg-white/70 hover:text-[#2F3038]"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#CAB8B0] bg-[#EFE3DD] text-[#7B8791] transition group-hover:border-[#C99A85] group-hover:bg-white">
-                {icon}
-              </span>
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="relative mt-auto border-t border-[#C8B3AA] pt-5">
-          <Link
-            href="/help"
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-[#565E64] transition hover:bg-white/70 hover:text-[#2F3038]"
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C8CBCC] text-sm font-bold">
-              ?
-            </span>
-            Help
-          </Link>
-        </div>
-      </aside>
+      <AppSidebar activePath="/" />
 
       <main className="min-w-0 flex-1 py-4 sm:py-6">
         <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
@@ -4712,6 +4782,10 @@ return (
                   Categories
                 </th>
 
+                <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
+                  Save
+                </th>
+
               </tr>
 
             </thead>
@@ -4989,6 +5063,53 @@ return (
 
                       </td>
 
+                      {/* Favorite */}
+
+                      <td className="p-5 align-top text-center">
+                        <button
+                          type="button"
+                          disabled={
+                            !favoritesReady ||
+                            favoritePendingIds.has(
+                              String(customer.id)
+                            )
+                          }
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleFavorite(customer.id);
+                          }}
+                          aria-label={
+                            favoriteIds.has(
+                              String(customer.id)
+                            )
+                              ? "Remove from favorites"
+                              : "Add to favorites"
+                          }
+                          title={
+                            currentUserId
+                              ? favoriteIds.has(
+                                  String(customer.id)
+                                )
+                                ? "Remove from Favorites"
+                                : "Add to Favorites"
+                              : "Sign in to save this opportunity"
+                          }
+                          className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-xl transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-wait disabled:opacity-50 ${
+                            favoriteIds.has(
+                              String(customer.id)
+                            )
+                              ? "border-[#C4932D] bg-[#F2C14E] text-[#171719]"
+                              : "border-[#C8CBCC] bg-white text-[#69747C] hover:border-[#C4932D] hover:text-[#9A6D12]"
+                          }`}
+                        >
+                          {favoriteIds.has(
+                            String(customer.id)
+                          )
+                            ? "★"
+                            : "☆"}
+                        </button>
+                      </td>
+
                     </tr>
 
                   );
@@ -5078,6 +5199,26 @@ return (
 
       <CustomerDrawer
         customer={selectedCustomer}
+        isFavorite={
+          selectedCustomer
+            ? favoriteIds.has(
+                String(selectedCustomer.id)
+              )
+            : false
+        }
+        favoriteDisabled={
+          !favoritesReady ||
+          (selectedCustomer
+            ? favoritePendingIds.has(
+                String(selectedCustomer.id)
+              )
+            : false)
+        }
+        onToggleFavorite={() => {
+          if (selectedCustomer) {
+            toggleFavorite(selectedCustomer.id);
+          }
+        }}
         availableCategories={availableCategories}
         categoryColorMap={categoryColorMap}
         navigationCustomers={filteredCustomers}
