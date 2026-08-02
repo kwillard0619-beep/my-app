@@ -112,9 +112,11 @@ const MAXIMUM_GRANT_RANGES = [
 export default function CustomerTable({
   customers,
   activeCount,
+  mode = "active",
 }: {
   customers: Customer[];
   activeCount: number;
+  mode?: "active" | "favorites";
 }) {
   const router = useRouter();
   const supabase = useMemo(
@@ -127,9 +129,42 @@ export default function CustomerTable({
   const [favoritesReady, setFavoritesReady] =
     useState(false);
   const [favoriteIds, setFavoriteIds] =
-    useState<Set<string>>(() => new Set());
+    useState<Set<string>>(
+      () =>
+        mode === "favorites"
+          ? new Set(
+              customers.map((customer) =>
+                String(customer.id)
+              )
+            )
+          : new Set()
+    );
   const [favoritePendingIds, setFavoritePendingIds] =
     useState<Set<string>>(() => new Set());
+  const [favoriteView, setFavoriteView] =
+    useState<"active" | "archived">("active");
+
+  const favoriteActiveCount = useMemo(
+    () =>
+      customers.filter(
+        (customer) =>
+          String(customer.Category)
+            .trim()
+            .toLowerCase() === "active"
+      ).length,
+    [customers]
+  );
+
+  const favoriteArchivedCount = useMemo(
+    () =>
+      customers.filter(
+        (customer) =>
+          String(customer.Category)
+            .trim()
+            .toLowerCase() === "archived"
+      ).length,
+    [customers]
+  );
 
   useEffect(() => {
     let active = true;
@@ -1333,10 +1368,23 @@ export default function CustomerTable({
   // --------------------------------------------------
 
  const filteredCustomers = useMemo(() => {
+  const desiredStatus =
+    mode === "favorites"
+      ? favoriteView
+      : "active";
+
   let result = customers.filter(
     (customer) =>
-      customer.Category === "active"
+      String(customer.Category)
+        .trim()
+        .toLowerCase() === desiredStatus
   );
+
+  if (mode === "favorites") {
+    result = result.filter((customer) =>
+      favoriteIds.has(String(customer.id))
+    );
+  }
 
   // --------------------------------------------------
   // SEARCH
@@ -1643,6 +1691,9 @@ export default function CustomerTable({
   quickMonths,
   quickCategories,
   advancedFilters,
+  mode,
+  favoriteView,
+  favoriteIds,
 ]);
 
   // --------------------------------------------------
@@ -1755,7 +1806,10 @@ export default function CustomerTable({
       .slice(0, 10);
 
     downloadLink.href = downloadUrl;
-    downloadLink.download = `active-opportunities-${date}.csv`;
+    downloadLink.download =
+      mode === "favorites"
+        ? `${favoriteView}-favorite-opportunities-${date}.csv`
+        : `active-opportunities-${date}.csv`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     downloadLink.remove();
@@ -2699,7 +2753,13 @@ return (
   <div className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
     <div className="mx-auto flex min-h-screen max-w-[1920px]">
 
-      <AppSidebar activePath="/" />
+      <AppSidebar
+        activePath={
+          mode === "favorites"
+            ? "/favorites"
+            : "/"
+        }
+      />
 
       <main className="min-w-0 flex-1 py-4 sm:py-6">
         <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
@@ -2802,15 +2862,21 @@ return (
               <div className="max-w-3xl">
 
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#E1DFDE]">
-                  Private Grant Funding
+                  {mode === "favorites"
+                    ? "Your Funding Workspace"
+                    : "Private Grant Funding"}
                 </p>
 
                 <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
-                  Active RFP Opportunities
+                  {mode === "favorites"
+                    ? "Favorite Opportunities"
+                    : "Active RFP Opportunities"}
                 </h1>
 
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[#E9E9E7] sm:text-base">
-                  Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities.
+                  {mode === "favorites"
+                    ? "Review saved opportunities, organize upcoming deadlines, and keep your funding priorities in one focused workspace."
+                    : "Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities."}
                 </p>
 
               </div>
@@ -2838,6 +2904,63 @@ return (
 
       <div className="h-6 bg-[#D4D5D6] sm:h-8" />
 
+      {mode === "favorites" && (
+        <section className="mb-7 flex flex-col gap-4 rounded-[24px] border border-[#C8CBCC] bg-[#E9E9E7] p-5 shadow-[0_10px_28px_rgba(47,48,56,0.06)] sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
+              Saved opportunity status
+            </p>
+            <h2 className="mt-1 text-xl font-bold text-[#2F3038]">
+              Choose your favorites view
+            </h2>
+          </div>
+
+          <div className="inline-flex w-full rounded-2xl border border-[#C8CBCC] bg-white p-1.5 sm:w-auto">
+            <button
+              type="button"
+              onClick={() =>
+                setFavoriteView("active")
+              }
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition sm:flex-none ${
+                favoriteView === "active"
+                  ? "bg-[#2F3038] text-white shadow-sm"
+                  : "text-[#626A70] hover:bg-[#F4F3F1] hover:text-[#2F3038]"
+              }`}
+            >
+              Active
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                favoriteView === "active"
+                  ? "bg-white/15 text-white"
+                  : "bg-[#E2E3E3] text-[#626A70]"
+              }`}>
+                {favoriteActiveCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                setFavoriteView("archived")
+              }
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition sm:flex-none ${
+                favoriteView === "archived"
+                  ? "bg-[#2F3038] text-white shadow-sm"
+                  : "text-[#626A70] hover:bg-[#F4F3F1] hover:text-[#2F3038]"
+              }`}
+            >
+              Archived
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                favoriteView === "archived"
+                  ? "bg-white/15 text-white"
+                  : "bg-[#E2E3E3] text-[#626A70]"
+              }`}>
+                {favoriteArchivedCount}
+              </span>
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* ==================================================
           FUNDING TIMELINE
       ================================================== */}
@@ -2849,7 +2972,9 @@ return (
               Planning workspace
             </p>
             <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
-              Your Funding Timeline
+              {mode === "favorites"
+                ? "Your Saved Funding Timeline"
+                : "Your Funding Timeline"}
             </h2>
             <p className="mt-2 overflow-x-auto whitespace-nowrap pb-1 text-sm leading-6 text-[#626A70]">
               The calendar highlights the next five deadlines—select a colored date or its matching opportunity to open the full record.
@@ -4739,7 +4864,11 @@ return (
             Opportunity directory
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
-            Active Opportunities
+            {mode === "favorites"
+              ? favoriteView === "active"
+                ? "Active Favorites"
+                : "Archived Favorites"
+              : "Active Opportunities"}
           </h2>
         </div>
       </div>
@@ -5182,10 +5311,18 @@ return (
           <span className="text-sm font-semibold text-[#4B5359]">
 
             <span className="font-bold text-[#2F3038]">
-              {activeCount}
+              {mode === "favorites"
+                ? favoriteView === "active"
+                  ? favoriteActiveCount
+                  : favoriteArchivedCount
+                : activeCount}
             </span>{" "}
 
-            Active Opportunities
+            {mode === "favorites"
+              ? favoriteView === "active"
+                ? "Active Favorites"
+                : "Archived Favorites"
+              : "Active Opportunities"}
 
           </span>
 

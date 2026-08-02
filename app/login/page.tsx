@@ -30,11 +30,20 @@ export default function LoginPage() {
   const [status, setStatus] =
     useState<FormStatus>("idle");
   const [message, setMessage] = useState("");
+  const [nextPath, setNextPath] =
+    useState("/account");
 
   useEffect(() => {
     const searchParams = new URLSearchParams(
       window.location.search
     );
+
+    const requestedNext =
+      searchParams.get("next");
+
+    if (requestedNext?.startsWith("/")) {
+      setNextPath(requestedNext);
+    }
 
     if (
       searchParams.get("error") ===
@@ -101,7 +110,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace("/account");
+    router.replace(nextPath);
     router.refresh();
   };
 
