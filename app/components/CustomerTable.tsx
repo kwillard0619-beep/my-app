@@ -144,6 +144,11 @@ export default function CustomerTable({
   const [favoriteView, setFavoriteView] =
     useState<"active" | "archived">("active");
 
+  const isArchivedView =
+    mode === "archived" ||
+    (mode === "favorites" &&
+      favoriteView === "archived");
+
   const favoriteActiveCount = useMemo(
     () =>
       customers.filter(
@@ -816,9 +821,17 @@ export default function CustomerTable({
     const daysUntil =
       getDeadlineDays(deadline);
 
+    if (daysUntil === null) {
+      return false;
+    }
+
+    const relevantDays = isArchivedView
+      ? Math.abs(daysUntil)
+      : daysUntil;
+
     if (
-      daysUntil === null ||
-      daysUntil < 0
+      (isArchivedView && daysUntil >= 0) ||
+      (!isArchivedView && daysUntil < 0)
     ) {
       return false;
     }
@@ -826,19 +839,19 @@ export default function CustomerTable({
     if (
       quickDeadline === "30"
     ) {
-      return daysUntil <= 30;
+      return relevantDays <= 30;
     }
 
     if (
       quickDeadline === "60"
     ) {
-      return daysUntil <= 60;
+      return relevantDays <= 60;
     }
 
     if (
       quickDeadline === "90"
     ) {
-      return daysUntil <= 90;
+      return relevantDays <= 90;
     }
 
     return true;
@@ -1752,7 +1765,9 @@ export default function CustomerTable({
       "Anticipated Deadline Month",
       "Categories",
       "Website",
-      "Deadline Countdown",
+      isArchivedView
+        ? "Time Since Deadline"
+        : "Deadline Countdown",
       "Abstract",
       "Contact Name",
       "Contact Email",
@@ -1809,7 +1824,9 @@ export default function CustomerTable({
     downloadLink.download =
       mode === "favorites"
         ? `${favoriteView}-favorite-opportunities-${date}.csv`
-        : `active-opportunities-${date}.csv`;
+        : mode === "archived"
+          ? `archived-opportunities-${date}.csv`
+          : `active-opportunities-${date}.csv`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     downloadLink.remove();
@@ -1830,16 +1847,19 @@ export default function CustomerTable({
     | "category";
 
   const getQuickFacetCustomers = (
-    excludedFacet: QuickFilterFacet
-  ) => {
-    return customers.filter((customer) => {
-      if (
-        String(customer.status)
-          .trim()
-          .toLowerCase() !== "active"
-      ) {
-        return false;
-      }
+  excludedFacet: QuickFilterFacet
+) => {
+  return customers.filter((customer) => {
+    if (
+      String(customer.status)
+        .trim()
+        .toLowerCase() !==
+      (mode === "favorites"
+        ? favoriteView
+        : mode)
+    ) {
+      return false;
+    }
 
       if (
         excludedFacet !== "grantor" &&
@@ -2720,6 +2740,55 @@ export default function CustomerTable({
     [filteredCustomers]
   );
 
+  const recentlyClosedCustomers = useMemo(
+    () =>
+      [...filteredCustomers]
+        .filter(
+          (customer) =>
+            Boolean(customer.deadline) &&
+            !Number.isNaN(
+              new Date(
+                `${customer.deadline}T00:00:00`
+              ).getTime()
+            )
+        )
+        .sort(
+          (first, second) =>
+            new Date(
+              `${second.deadline}T00:00:00`
+            ).getTime() -
+            new Date(
+              `${first.deadline}T00:00:00`
+            ).getTime()
+        )
+        .slice(0, 3),
+    [filteredCustomers]
+  );
+
+  const closedLastThirtyDaysCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(
+      thirtyDaysAgo.getDate() - 30
+    );
+
+    return filteredCustomers.filter((customer) => {
+      if (!customer.deadline) return false;
+
+      const deadline = new Date(
+        `${customer.deadline}T00:00:00`
+      );
+
+      return (
+        !Number.isNaN(deadline.getTime()) &&
+        deadline < today &&
+        deadline >= thirtyDaysAgo
+      );
+    }).length;
+  }, [filteredCustomers]);
+
   const getDeadlineAccent = (
     customerId: Customer["id"]
   ) => {
@@ -2907,19 +2976,25 @@ return (
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#E1DFDE]">
                   {mode === "favorites"
                     ? "Your Funding Workspace"
-                    : "Private Grant Funding"}
+                    : mode === "archived"
+                      ? "Historical Funding Directory"
+                      : "Private Grant Funding"}
                 </p>
 
                 <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
                   {mode === "favorites"
                     ? "Favorite Opportunities"
-                    : "Active RFP Opportunities"}
+                    : mode === "archived"
+                      ? "Archived RFP Opportunities"
+                      : "Active RFP Opportunities"}
                 </h1>
 
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[#E9E9E7] sm:text-base">
                   {mode === "favorites"
                     ? "Review saved opportunities, organize upcoming deadlines, and keep your funding priorities in one focused workspace."
-                    : "Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities."}
+                    : mode === "archived"
+                      ? "Review past funding opportunities, compare historical deadlines, and explore previously available programs."
+                      : "Explore current funding opportunities and discover grants that align with your research, programs, and academic priorities."}
                 </p>
 
               </div>
@@ -3337,6 +3412,126 @@ return (
           </div>
         </div>
       </section>
+      ) : mode === "archived" ? (
+        <section className="mb-7">
+          <div className="mb-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#7B8791]">
+              Historical funding landscape
+            </p>
+            <h2 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#2F3038]">
+              Archive Pulse
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#626A70]">
+              Review recently passed deadlines and the funding areas most represented in your archive.
+            </p>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[0.72fr_1.18fr_1.1fr]">
+            <div className="group relative min-h-[210px] overflow-hidden rounded-[26px] bg-[#2F3038] p-6 text-white shadow-[0_16px_40px_rgba(47,48,56,0.16)]">
+              <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#B7655E]/25 blur-3xl transition duration-500 group-hover:scale-110" />
+              <div className="relative flex h-full flex-col">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-lg">
+                  ◷
+                </span>
+                <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
+                  Passed in 30 days
+                </p>
+                <p className="mt-1 text-5xl font-bold tracking-[-0.05em]">
+                  {closedLastThirtyDaysCount}
+                </p>
+                <p className="mt-auto pt-4 text-xs leading-5 text-[#BFC5C8]">
+                  Opportunities with deadlines that passed during the last 30 days.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative min-h-[210px] overflow-hidden rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)]">
+              <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl" />
+              <div className="relative">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
+                  Most recently closed
+                </p>
+                {recentlyClosedCustomers[0] ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedCustomerId(
+                        String(recentlyClosedCustomers[0].id)
+                      )
+                    }
+                    className="group/closed mt-4 w-full rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                  >
+                    <span className="block text-xs font-bold uppercase tracking-[0.12em] text-[#778189]">
+                      {recentlyClosedCustomers[0].grantor ||
+                        "Grantor not specified"}
+                    </span>
+                    <span className="mt-2 block text-base font-bold leading-5 text-[#2F3038]">
+                      {recentlyClosedCustomers[0].opportunity_name ||
+                        "Untitled opportunity"}
+                    </span>
+                    <span className="mt-4 flex items-center justify-between text-xs font-semibold text-[#626A70]">
+                      {formatDeadline(
+                        recentlyClosedCustomers[0].deadline ?? ""
+                      )}
+                      <span className="transition group-hover/closed:translate-x-1">
+                        →
+                      </span>
+                    </span>
+                  </button>
+                ) : (
+                  <div className="mt-4 flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-[#C8CBCC] bg-[#F4F3F1] px-5 text-center text-sm text-[#778189]">
+                    No archived deadlines are currently available.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="min-h-[210px] rounded-[26px] border border-[#C8CBCC] bg-[#E9E9E7] p-6 shadow-[0_12px_30px_rgba(47,48,56,0.06)]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
+                Recent archive activity
+              </p>
+              <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                Recently Closed
+              </h3>
+
+              <div className="mt-4 space-y-2">
+                {recentlyClosedCustomers.length > 0 ? (
+                  recentlyClosedCustomers.map((customer) => (
+                    <button
+                      key={customer.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedCustomerId(
+                          String(customer.id)
+                        )
+                      }
+                      className="group/recent-closed flex w-full items-center gap-3 rounded-xl border border-transparent bg-white/75 px-3 py-2.5 text-left transition hover:border-[#C8CBCC] hover:bg-white hover:shadow-sm"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs font-semibold text-[#2F3038]">
+                          {customer.opportunity_name ||
+                            "Untitled opportunity"}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[10px] text-[#778189]">
+                          {formatDeadline(
+                            customer.deadline ?? ""
+                          )}
+                        </span>
+                      </span>
+                      <span className="text-[#778189] opacity-40 transition group-hover/recent-closed:translate-x-1 group-hover/recent-closed:opacity-100">
+                        →
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="rounded-xl border border-dashed border-[#C8CBCC] bg-white/50 p-4 text-center text-sm text-[#778189]">
+                    No recently closed opportunities are available.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
       ) : (
         <section className="mb-7">
           <div className="mb-5">
@@ -3505,7 +3700,9 @@ return (
             </p>
             <div className="mt-1">
               <h2 className="text-xl font-bold text-white">
-                Find the right opportunity
+                {isArchivedView
+                  ? "Explore past opportunities"
+                  : "Find the right opportunity"}
               </h2>
             </div>
           </div>
@@ -3541,7 +3738,11 @@ return (
 
               <input
                 type="text"
-                placeholder="Search grants, organizations, categories, key words..."
+                placeholder={
+                  isArchivedView
+                    ? "Search past grants, organizations, categories, key words..."
+                    : "Search grants, organizations, categories, key words..."
+                }
                 value={searchInput}
                 onChange={(e) =>
                   setSearchInput(e.target.value)
@@ -4214,15 +4415,21 @@ return (
                     </option>
 
                     <option value="30">
-                      Due within 30 days
+                      {isArchivedView
+                        ? "Closed within the past 30 days"
+                        : "Due within 30 days"}
                     </option>
 
                     <option value="60">
-                      Due within 60 days
+                      {isArchivedView
+                        ? "Closed within the past 60 days"
+                        : "Due within 60 days"}
                     </option>
 
                     <option value="90">
-                      Due within 90 days
+                      {isArchivedView
+                        ? "Closed within the past 90 days"
+                        : "Due within 90 days"}
                     </option>
 
                     <option value="no-deadline">
@@ -4951,7 +5158,9 @@ return (
                   {quickDeadline ===
                   "no-deadline"
                     ? "No specific deadline"
-                    : `Within ${quickDeadline} days`}{" "}
+                    : isArchivedView
+                      ? `Closed within ${quickDeadline} days`
+                      : `Due within ${quickDeadline} days`}{" "}
                   ×
                 </button>
 
@@ -5065,7 +5274,9 @@ return (
               ? favoriteView === "active"
                 ? "Active Favorites"
                 : "Archived Favorites"
-              : "Active Opportunities"}
+              : mode === "archived"
+                ? "Archived Opportunities"
+                : "Active Opportunities"}
           </h2>
         </div>
       </div>
