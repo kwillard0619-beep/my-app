@@ -1,10 +1,15 @@
-import { Contact } from "resend";
+export type Contact = {
+  id: number;
+  name: string;
+  email: string | null;
+  organization: string | null;
+};
 
 export type Customer = {
   id: number;
 
-  // Hidden internal field used to determine active status
-  Category: string;
+  // Internal field used for active/archived status
+  status: string | null;
 
   // Opportunity information
   grantor: string;
@@ -18,6 +23,8 @@ export type Customer = {
   additional_information: string | null;
   limited_opportunity: string | null;
   fellowship_opportunity: string | null;
+
+  // Contact relationship
   contact_id: number | null;
   contact: Contact | null;
 

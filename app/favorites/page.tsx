@@ -69,7 +69,7 @@ export default async function FavoritesPage() {
 
   const activeCount = customers.filter(
     (customer) =>
-      String(customer.Category)
+      String(customer.status)
         .trim()
         .toLowerCase() === "active"
   ).length;

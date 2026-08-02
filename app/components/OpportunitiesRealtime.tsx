@@ -7,13 +7,18 @@ import type { Customer } from "../types/customer";
 
 export default function OpportunitiesRealtime({
   initialCustomers,
-  activeCount,
 }: {
   initialCustomers: Customer[];
   activeCount: number;
 }) {
   const [customers, setCustomers] =
     useState<Customer[]>(initialCustomers);
+
+  // Keep local state synchronized if the server
+  // supplies a refreshed opportunity list.
+  useEffect(() => {
+    setCustomers(initialCustomers);
+  }, [initialCustomers]);
 
   useEffect(() => {
     const channel = supabase
@@ -25,30 +30,95 @@ export default function OpportunitiesRealtime({
           schema: "public",
           table: "Personal_BB",
         },
-        
         (payload) => {
-         if (payload.eventType === "INSERT") {
-            setCustomers((current) => [
-              ...current,
-              payload.new as Customer,
-            ]);
+          if (payload.eventType === "INSERT") {
+            const newCustomer =
+              payload.new as Customer;
+
+            // Only add active opportunities to this page.
+            if (
+              String(newCustomer.status)
+                .trim()
+                .toLowerCase() !== "active"
+            ) {
+              return;
+            }
+
+            setCustomers((current) => {
+              const alreadyExists = current.some(
+                (customer) =>
+                  String(customer.id) ===
+                  String(newCustomer.id)
+              );
+
+              if (alreadyExists) {
+                return current;
+              }
+
+              return [...current, newCustomer];
+            });
           }
 
           if (payload.eventType === "UPDATE") {
-            setCustomers((current) =>
-              current.map((customer) =>
-                customer.id === payload.new.id
-                  ? (payload.new as Customer)
+            const updatedCustomer =
+              payload.new as Customer;
+
+            const isActive =
+              String(updatedCustomer.status)
+                .trim()
+                .toLowerCase() === "active";
+
+            setCustomers((current) => {
+              // Remove the record from the active page
+              // as soon as its status becomes archived.
+              if (!isActive) {
+                return current.filter(
+                  (customer) =>
+                    String(customer.id) !==
+                    String(updatedCustomer.id)
+                );
+              }
+
+              const existingCustomer =
+                current.find(
+                  (customer) =>
+                    String(customer.id) ===
+                    String(updatedCustomer.id)
+                );
+
+              // If an archived record becomes active,
+              // add it to the active page.
+              if (!existingCustomer) {
+                return [
+                  ...current,
+                  updatedCustomer,
+                ];
+              }
+
+              return current.map((customer) =>
+                String(customer.id) ===
+                String(updatedCustomer.id)
+                  ? {
+                      ...customer,
+                      ...updatedCustomer,
+
+                      // Realtime database payloads do not
+                      // include the joined contact record.
+                      contact:
+                        updatedCustomer.contact ??
+                        customer.contact,
+                    }
                   : customer
-              )
-            );
+              );
+            });
           }
 
           if (payload.eventType === "DELETE") {
             setCustomers((current) =>
               current.filter(
                 (customer) =>
-                  customer.id !== payload.old.id
+                  String(customer.id) !==
+                  String(payload.old.id)
               )
             );
           }
@@ -63,12 +133,14 @@ export default function OpportunitiesRealtime({
 
   const activeCustomers = customers.filter(
     (customer) =>
-      customer.Category === "active"
+      String(customer.status)
+        .trim()
+        .toLowerCase() === "active"
   );
 
   return (
     <CustomerTable
-      customers={customers}
+      customers={activeCustomers}
       activeCount={activeCustomers.length}
     />
   );

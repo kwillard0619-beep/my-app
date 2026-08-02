@@ -5,17 +5,18 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { data, error } = await supabase
-  .from("Personal_BB")
-  .select(`
-    *,
-    contact:contacts!Personal_BB_contact_id_fkey (
-      id,
-      name,
-      email,
-      organization
-    )
-  `);
-  
+    .from("Personal_BB")
+    .select(`
+      *,
+      contact:contacts!Personal_BB_contact_id_fkey (
+        id,
+        name,
+        email,
+        organization
+      )
+    `)
+    .eq("status", "active");
+
   if (error) {
     return (
       <div className="p-8 text-red-600">
@@ -24,10 +25,7 @@ export default async function Home() {
     );
   }
 
-  const activeCount =
-    data?.filter(
-      (customer) => customer.Category === "active"
-    ).length ?? 0;
+  const activeCount = data?.length ?? 0;
 
   return (
     <div className="min-h-screen bg-gray-100">

@@ -116,7 +116,7 @@ export default function CustomerTable({
 }: {
   customers: Customer[];
   activeCount: number;
-  mode?: "active" | "favorites";
+  mode?: "active" | "archived" | "favorites";
 }) {
   const router = useRouter();
   const supabase = useMemo(
@@ -148,7 +148,7 @@ export default function CustomerTable({
     () =>
       customers.filter(
         (customer) =>
-          String(customer.Category)
+          String(customer.status)
             .trim()
             .toLowerCase() === "active"
       ).length,
@@ -159,7 +159,7 @@ export default function CustomerTable({
     () =>
       customers.filter(
         (customer) =>
-          String(customer.Category)
+          String(customer.status)
             .trim()
             .toLowerCase() === "archived"
       ).length,
@@ -1369,13 +1369,13 @@ export default function CustomerTable({
 
  const filteredCustomers = useMemo(() => {
   const desiredStatus =
-    mode === "favorites"
-      ? favoriteView
-      : "active";
+  mode === "favorites"
+    ? favoriteView
+    : mode;
 
   let result = customers.filter(
     (customer) =>
-      String(customer.Category)
+      String(customer.status)
         .trim()
         .toLowerCase() === desiredStatus
   );
@@ -1833,7 +1833,11 @@ export default function CustomerTable({
     excludedFacet: QuickFilterFacet
   ) => {
     return customers.filter((customer) => {
-      if (customer.Category !== "active") {
+      if (
+        String(customer.status)
+          .trim()
+          .toLowerCase() !== "active"
+      ) {
         return false;
       }
 
@@ -2791,12 +2795,14 @@ return (
     <div className="mx-auto flex min-h-screen max-w-[1920px]">
 
       <AppSidebar
-        activePath={
-          mode === "favorites"
-            ? "/favorites"
-            : "/"
-        }
-      />
+  activePath={
+    mode === "favorites"
+      ? "/favorites"
+      : mode === "archived"
+        ? "/archived"
+        : "/"
+  }
+/>
 
       <main className="min-w-0 flex-1 py-4 sm:py-6">
         <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
@@ -5513,7 +5519,9 @@ return (
               ? favoriteView === "active"
                 ? "Active Favorites"
                 : "Archived Favorites"
-              : "Active Opportunities"}
+              : mode === "archived"
+                ? "Archived Opportunities"
+                : "Active Opportunities"}
 
           </span>
 
