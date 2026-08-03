@@ -8,7 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import {
   createCategoryColorMap,
   getCategoryStyle,
@@ -27,6 +27,11 @@ type FormStatus =
   | "error";
 
 export default function SubscribePage() {
+  const supabase = useMemo(
+    () => createClient(),
+    []
+  );
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -64,7 +69,7 @@ export default function SubscribePage() {
     }
 
     loadCategories();
-  }, []);
+  }, [supabase]);
 
   const categoryColorMap = useMemo(
     () =>

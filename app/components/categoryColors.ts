@@ -11,44 +11,77 @@ const SOLID_CATEGORY_COLORS = [
   "border-[#BD9181] bg-[#D9B5A7] text-[#171719]",
   "border-[#95A4CE] bg-[#B8C4E6] text-[#171719]",
   "border-[#D58A55] bg-[#F0A76E] text-[#171719]",
-];
+] as const;
+
+function normalizeCategory(category: string) {
+  return category.trim().toLowerCase();
+}
+
+function getStableCategoryColor(
+  category: string
+) {
+  const normalizedCategory =
+    normalizeCategory(category);
+
+  // FNV-1a creates a stable numeric value from the
+  // category name. The result does not depend on the
+  // categories present on the current page or their order.
+  let hash = 2166136261;
+
+  for (
+    let index = 0;
+    index < normalizedCategory.length;
+    index += 1
+  ) {
+    hash ^= normalizedCategory.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  const colorIndex =
+    (hash >>> 0) % SOLID_CATEGORY_COLORS.length;
+
+  return SOLID_CATEGORY_COLORS[colorIndex];
+}
 
 export function createCategoryColorMap(
   categories: string[]
 ) {
-  return categories.reduce<
-    Record<string, string>
-  >((colorMap, category, index) => {
-    colorMap[category] =
-      SOLID_CATEGORY_COLORS[
-        index %
-          SOLID_CATEGORY_COLORS.length
-      ];
+  return categories.reduce<Record<string, string>>(
+    (colorMap, category) => {
+      const cleanedCategory = category.trim();
 
-    return colorMap;
-  }, {});
+      if (!cleanedCategory) {
+        return colorMap;
+      }
+
+      colorMap[cleanedCategory] =
+        getStableCategoryColor(cleanedCategory);
+
+      return colorMap;
+    },
+    {}
+  );
 }
 
 export function getCategoryStyle(
   category: string,
-  categoryColorMap: Record<
-    string,
-    string
-  >
+  categoryColorMap: Record<string, string>
 ) {
-  const normalizedCategory = category
-    .trim()
-    .toLowerCase();
+  const normalizedCategory =
+    normalizeCategory(category);
 
   const matchingCategory = Object.keys(
     categoryColorMap
   ).find(
     (key) =>
-      key.trim().toLowerCase() ===
+      normalizeCategory(key) ===
       normalizedCategory
   );
 
+  // The deterministic fallback is important for realtime
+  // records and saved legacy categories that were not part
+  // of the array used to build the current page's map.
   return matchingCategory
     ? categoryColorMap[matchingCategory]
-    : "border-[#9EA4A8] bg-[#BCC1C4] text-[#171719]";
+    : getStableCategoryColor(category);
 }
