@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
+import Image from "next/image";
 import AppSidebar from "../components/AppSidebar";
 
 const faqs = [
@@ -108,7 +109,19 @@ export default function HelpPage() {
               <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full border-[52px] border-white/[0.06]" />
               <div className="pointer-events-none absolute bottom-[-8rem] right-1/3 h-64 w-64 rounded-full bg-[#D6B9A9]/20 blur-3xl" />
 
-              <div className="relative max-w-3xl">
+              <div className="pointer-events-none absolute right-5 top-1/2 hidden h-[175px] w-[38%] -translate-y-1/2 sm:block lg:right-10 lg:h-[210px]">
+                <div className="absolute inset-0 rounded-full bg-[#DCE4E7]/10 blur-3xl" />
+                <Image
+                  src="/lg-listings-logo.png"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 34vw, 38vw"
+                  className="object-contain object-right opacity-[0.19] mix-blend-multiply"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <div className="relative max-w-3xl pr-0 sm:pr-[30%]">
                 <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#E1DFDE]">
                   LG Listings Support
                 </p>
