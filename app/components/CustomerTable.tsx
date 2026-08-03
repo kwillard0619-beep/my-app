@@ -19,6 +19,10 @@ import {
   getCategoryStyle,
 } from "./categoryColors";
 
+type FavoriteRow = {
+  opportunity_id: string | number;
+};
+
 type FilterField =
   | "grantor"
   | "maximum_grant"
@@ -201,13 +205,16 @@ export default function CustomerTable({
         console.error("Error loading favorites:", error);
         setFavoriteIds(new Set());
       } else {
-        setFavoriteIds(
-          new Set(
-            (data ?? []).map((favorite) =>
-              String(favorite.opportunity_id)
-            )
+        const favoriteRows =
+        (data ?? []) as FavoriteRow[];
+
+      setFavoriteIds(
+        new Set(
+          favoriteRows.map((favorite) =>
+            String(favorite.opportunity_id)
           )
-        );
+        )
+      );
       }
 
       setFavoritesReady(true);
