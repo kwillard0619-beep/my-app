@@ -19,6 +19,10 @@ import {
   getCategoryStyle,
 } from "./categoryColors";
 
+import {
+  getAnticipatedDeadlineStyle,
+} from "./anticipatedDeadlineColors";
+
 type FavoriteRow = {
   opportunity_id: string | number;
 };
@@ -2320,58 +2324,6 @@ export default function CustomerTable({
   };
 
   // --------------------------------------------------
-  // Anticipated Deadline Month Colors
-  // --------------------------------------------------
-
-  const getMonthStyle = (
-    month: string
-  ) => {
-    const normalizedMonth =
-      month
-        .trim()
-        .toLowerCase();
-
-    const monthColors: Record<
-      string,
-      string
-    > = {
-      january:
-        "border-[#8EAEDF] bg-[#AFCBFF] text-[#171719]",
-      february:
-        "border-[#A797D2] bg-[#C7B8EA] text-[#171719]",
-      march:
-        "border-[#7CB8A7] bg-[#9FD4C5] text-[#171719]",
-      april:
-        "border-[#D5A632] bg-[#F2C14E] text-[#171719]",
-      may:
-        "border-[#D994B3] bg-[#F3B6D2] text-[#171719]",
-      june:
-        "border-[#8FAAB1] bg-[#AFC6CC] text-[#171719]",
-      july:
-        "border-[#C29F64] bg-[#E2C28D] text-[#171719]",
-      august:
-        "border-[#95A4CE] bg-[#B8C4E6] text-[#171719]",
-      september:
-        "border-[#A7BB70] bg-[#C8D992] text-[#171719]",
-      october:
-        "border-[#D58A55] bg-[#F0A76E] text-[#171719]",
-      november:
-        "border-[#9EA4A8] bg-[#BCC1C4] text-[#171719]",
-      december:
-        "border-[#BD9181] bg-[#D9B5A7] text-[#171719]",
-      rolling:
-        "border-[#73797D] bg-[#949A9E] text-[#111214]",
-    };
-
-    return (
-      monthColors[
-        normalizedMonth
-      ] ||
-      "border-[#9EA4A8] bg-[#BCC1C4] text-[#171719]"
-    );
-  };
-
-  // --------------------------------------------------
   // Advanced Filter Functions
   // --------------------------------------------------
 
@@ -4540,7 +4492,7 @@ return (
                           />
 
                           <span
-                            className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
+                            className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getAnticipatedDeadlineStyle(
                               month
                             )}`}
                           >
@@ -4899,7 +4851,7 @@ return (
                                       className={`inline-flex max-w-full items-center gap-1 border px-2.5 py-1.5 text-xs font-semibold transition hover:brightness-95 ${
                                         filter.field ===
                                         "anticipated_deadline"
-                                          ? `rounded-full ${getMonthStyle(
+                                          ? `rounded-full ${getAnticipatedDeadlineStyle(
                                               value
                                             )}`
                                           : filter.field ===
@@ -5035,7 +4987,7 @@ return (
                                         "anticipated_deadline" ? (
 
                                           <span
-                                            className={`inline-flex min-w-0 max-w-full rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
+                                            className={`inline-flex min-w-0 max-w-full rounded-full border px-3 py-1 text-xs font-semibold ${getAnticipatedDeadlineStyle(
                                               option
                                             )}`}
                                           >
@@ -5215,7 +5167,7 @@ return (
                         setQuickMonths
                       )
                     }
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:brightness-95 ${getMonthStyle(
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:brightness-95 ${getAnticipatedDeadlineStyle(
                       month
                     )}`}
                   >
@@ -5561,7 +5513,7 @@ return (
                                 )
                               );
                             }}
-                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
+                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getAnticipatedDeadlineStyle(
                               customer.anticipated_deadline
                             )} transition hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md`}
                           >
