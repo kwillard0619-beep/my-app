@@ -66,12 +66,28 @@ export default function AccountForm({
   const [alertMessage, setAlertMessage] =
     useState("");
 
+  const alertCategoryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...availableAlertCategories,
+          ...initialAlertCategories,
+        ])
+      ).sort((first, second) =>
+        first.localeCompare(second)
+      ),
+    [
+      availableAlertCategories,
+      initialAlertCategories,
+    ]
+  );
+
   const categoryColorMap = useMemo(
     () =>
       createCategoryColorMap(
-        availableAlertCategories
+        alertCategoryOptions
       ),
-    [availableAlertCategories]
+    [alertCategoryOptions]
   );
 
   const isSubscribed = subscriberId !== null;
@@ -642,7 +658,7 @@ export default function AccountForm({
                     </div>
 
                     <div className="mt-5 flex flex-wrap gap-2.5">
-                      {availableAlertCategories.map(
+                      {alertCategoryOptions.map(
                         (category) => {
                           const selected =
                             draftAlertCategories.includes(
@@ -683,7 +699,7 @@ export default function AccountForm({
                       )}
                     </div>
 
-                    {availableAlertCategories.length ===
+                    {alertCategoryOptions.length ===
                       0 && (
                       <p className="mt-5 rounded-xl border border-dashed border-[#C8CBCC] bg-[#F4F3F1] p-4 text-sm text-[#778189]">
                         No alert categories are currently available.
