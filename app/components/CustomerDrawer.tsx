@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Customer } from "../types/customer";
 
 type DrawerContact = {
@@ -32,12 +33,33 @@ export default function CustomerDrawer({
   onNavigate,
   onClose,
 }: Props) {
+  const [copiedContactField, setCopiedContactField] =
+    useState<"name" | "email" | null>(null);
+
   if (!customer) return null;
 
   const contact = customer.contact as unknown as
     | DrawerContact
     | null
     | undefined;
+
+  const copyContactValue = async (
+    value: string,
+    field: "name" | "email"
+  ) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedContactField(field);
+
+      window.setTimeout(() => {
+        setCopiedContactField((current) =>
+          current === field ? null : current
+        );
+      }, 1600);
+    } catch (error) {
+      console.error("Unable to copy contact information:", error);
+    }
+  };
 
   // --------------------------------------------------
   // Navigation
@@ -591,9 +613,24 @@ export default function CustomerDrawer({
 
   <div className="mt-4 grid gap-3 sm:grid-cols-2">
     <div className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 sm:col-span-2">
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
-        Name
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+          Name
+        </p>
+        {contact?.name && (
+          <button
+            type="button"
+            onClick={() =>
+              copyContactValue(contact.name, "name")
+            }
+            className="rounded-lg border border-[#C8CBCC] bg-white px-2.5 py-1 text-[10px] font-bold text-[#626A70] transition hover:border-[#AEB3B6] hover:text-[#2F3038]"
+          >
+            {copiedContactField === "name"
+              ? "Copied ✓"
+              : "Copy"}
+          </button>
+        )}
+      </div>
 
       <p className="mt-2 text-sm font-semibold text-[#394147]">
         {contact?.name || "Not provided"}
@@ -601,9 +638,24 @@ export default function CustomerDrawer({
     </div>
 
     <div className="rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4">
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
-        Email
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+          Email
+        </p>
+        {contact?.email && (
+          <button
+            type="button"
+            onClick={() =>
+              copyContactValue(contact.email as string, "email")
+            }
+            className="rounded-lg border border-[#C8CBCC] bg-white px-2.5 py-1 text-[10px] font-bold text-[#626A70] transition hover:border-[#AEB3B6] hover:text-[#2F3038]"
+          >
+            {copiedContactField === "email"
+              ? "Copied ✓"
+              : "Copy"}
+          </button>
+        )}
+      </div>
 
       {contact?.email ? (
         <a
