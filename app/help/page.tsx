@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
-import Image from "next/image";
 import AppSidebar from "../components/AppSidebar";
 
 const faqs = [
@@ -105,34 +104,46 @@ export default function HelpPage() {
 
         <section className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
           <div className="mx-auto max-w-[1500px]">
-            <header className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-[#2F3038] via-[#505A61] to-[#A88B57] px-7 py-9 text-white shadow-[0_18px_45px_rgba(47,48,56,0.16)] sm:px-10 lg:px-14 lg:py-12">
-              <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full border-[52px] border-white/[0.06]" />
-              <div className="pointer-events-none absolute bottom-[-8rem] right-1/3 h-64 w-64 rounded-full bg-[#D6B9A9]/20 blur-3xl" />
+            <header className="relative overflow-hidden rounded-[28px] text-white shadow-[0_18px_45px_rgba(47,48,56,0.16)]">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2F3038] via-[#3E454B] via-[35%] via-[#66717A] via-[55%] via-[#7A858E] via-[75%] to-[#C2A05A]" />
 
-              <div className="pointer-events-none absolute right-5 top-1/2 hidden h-[175px] w-[38%] -translate-y-1/2 sm:block lg:right-10 lg:h-[210px]">
-                <div className="absolute inset-0 rounded-full bg-[#DCE4E7]/10 blur-3xl" />
-                <Image
+              <div className="pointer-events-none absolute inset-0">
+                <div className="absolute inset-y-0 left-[18%] w-[64%] bg-gradient-to-r from-[#3E454B]/20 via-[#6B8797]/30 to-[#C2A05A]/10 blur-[55px]" />
+              </div>
+
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden rounded-r-[28px]">
+                <div className="absolute inset-0 bg-gradient-to-l from-[#C2A05A]/20 via-[#9FB9C9]/10 to-transparent blur-[35px]" />
+              </div>
+
+              <div className="pointer-events-none absolute right-0 top-0 hidden h-[220px] w-[52%] overflow-hidden rounded-r-[28px] sm:block">
+                <div className="absolute inset-0 bg-gradient-to-l from-[#B8CBD5]/35 via-[#8FAEBD]/15 to-transparent blur-[18px]" />
+                <div className="absolute right-[-5%] top-1/2 h-[180px] w-[75%] -translate-y-1/2 rounded-full bg-[#E1DFDE]/10 blur-[45px]" />
+                <img
                   src="/lg-listings-logo.png"
                   alt=""
-                  fill
-                  sizes="(min-width: 1024px) 34vw, 38vw"
-                  className="object-contain object-right opacity-[0.19] mix-blend-multiply"
                   aria-hidden="true"
+                  className="absolute right-8 top-1/2 h-28 w-auto -translate-y-1/2 object-contain opacity-[0.20] mix-blend-multiply blur-[0.15px] xl:right-16 xl:h-36"
                 />
               </div>
 
-              <div className="relative max-w-3xl pr-0 sm:pr-[30%]">
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#E1DFDE]">
-                  LG Listings Support
-                </p>
-                <h1 className="mt-3 text-3xl font-bold tracking-[-0.035em] sm:text-4xl lg:text-[2.7rem]">
-                  How can we help?
-                </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-[#ECECEA] sm:text-base">
-                  Find answers about opportunities, deadlines, favorites,
-                  alerts, and exports—or send us a message if you need a
-                  hand.
-                </p>
+              <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
+                <div className="min-w-0 pr-0 sm:pr-52">
+                  <div className="max-w-3xl">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#E1DFDE]">
+                      LG Listings Support
+                    </p>
+                    <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
+                      How can we help?
+                    </h1>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-[#E9E9E7] sm:text-base">
+                      Find answers about opportunities, deadlines, favorites,
+                      alerts, and exports—or send us a message if you need a
+                      hand.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#E1DFDE]/60 to-transparent" />
               </div>
             </header>
 

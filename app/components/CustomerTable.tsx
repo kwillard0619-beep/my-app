@@ -18,14 +18,9 @@ import {
   createCategoryColorMap,
   getCategoryStyle,
 } from "./categoryColors";
-
 import {
   getAnticipatedDeadlineStyle,
 } from "./anticipatedDeadlineColors";
-
-type FavoriteRow = {
-  opportunity_id: string | number;
-};
 
 type FilterField =
   | "grantor"
@@ -64,6 +59,10 @@ type SortRule = {
   id: number;
   field: SortField;
   direction: SortDirection;
+};
+
+type FavoriteRow = {
+  opportunity_id: string | number;
 };
 
 const SORT_FIELD_LABELS: Record<SortField, string> = {
@@ -210,15 +209,15 @@ export default function CustomerTable({
         setFavoriteIds(new Set());
       } else {
         const favoriteRows =
-        (data ?? []) as FavoriteRow[];
+          (data ?? []) as FavoriteRow[];
 
-      setFavoriteIds(
-        new Set(
-          favoriteRows.map((favorite) =>
-            String(favorite.opportunity_id)
+        setFavoriteIds(
+          new Set(
+            favoriteRows.map((favorite) =>
+              String(favorite.opportunity_id)
+            )
           )
-        )
-      );
+        );
       }
 
       setFavoritesReady(true);
@@ -1948,8 +1947,6 @@ export default function CustomerTable({
     });
   };
 
-  const grantorFacetCustomers =
-    getQuickFacetCustomers("grantor");
   const maximumGrantFacetCustomers =
     getQuickFacetCustomers(
       "maximum_grant"
@@ -1978,12 +1975,6 @@ export default function CustomerTable({
       return a.localeCompare(b);
     });
 
-  const conditionalGrantors =
-    pinSelectedFirst(
-      availableGrantors,
-      quickGrantors
-    );
-
   const conditionalMaximumGrantRanges =
     pinSelectedFirst(
       availableMaximumGrants,
@@ -2001,14 +1992,6 @@ export default function CustomerTable({
       availableCategories,
       quickCategories
     );
-
-  const getGrantorFacetCount = (
-    grantor: string
-  ) =>
-    grantorFacetCustomers.filter(
-      (customer) =>
-        customer.grantor === grantor
-    ).length;
 
   const getMaximumGrantFacetCount = (
     rangeLabel: string
@@ -2322,6 +2305,13 @@ export default function CustomerTable({
         "bg-emerald-50 text-emerald-700 border-emerald-200",
     };
   };
+
+  // --------------------------------------------------
+  // Anticipated Deadline Month Colors
+  // --------------------------------------------------
+
+  const getMonthStyle =
+    getAnticipatedDeadlineStyle;
 
   // --------------------------------------------------
   // Advanced Filter Functions
@@ -4202,88 +4192,7 @@ return (
 
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-5">
-
-                {/* Grantor */}
-
-                <div>
-
-                  <div className="flex items-center justify-between gap-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                      Grantor
-                    </label>
-                    {quickGrantors.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setQuickGrantors([])}
-                        className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
-
-                    {conditionalGrantors.map(
-                      (grantor) => {
-                        const count =
-                          getGrantorFacetCount(
-                            grantor
-                          );
-                        const selected =
-                          quickGrantors.includes(
-                            grantor
-                          );
-                        const disabled =
-                          count === 0 &&
-                          !selected;
-
-                        return (
-
-                        <label
-                          key={grantor}
-                          className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
-                            disabled
-                              ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
-                              : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
-                          }`}
-                        >
-
-                          <input
-                            type="checkbox"
-                            checked={selected}
-                            disabled={disabled}
-                            onChange={() =>
-                              activateQuickFilter(
-                                () =>
-                                  toggleArrayValue(
-                                    grantor,
-                                    quickGrantors,
-                                    setQuickGrantors
-                                  )
-                              )
-                            }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
-                          />
-
-                          <span className="min-w-0 flex-1 truncate">
-                            {grantor}
-                          </span>
-
-                          <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
-                            {count}
-                          </span>
-
-                        </label>
-
-                        );
-                      }
-                    )}
-
-                  </div>
-
-                </div>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
 
                 {/* Maximum Grant */}
 
@@ -4492,7 +4401,7 @@ return (
                           />
 
                           <span
-                            className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getAnticipatedDeadlineStyle(
+                            className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
                               month
                             )}`}
                           >
@@ -4851,7 +4760,7 @@ return (
                                       className={`inline-flex max-w-full items-center gap-1 border px-2.5 py-1.5 text-xs font-semibold transition hover:brightness-95 ${
                                         filter.field ===
                                         "anticipated_deadline"
-                                          ? `rounded-full ${getAnticipatedDeadlineStyle(
+                                          ? `rounded-full ${getMonthStyle(
                                               value
                                             )}`
                                           : filter.field ===
@@ -4987,7 +4896,7 @@ return (
                                         "anticipated_deadline" ? (
 
                                           <span
-                                            className={`inline-flex min-w-0 max-w-full rounded-full border px-3 py-1 text-xs font-semibold ${getAnticipatedDeadlineStyle(
+                                            className={`inline-flex min-w-0 max-w-full rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
                                               option
                                             )}`}
                                           >
@@ -5089,28 +4998,6 @@ return (
                 Active filters:
               </span>
 
-              {quickGrantors.map(
-                (grantor) => (
-
-                  <button
-                    key={`grantor-${grantor}`}
-                    type="button"
-                    onClick={() =>
-                      toggleArrayValue(
-                        grantor,
-                        quickGrantors,
-                        setQuickGrantors
-                      )
-                    }
-                    className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
-                  >
-                    Grantor:{" "}
-                    {grantor} ×
-                  </button>
-
-                )
-              )}
-
               {quickMaximumGrants.map(
                 (amount) => (
 
@@ -5167,7 +5054,7 @@ return (
                         setQuickMonths
                       )
                     }
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:brightness-95 ${getAnticipatedDeadlineStyle(
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:brightness-95 ${getMonthStyle(
                       month
                     )}`}
                   >
@@ -5513,7 +5400,7 @@ return (
                                 )
                               );
                             }}
-                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getAnticipatedDeadlineStyle(
+                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
                               customer.anticipated_deadline
                             )} transition hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md`}
                           >
