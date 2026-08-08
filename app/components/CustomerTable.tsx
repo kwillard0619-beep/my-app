@@ -83,6 +83,41 @@ const DEADLINE_ACCENTS = [
   "#B28A4B",
 ];
 
+const ARCHIVE_CATEGORY_CHART_COLORS: Record<string, string> = {
+  animals: "#F2C14E",
+  arts: "#EFA39A",
+  "community development": "#AFCBFF",
+  education: "#C7B8EA",
+  environment: "#9FD4C5",
+  health: "#F3B6D2",
+  housing: "#E2C28D",
+  research: "#AFC6CC",
+  youth: "#C8D992",
+};
+
+const ARCHIVE_CATEGORY_FALLBACK_COLORS = [
+  "#F2C14E",
+  "#EFA39A",
+  "#AFCBFF",
+  "#C7B8EA",
+  "#9FD4C5",
+  "#F3B6D2",
+  "#E2C28D",
+  "#AFC6CC",
+  "#C8D992",
+];
+
+const getArchiveCategoryChartColor = (
+  category: string,
+  index: number
+) =>
+  ARCHIVE_CATEGORY_CHART_COLORS[
+    category.trim().toLowerCase()
+  ] ??
+  ARCHIVE_CATEGORY_FALLBACK_COLORS[
+    index % ARCHIVE_CATEGORY_FALLBACK_COLORS.length
+  ];
+
 const MAXIMUM_GRANT_RANGES = [
   {
     label: "$1,000,000+",
@@ -2763,10 +2798,17 @@ export default function CustomerTable({
     }).length;
   }, [filteredCustomers]);
 
-  const topArchivedCategories = useMemo(() => {
+  const archivedCategoryMix = useMemo(() => {
     const counts = new Map<string, number>();
 
-    filteredCustomers.forEach((customer) => {
+    customers
+      .filter(
+        (customer) =>
+          String(customer.status)
+            .trim()
+            .toLowerCase() === "archived"
+      )
+      .forEach((customer) => {
       (customer.rfp_categories ?? []).forEach(
         (category) => {
           const cleaned = category.trim();
@@ -2778,16 +2820,61 @@ export default function CustomerTable({
           );
         }
       );
-    });
+      });
 
     return [...counts.entries()]
       .sort(
         (first, second) =>
           second[1] - first[1] ||
           first[0].localeCompare(second[0])
-      )
-      .slice(0, 3);
-  }, [filteredCustomers]);
+      );
+  }, [customers]);
+
+  const archivedCategoryAssignmentTotal = useMemo(
+    () =>
+      archivedCategoryMix.reduce(
+        (total, [, count]) => total + count,
+        0
+      ),
+    [archivedCategoryMix]
+  );
+
+  const archiveMixGradient = useMemo(() => {
+    if (
+      archivedCategoryMix.length === 0 ||
+      archivedCategoryAssignmentTotal === 0
+    ) {
+      return "conic-gradient(#D9DBDC 0% 100%)";
+    }
+
+    let runningTotal = 0;
+
+    const segments = archivedCategoryMix.map(
+      ([category, count], index) => {
+        const start =
+          (runningTotal /
+            archivedCategoryAssignmentTotal) *
+          100;
+
+        runningTotal += count;
+
+        const end =
+          (runningTotal /
+            archivedCategoryAssignmentTotal) *
+          100;
+
+        return `${getArchiveCategoryChartColor(
+          category,
+          index
+        )} ${start}% ${end}%`;
+      }
+    );
+
+    return `conic-gradient(${segments.join(", ")})`;
+  }, [
+    archivedCategoryMix,
+    archivedCategoryAssignmentTotal,
+  ]);
 
   const getDeadlineAccent = (
     customerId: Customer["id"]
@@ -3426,7 +3513,7 @@ return (
             </p>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[0.72fr_1.18fr_1.1fr]">
+          <div className="grid gap-4 xl:grid-cols-[0.72fr_1.18fr]">
             <div className="group relative min-h-[210px] overflow-hidden rounded-[26px] bg-[#2F3038] p-6 text-white shadow-[0_16px_40px_rgba(47,48,56,0.16)]">
               <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#B7655E]/25 blur-3xl transition duration-500 group-hover:scale-110" />
               <div className="relative flex h-full flex-col">
@@ -3496,50 +3583,102 @@ return (
               </div>
             </div>
 
-            <div className="min-h-[210px] rounded-[26px] border border-[#C8CBCC] bg-[#E9E9E7] p-6 shadow-[0_12px_30px_rgba(47,48,56,0.06)]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
-                Historical pattern
-              </p>
-              <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
-                Archive Mix
-              </h3>
+            <div className="rounded-[26px] border border-[#C8CBCC] bg-[#E9E9E7] p-6 shadow-[0_12px_30px_rgba(47,48,56,0.06)] xl:col-span-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
+                    Historical pattern
+                  </p>
+                  <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                    Archive Mix
+                  </h3>
+                </div>
 
-              <div className="mt-4 space-y-3">
-                {topArchivedCategories.length > 0 ? (
-                  topArchivedCategories.map(
-                    ([category, count]) => (
-                      <div
-                        key={category}
-                        className="flex items-center justify-between gap-3 rounded-xl bg-white/75 px-3 py-3"
-                      >
-                        <button
-                          type="button"
-                          aria-label={`Filter archived opportunities by ${category}`}
-                          title="Add to Quick Filters"
-                          onClick={() =>
-                            addArchiveMixCategoryQuickFilter(
-                              category
-                            )
-                          }
-                          className={`min-w-0 truncate rounded-full border px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md ${getCategoryStyle(
-                            category,
-                            categoryColorMap
-                          )}`}
-                        >
-                          {category}
-                        </button>
-                        <span className="shrink-0 rounded-full bg-[#2F3038] px-2.5 py-1 text-xs font-bold text-white">
-                          {count}
+                <p className="max-w-lg text-xs leading-5 text-[#69747C] sm:text-right">
+                  Select any category to add it to Quick Filter and narrow the archived directory.
+                </p>
+              </div>
+
+              {archivedCategoryMix.length > 0 ? (
+                <div className="mt-6 grid gap-7 md:grid-cols-[190px_minmax(0,1fr)] md:items-center lg:grid-cols-[220px_minmax(0,1fr)]">
+                  <div className="flex justify-center md:justify-start">
+                    <div
+                      className="relative h-44 w-44 rounded-full shadow-[0_10px_30px_rgba(47,48,56,0.10)] lg:h-48 lg:w-48"
+                      style={{
+                        background: archiveMixGradient,
+                      }}
+                      role="img"
+                      aria-label={`Archive category distribution across ${archivedCategoryMix.length} categories`}
+                    >
+                      <div className="absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-white/70 bg-[#F4F3F1] shadow-inner">
+                        <span className="text-2xl font-bold tracking-[-0.04em] text-[#2F3038]">
+                          {archivedCategoryMix.length}
+                        </span>
+                        <span className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-[#778189]">
+                          Categories
                         </span>
                       </div>
-                    )
-                  )
-                ) : (
-                  <p className="rounded-xl border border-dashed border-[#C8CBCC] bg-white/50 p-4 text-center text-sm text-[#778189]">
-                    No archived categories are available.
-                  </p>
-                )}
-              </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                    {archivedCategoryMix.map(
+                      ([category, count]) => {
+                        const isSelected = quickCategories.some(
+                          (selectedCategory) =>
+                            selectedCategory.trim().toLowerCase() ===
+                            category.trim().toLowerCase()
+                        );
+
+                        return (
+                          <button
+                            key={category}
+                            type="button"
+                            aria-pressed={isSelected}
+                            aria-label={`Filter archived opportunities by ${category}`}
+                            title={
+                              isSelected
+                                ? "Already in Quick Filter"
+                                : "Add to Quick Filter"
+                            }
+                            onClick={() =>
+                              addArchiveMixCategoryQuickFilter(
+                                category
+                              )
+                            }
+                            className={`group/archive-category flex min-w-0 items-center justify-between gap-3 rounded-2xl border bg-white/75 px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md ${
+                              isSelected
+                                ? "border-[#2F3038] ring-2 ring-[#2F3038]/15"
+                                : "border-white/60"
+                            }`}
+                          >
+                            <span className="flex min-w-0 items-center gap-2.5">
+                              <span
+                                className={`h-3.5 w-3.5 shrink-0 rounded-full border ${getCategoryStyle(
+                                  category,
+                                  categoryColorMap
+                                )}`}
+                                aria-hidden="true"
+                              />
+                              <span className="truncate text-xs font-semibold text-[#394147]">
+                                {category}
+                              </span>
+                            </span>
+
+                            <span className="shrink-0 rounded-full bg-[#2F3038] px-2.5 py-1 text-[10px] font-bold text-white">
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-5 rounded-xl border border-dashed border-[#C8CBCC] bg-white/50 p-5 text-center text-sm text-[#778189]">
+                  No archived categories are available.
+                </p>
+              )}
             </div>
           </div>
         </section>
