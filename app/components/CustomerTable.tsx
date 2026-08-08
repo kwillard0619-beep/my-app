@@ -85,24 +85,9 @@ const DEADLINE_ACCENTS = [
 
 const MAXIMUM_GRANT_RANGES = [
   {
-    label: "Under $50,000",
-    min: 0,
-    max: 50000,
-  },
-  {
-    label: "$50,000 – $99,999",
-    min: 50000,
-    max: 100000,
-  },
-  {
-    label: "$100,000 – $249,999",
-    min: 100000,
-    max: 250000,
-  },
-  {
-    label: "$250,000 – $499,999",
-    min: 250000,
-    max: 500000,
+    label: "$1,000,000+",
+    min: 1000000,
+    max: null,
   },
   {
     label: "$500,000 – $999,999",
@@ -110,9 +95,24 @@ const MAXIMUM_GRANT_RANGES = [
     max: 1000000,
   },
   {
-    label: "$1,000,000+",
-    min: 1000000,
-    max: null,
+    label: "$250,000 – $499,999",
+    min: 250000,
+    max: 500000,
+  },
+  {
+    label: "$100,000 – $249,999",
+    min: 100000,
+    max: 250000,
+  },
+  {
+    label: "$50,000 – $99,999",
+    min: 50000,
+    max: 100000,
+  },
+  {
+    label: "Under $50,000",
+    min: 0,
+    max: 50000,
   },
 ] as const;
 
@@ -638,7 +638,12 @@ export default function CustomerTable({
             range.label
           )
         )
-    ).map((range) => range.label);
+    )
+      .sort(
+        (first, second) =>
+          second.min - first.min
+      )
+      .map((range) => range.label);
   }, [customers]);
 
   const availableMonths = useMemo(() => {
@@ -1976,16 +1981,9 @@ export default function CustomerTable({
     });
 
   const conditionalMaximumGrantRanges =
-    pinSelectedFirst(
-      availableMaximumGrants,
-      quickMaximumGrants
-    );
+    availableMaximumGrants;
 
-  const conditionalMonths =
-    pinSelectedFirst(
-      availableMonths,
-      quickMonths
-    );
+  const conditionalMonths = availableMonths;
 
   const conditionalCategories =
     pinSelectedFirst(
