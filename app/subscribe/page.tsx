@@ -79,6 +79,17 @@ export default function SubscribePage() {
     [categories]
   );
 
+  const categoryColumns = useMemo(() => {
+    const midpoint = Math.ceil(
+      categories.length / 2
+    );
+
+    return [
+      categories.slice(0, midpoint),
+      categories.slice(midpoint),
+    ];
+  }, [categories]);
+
   const resetMessage = () => {
     if (status !== "submitting") {
       setStatus("idle");
@@ -355,52 +366,67 @@ export default function SubscribePage() {
                       {categoriesError}
                     </div>
                   ) : (
-                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                      {categories.map((category) => {
-                        const isSelected = selected.includes(
-                          category.name
-                        );
-                        const selectionDisabled =
-                          selected.length >= 5 && !isSelected;
-
-                        return (
-                          <label
-                            key={category.id}
-                            className={`group flex min-h-12 items-center gap-3 rounded-2xl border px-4 py-3 transition ${
-                              isSelected
-                                ? `${getCategoryStyle(
-                                    category.name,
-                                    categoryColorMap
-                                  )} cursor-pointer shadow-[0_6px_18px_rgba(47,48,56,0.10)]`
-                                : selectionDisabled
-                                  ? "cursor-not-allowed border-[#E2E3E3] bg-[#F4F3F1] text-[#A0A5A9] opacity-55"
-                                  : "cursor-pointer border-[#D7D9DA] bg-[#F9F8F6] text-[#4B5359] hover:-translate-y-0.5 hover:border-[#B8BEC1] hover:bg-white hover:shadow-sm"
-                            }`}
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2 sm:gap-x-3">
+                      {categoryColumns.map(
+                        (column, columnIndex) => (
+                          <div
+                            key={`category-column-${columnIndex}`}
+                            className="space-y-3"
                           >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              disabled={selectionDisabled}
-                              onChange={() =>
-                                toggleCategory(category.name)
-                              }
-                              className="sr-only"
-                            />
-                            <span
-                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold transition ${
-                                isSelected
-                                  ? "border-black/25 bg-black/80 text-white"
-                                  : "border-[#B9BEC1] bg-white text-transparent group-hover:border-[#8E969B]"
-                              }`}
-                            >
-                              ✓
-                            </span>
-                            <span className="text-sm font-semibold">
-                              {category.name}
-                            </span>
-                          </label>
-                        );
-                      })}
+                            {column.map((category) => {
+                              const isSelected =
+                                selected.includes(
+                                  category.name
+                                );
+                              const selectionDisabled =
+                                selected.length >= 5 &&
+                                !isSelected;
+
+                              return (
+                                <label
+                                  key={category.id}
+                                  className={`group flex min-h-12 items-center gap-3 rounded-2xl border px-4 py-3 transition ${
+                                    isSelected
+                                      ? `${getCategoryStyle(
+                                          category.name,
+                                          categoryColorMap
+                                        )} cursor-pointer shadow-[0_6px_18px_rgba(47,48,56,0.10)]`
+                                      : selectionDisabled
+                                        ? "cursor-not-allowed border-[#E2E3E3] bg-[#F4F3F1] text-[#A0A5A9] opacity-55"
+                                        : "cursor-pointer border-[#D7D9DA] bg-[#F9F8F6] text-[#4B5359] hover:-translate-y-0.5 hover:border-[#B8BEC1] hover:bg-white hover:shadow-sm"
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    disabled={
+                                      selectionDisabled
+                                    }
+                                    onChange={() =>
+                                      toggleCategory(
+                                        category.name
+                                      )
+                                    }
+                                    className="sr-only"
+                                  />
+                                  <span
+                                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold transition ${
+                                      isSelected
+                                        ? "border-black/25 bg-black/80 text-white"
+                                        : "border-[#B9BEC1] bg-white text-transparent group-hover:border-[#8E969B]"
+                                    }`}
+                                  >
+                                    ✓
+                                  </span>
+                                  <span className="text-sm font-semibold">
+                                    {category.name}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )
+                      )}
                     </div>
                   )}
                 </fieldset>
