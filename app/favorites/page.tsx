@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import CustomerTable from "../components/CustomerTable";
 import type { Customer } from "../types/customer";
 
+type FavoriteRow = {
+  opportunity_id: number;
+};
+
 export default async function FavoritesPage() {
   const supabase = await createClient();
 
@@ -17,6 +21,7 @@ export default async function FavoritesPage() {
     redirect("/login?next=/favorites");
   }
 
+  // Load the signed-in user's favorite opportunity IDs.
   const {
     data: favoriteRows,
     error: favoritesError,
@@ -32,12 +37,16 @@ export default async function FavoritesPage() {
     );
   }
 
-  const favoriteIds = (favoriteRows ?? []).map(
+  const favorites =
+    (favoriteRows ?? []) as FavoriteRow[];
+
+  const favoriteIds = favorites.map(
     (favorite) => favorite.opportunity_id
   );
 
   let customers: Customer[] = [];
 
+  // Load the full opportunity records for the favorites.
   if (favoriteIds.length > 0) {
     const {
       data: opportunityRows,
@@ -51,6 +60,13 @@ export default async function FavoritesPage() {
           name,
           email,
           organization
+        ),
+        attachments:opportunity_attachments (
+          id,
+          opportunity_id,
+          file_name,
+          file_path,
+          created_at
         )
       `)
       .in("id", favoriteIds);

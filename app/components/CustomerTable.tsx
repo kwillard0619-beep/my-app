@@ -2435,6 +2435,33 @@ export default function CustomerTable({
     });
   };
 
+  const addArchiveMixCategoryQuickFilter = (
+    category: string
+  ) => {
+    const cleanedCategory = category.trim();
+
+    if (!cleanedCategory) return;
+
+    activateQuickFilter(() => {
+      setQuickCategories((current) => {
+        const alreadySelected = current.some(
+          (selectedCategory) =>
+            selectedCategory.trim().toLowerCase() ===
+            cleanedCategory.toLowerCase()
+        );
+
+        return alreadySelected
+          ? current
+          : [...current, cleanedCategory];
+      });
+
+      setShowAdvancedFilters(false);
+      setOpenAdvancedDropdownId(null);
+      setShowSortOptions(false);
+      setShowQuickFilters(true);
+    });
+  };
+
   // --------------------------------------------------
   // Filter Panel Toggle Functions
   // --------------------------------------------------
@@ -3485,14 +3512,22 @@ return (
                         key={category}
                         className="flex items-center justify-between gap-3 rounded-xl bg-white/75 px-3 py-3"
                       >
-                        <span
-                          className={`min-w-0 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                        <button
+                          type="button"
+                          aria-label={`Filter archived opportunities by ${category}`}
+                          title="Add to Quick Filters"
+                          onClick={() =>
+                            addArchiveMixCategoryQuickFilter(
+                              category
+                            )
+                          }
+                          className={`min-w-0 truncate rounded-full border px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md ${getCategoryStyle(
                             category,
                             categoryColorMap
                           )}`}
                         >
                           {category}
-                        </span>
+                        </button>
                         <span className="shrink-0 rounded-full bg-[#2F3038] px-2.5 py-1 text-xs font-bold text-white">
                           {count}
                         </span>

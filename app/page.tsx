@@ -5,17 +5,24 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { data, error } = await supabase
-    .from("Personal_BB")
-    .select(`
-      *,
-      contact:contacts!Personal_BB_contact_id_fkey (
-        id,
-        name,
-        email,
-        organization
-      )
-    `)
-    .eq("status", "active");
+  .from("Personal_BB")
+  .select(`
+    *,
+    contact:contacts!Personal_BB_contact_id_fkey (
+      id,
+      name,
+      email,
+      organization
+    ),
+    attachments:opportunity_attachments (
+      id,
+      opportunity_id,
+      file_name,
+      file_path,
+      created_at
+    )
+  `)
+  .eq("status", "active");
 
   if (error) {
     return (

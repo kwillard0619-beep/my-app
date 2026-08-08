@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Customer } from "../types/customer";
+import { createClient } from "@/lib/supabase/client";
 
 type DrawerContact = {
   id: number;
@@ -33,8 +34,13 @@ export default function CustomerDrawer({
   onNavigate,
   onClose,
 }: Props) {
+  const supabase = createClient();
+
   const [copiedContactField, setCopiedContactField] =
     useState<"name" | "email" | null>(null);
+
+  const [downloadingAttachmentId, setDownloadingAttachmentId] =
+    useState<number | null>(null);
 
   if (!customer) return null;
 
@@ -206,6 +212,76 @@ export default function CustomerDrawer({
 
   const deadlineCountdown =
     getDeadlineCountdown();
+
+  // --------------------------------------------------
+  // Attachments
+  // --------------------------------------------------
+
+  const attachments = Array.isArray(customer.attachments)
+    ? customer.attachments
+    : [];
+
+  const getAttachmentUrl = (filePath: string) => {
+    const { data } = supabase.storage
+      .from("opportunity-attachments")
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const getAttachmentFileName = (
+    fileName: string | null,
+    filePath: string
+  ) => {
+    if (fileName?.trim()) {
+      return fileName.trim();
+    }
+
+    return filePath.split("/").pop() || "Attachment";
+  };
+
+  const getAttachmentExtension = (filePath: string) => {
+    const fileName = filePath.split("/").pop() || "";
+    const lastDot = fileName.lastIndexOf(".");
+
+    if (lastDot === -1 || lastDot === fileName.length - 1) {
+      return "FILE";
+    }
+
+    return fileName.slice(lastDot + 1).toUpperCase();
+  };
+
+  const downloadAttachment = async (
+    attachmentId: number,
+    filePath: string,
+    fileName: string | null
+  ) => {
+    try {
+      setDownloadingAttachmentId(attachmentId);
+
+      const { data, error } = await supabase.storage
+        .from("opportunity-attachments")
+        .download(filePath);
+
+      if (error) {
+        throw error;
+      }
+
+      const objectUrl = URL.createObjectURL(data);
+      const link = document.createElement("a");
+
+      link.href = objectUrl;
+      link.download = getAttachmentFileName(fileName, filePath);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Unable to download attachment:", error);
+    } finally {
+      setDownloadingAttachmentId(null);
+    }
+  };
 
   // --------------------------------------------------
   // Boolean Formatting
@@ -741,17 +817,122 @@ export default function CustomerDrawer({
               </div>
             </section>
 
-            {/* Attachments placeholder */}
-            <section className="rounded-[22px] border border-dashed border-[#B8C2CA] bg-white/65 p-6 text-center">
-              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E2E3E3] text-lg text-[#69747C]">
-                ⎘
+            {/* Attachments - intentionally kept as the final drawer section */}
+            <section className="rounded-[22px] border border-[#C8CBCC] bg-white p-6 shadow-[0_10px_28px_rgba(47,48,56,0.06)]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
+                    Documents
+                  </p>
+                  <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
+                    Attachments
+                  </h3>
+                </div>
+
+                {attachments.length > 0 && (
+                  <span className="inline-flex min-w-8 items-center justify-center rounded-full border border-[#C8CBCC] bg-[#F4F3F1] px-2.5 py-1 text-xs font-bold text-[#626A70]">
+                    {attachments.length}
+                  </span>
+                )}
               </div>
-              <h3 className="mt-3 text-sm font-bold text-[#3E454B]">
-                Attachments
-              </h3>
-              <p className="mt-1 text-sm text-[#778189]">
-                No attachments available.
-              </p>
+
+              {attachments.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  {attachments.map((attachment) => {
+                    if (!attachment.file_path) {
+                      return null;
+                    }
+
+                    const attachmentUrl = getAttachmentUrl(
+                      attachment.file_path
+                    );
+                    const displayName = getAttachmentFileName(
+                      attachment.file_name,
+                      attachment.file_path
+                    );
+                    const extension = getAttachmentExtension(
+                      attachment.file_path
+                    );
+                    const isDownloading =
+                      downloadingAttachmentId === attachment.id;
+
+                    return (
+                      <div
+                        key={attachment.id}
+                        className="group flex flex-col gap-4 rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 transition hover:border-[#B7BCBF] hover:bg-white hover:shadow-[0_8px_22px_rgba(47,48,56,0.07)] sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="flex min-w-0 items-center gap-3.5">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#2F3038] text-white shadow-sm">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.7}
+                              stroke="currentColor"
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25m.75 12 3 3m0 0 3-3m-3 3V10.5M6.75 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                              />
+                            </svg>
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold text-[#394147]">
+                              {displayName}
+                            </p>
+                            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8A9298]">
+                              {extension} document
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2 pl-[58px] sm:pl-0">
+                          <a
+                            href={attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-[#C8CBCC] bg-white px-3 py-2 text-xs font-bold text-[#565E64] transition hover:border-[#9EA4A8] hover:text-[#2F3038]"
+                          >
+                            Open
+                            <span aria-hidden="true">↗</span>
+                          </a>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              downloadAttachment(
+                                attachment.id,
+                                attachment.file_path as string,
+                                attachment.file_name
+                              )
+                            }
+                            disabled={isDownloading}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-[#2F3038] px-3 py-2 text-xs font-bold text-white transition hover:-translate-y-0.5 hover:bg-black disabled:cursor-wait disabled:translate-y-0 disabled:opacity-55"
+                          >
+                            {isDownloading ? "Downloading…" : "Download"}
+                            {!isDownloading && (
+                              <span aria-hidden="true">↓</span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-4 rounded-2xl border border-dashed border-[#B8C2CA] bg-[#F4F3F1] px-5 py-6 text-center">
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#E2E3E3] text-lg text-[#69747C]">
+                    ⎘
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-[#69747C]">
+                    No attachments available.
+                  </p>
+                </div>
+              )}
             </section>
           </div>
         </div>

@@ -5,6 +5,14 @@ export type Contact = {
   organization: string | null;
 };
 
+export type OpportunityAttachment = {
+  id: number;
+  opportunity_id: number;
+  file_name: string | null;
+  file_path: string | null;
+  created_at: string;
+};
+
 export type Customer = {
   id: number;
 
@@ -23,6 +31,7 @@ export type Customer = {
   additional_information: string | null;
   limited_opportunity: string | null;
   fellowship_opportunity: string | null;
+  attachments?: OpportunityAttachment[];
 
   // Contact relationship
   contact_id: number | null;

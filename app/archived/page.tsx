@@ -19,6 +19,13 @@ export default async function ArchivedPage() {
         name,
         email,
         organization
+      ),
+      attachments:opportunity_attachments (
+        id,
+        opportunity_id,
+        file_name,
+        file_path,
+        created_at
       )
     `)
     .eq("status", "archived")
