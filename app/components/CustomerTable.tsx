@@ -2736,14 +2736,9 @@ export default function CustomerTable({
     }).length;
   }, [filteredCustomers]);
 
-  const largestRecentlyClosedGrant = useMemo(() => {
+  const largestClosedGrant = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(
-      thirtyDaysAgo.getDate() - 30
-    );
 
     const getGrantValue = (
       value: Customer["maximum_grant"]
@@ -2762,7 +2757,7 @@ export default function CustomerTable({
     };
 
     return (
-      [...filteredCustomers]
+      [...customers]
         .filter((customer) => {
           if (!customer.deadline) return false;
 
@@ -2771,9 +2766,11 @@ export default function CustomerTable({
           );
 
           return (
+            String(customer.status)
+              .trim()
+              .toLowerCase() === "archived" &&
             !Number.isNaN(deadline.getTime()) &&
             deadline < today &&
-            deadline >= thirtyDaysAgo &&
             getGrantValue(customer.maximum_grant) > 0
           );
         })
@@ -2783,7 +2780,7 @@ export default function CustomerTable({
             getGrantValue(first.maximum_grant)
         )[0] ?? null
     );
-  }, [filteredCustomers]);
+  }, [customers]);
 
   const getDeadlineAccent = (
     customerId: Customer["id"]
@@ -3497,42 +3494,42 @@ return (
 
               <div className="relative flex h-full flex-col">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
-                  Notable recent funding
+                  Archive high-water mark
                 </p>
                 <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
                   Largest Recently Closed Grant
                 </h3>
 
-                {largestRecentlyClosedGrant ? (
+                {largestClosedGrant ? (
                   <button
                     type="button"
                     onClick={() =>
                       setSelectedCustomerId(
                         String(
-                          largestRecentlyClosedGrant.id
+                          largestClosedGrant.id
                         )
                       )
                     }
                     className="group/largest-grant mt-4 flex flex-1 flex-col rounded-2xl border border-white/70 bg-white/75 p-4 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
                   >
                     <span className="text-2xl font-bold tracking-[-0.035em] text-[#2F3038]">
-                      {largestRecentlyClosedGrant.maximum_grant}
+                      {largestClosedGrant.maximum_grant}
                     </span>
 
                     <span className="mt-3 block truncate text-[10px] font-bold uppercase tracking-[0.14em] text-[#8A6A34]">
-                      {largestRecentlyClosedGrant.grantor ||
+                      {largestClosedGrant.grantor ||
                         "Grantor not specified"}
                     </span>
 
                     <span className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-[#565E64]">
-                      {largestRecentlyClosedGrant.opportunity_name ||
+                      {largestClosedGrant.opportunity_name ||
                         "Untitled opportunity"}
                     </span>
 
                     <span className="mt-auto flex items-center justify-between gap-3 pt-3 text-[10px] font-semibold text-[#778189]">
                       <span>
                         Closed {formatDeadline(
-                          largestRecentlyClosedGrant.deadline ?? ""
+                          largestClosedGrant.deadline ?? ""
                         )}
                       </span>
                       <span className="transition group-hover/largest-grant:translate-x-1">
@@ -3542,7 +3539,7 @@ return (
                   </button>
                 ) : (
                   <div className="mt-4 flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[#C8CBCC] bg-white/50 px-5 text-center text-sm text-[#778189]">
-                    No recently closed grants with a maximum award are available.
+                    No closed grants with a maximum award are available.
                   </div>
                 )}
               </div>
