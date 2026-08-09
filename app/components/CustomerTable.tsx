@@ -2650,6 +2650,74 @@ export default function CustomerTable({
       .slice(0, 5);
   }, [deadlineCustomers]);
 
+  const recentlyClosedDeadlines = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return [...deadlineCustomers]
+      .filter(
+        (customer) =>
+          new Date(
+            `${customer.deadline}T00:00:00`
+          ) < today
+      )
+      .sort(
+        (first, second) =>
+          new Date(
+            `${second.deadline}T00:00:00`
+          ).getTime() -
+          new Date(
+            `${first.deadline}T00:00:00`
+          ).getTime()
+      )
+      .slice(0, 5);
+  }, [deadlineCustomers]);
+
+  const highlightedDeadlines = useMemo(
+    () =>
+      mode === "favorites" &&
+      favoriteView === "archived"
+        ? recentlyClosedDeadlines
+        : upcomingDeadlines,
+    [
+      mode,
+      favoriteView,
+      recentlyClosedDeadlines,
+      upcomingDeadlines,
+    ]
+  );
+
+  useEffect(() => {
+    if (mode !== "favorites") return;
+
+    const highlightedDeadline =
+      highlightedDeadlines[0]?.deadline;
+
+    if (!highlightedDeadline) return;
+
+    const targetDate = new Date(
+      `${highlightedDeadline}T00:00:00`
+    );
+
+    if (Number.isNaN(targetDate.getTime())) return;
+
+    setCalendarMonth((current) => {
+      if (
+        current.getFullYear() ===
+          targetDate.getFullYear() &&
+        current.getMonth() === targetDate.getMonth()
+      ) {
+        return current;
+      }
+
+      return new Date(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        1
+      );
+    });
+  }, [mode, favoriteView, highlightedDeadlines]);
+
   const closingSoonCustomers = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -2786,7 +2854,7 @@ export default function CustomerTable({
     customerId: Customer["id"]
   ) => {
     const displayedIndex =
-      upcomingDeadlines.findIndex(
+      highlightedDeadlines.findIndex(
         (customer) =>
           String(customer.id) ===
           String(customerId)
@@ -3089,7 +3157,9 @@ return (
                 : "Your Funding Timeline"}
             </h2>
             <p className="mt-2 overflow-x-auto whitespace-nowrap pb-1 text-sm leading-6 text-[#626A70]">
-              The calendar highlights the next five deadlines—select a colored date or its matching opportunity to open the full record.
+              {favoriteView === "archived"
+                ? "The calendar highlights your five most recently closed favorites—select a colored date or its matching opportunity to open the full record."
+                : "The calendar highlights the next five deadlines—select a colored date or its matching opportunity to open the full record."}
             </p>
           </div>
         </div>
@@ -3252,7 +3322,7 @@ return (
             <div className="relative mt-4 flex items-center justify-between border-t border-[#D7D9DA] pt-4 text-xs text-[#626A70]">
               <span className="flex items-center gap-2">
                 <span className="flex -space-x-1">
-                  {upcomingDeadlines
+                  {highlightedDeadlines
                     .slice(0, 5)
                     .map((customer) => (
                     <span
@@ -3267,11 +3337,31 @@ return (
                     />
                   ))}
                 </span>
-                Colored dots match the next five opportunities; later deadlines appear in black
+                {favoriteView === "archived"
+                  ? "Colored dots match the five most recently closed favorites; older deadlines appear in black"
+                  : "Colored dots match the next five opportunities; later deadlines appear in black"}
               </span>
               <button
                 type="button"
                 onClick={() => {
+                  if (
+                    favoriteView === "archived" &&
+                    highlightedDeadlines[0]?.deadline
+                  ) {
+                    const latestClosed = new Date(
+                      `${highlightedDeadlines[0].deadline}T00:00:00`
+                    );
+
+                    setCalendarMonth(
+                      new Date(
+                        latestClosed.getFullYear(),
+                        latestClosed.getMonth(),
+                        1
+                      )
+                    );
+                    return;
+                  }
+
                   const today = new Date();
                   setCalendarMonth(
                     new Date(
@@ -3283,7 +3373,9 @@ return (
                 }}
                 className="font-semibold text-[#444B51] transition hover:text-[#2F3038]"
               >
-                Return to today
+                {favoriteView === "archived"
+                  ? "Return to latest closed"
+                  : "Return to today"}
               </button>
             </div>
           </div>
@@ -3296,23 +3388,29 @@ return (
             <div className="relative flex items-end justify-between gap-4">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
-                  What&apos;s next
+                  {favoriteView === "archived"
+                    ? "Recently closed"
+                    : "What's next"}
                 </p>
                 <h3 className="mt-1 text-xl font-bold">
-                  Next Five Opportunities
+                  {favoriteView === "archived"
+                    ? "Five Recently Closed Opportunities"
+                    : "Next Five Opportunities"}
                 </h3>
                 <p className="mt-1 text-xs text-[#D4D9DC]">
-                  Your nearest active deadlines, matched to the calendar
+                  {favoriteView === "archived"
+                    ? "Your most recently closed saved deadlines, matched to the calendar"
+                    : "Your nearest active deadlines, matched to the calendar"}
                 </p>
               </div>
               <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#E9E9E7]">
-                {upcomingDeadlines.length} shown
+                {highlightedDeadlines.length} shown
               </span>
             </div>
 
             <div className="relative mt-5 space-y-2">
-              {upcomingDeadlines.length > 0 ? (
-                upcomingDeadlines.map(
+              {highlightedDeadlines.length > 0 ? (
+                highlightedDeadlines.map(
                   (customer, index) => {
                     const deadline = new Date(
                       `${customer.deadline}T00:00:00`
@@ -3378,7 +3476,9 @@ return (
                         <div className="flex items-center gap-3">
                           {index === 0 && (
                             <span className="hidden rounded-full bg-[#F1D889] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#4D4423] sm:inline-flex">
-                              Next
+                              {favoriteView === "archived"
+                                ? "Latest"
+                                : "Next"}
                             </span>
                           )}
                           <span className="translate-x-1 text-xl text-[#D4D9DC] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
@@ -3393,10 +3493,14 @@ return (
                 <div className="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/[0.04] px-6 text-center">
                   <div>
                     <p className="font-semibold text-white">
-                      No upcoming deadlines
+                      {favoriteView === "archived"
+                        ? "No closed deadlines"
+                        : "No upcoming deadlines"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-[#D4D9DC]">
-                      Try adjusting your search or filters to reveal more opportunities.
+                      {favoriteView === "archived"
+                        ? "No archived favorites with past deadlines match your current search and filters."
+                        : "Try adjusting your search or filters to reveal more opportunities."}
                     </p>
                   </div>
                 </div>
@@ -3585,49 +3689,66 @@ return (
               <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl" />
               <div className="relative">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
-                  Nearest deadline
+                  Nearest deadlines
                 </p>
-                {upcomingDeadlines[0] ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedCustomerId(
-                        String(upcomingDeadlines[0].id)
-                      )
-                    }
-                    className="group/next mt-4 w-full rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] p-4 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
-                  >
-                    <div className="flex items-start gap-4">
-                      <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#B7655E] text-white shadow-sm">
-                        <span className="text-[9px] font-bold uppercase tracking-wider">
-                          {new Date(
-                            `${upcomingDeadlines[0].deadline}T00:00:00`
-                          ).toLocaleDateString("en-US", {
-                            month: "short",
-                          })}
-                        </span>
-                        <span className="text-xl font-bold leading-none">
-                          {new Date(
-                            `${upcomingDeadlines[0].deadline}T00:00:00`
-                          ).getDate()}
-                        </span>
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-xs font-bold uppercase tracking-[0.12em] text-[#778189]">
-                          {upcomingDeadlines[0].grantor ||
-                            "Grantor not specified"}
-                        </span>
-                        <span className="mt-1.5 block text-base font-bold leading-5 text-[#2F3038]">
-                          {upcomingDeadlines[0]
-                            .opportunity_name ||
-                            "Untitled opportunity"}
-                        </span>
-                      </span>
-                      <span className="translate-x-1 text-lg text-[#69747C] opacity-50 transition group-hover/next:translate-x-0 group-hover/next:opacity-100">
-                        →
-                      </span>
-                    </div>
-                  </button>
+                {upcomingDeadlines.length > 0 ? (
+                  <div className="mt-3 space-y-2">
+                    {upcomingDeadlines
+                      .slice(0, 2)
+                      .map((customer) => (
+                        <button
+                          key={customer.id}
+                          type="button"
+                          onClick={() =>
+                            setSelectedCustomerId(
+                              String(customer.id)
+                            )
+                          }
+                          className="group/next flex w-full items-center gap-3 rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                        >
+                          <span
+                            className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm"
+                            style={{
+                              backgroundColor:
+                                getDeadlineAccent(
+                                  customer.id
+                                ),
+                            }}
+                          >
+                            <span className="text-[8px] font-bold uppercase tracking-wider">
+                              {new Date(
+                                `${customer.deadline}T00:00:00`
+                              ).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                }
+                              )}
+                            </span>
+                            <span className="text-base font-bold leading-none">
+                              {new Date(
+                                `${customer.deadline}T00:00:00`
+                              ).getDate()}
+                            </span>
+                          </span>
+
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[10px] font-bold uppercase tracking-[0.1em] text-[#778189]">
+                              {customer.grantor ||
+                                "Grantor not specified"}
+                            </span>
+                            <span className="mt-1 block truncate text-xs font-bold text-[#2F3038]">
+                              {customer.opportunity_name ||
+                                "Untitled opportunity"}
+                            </span>
+                          </span>
+
+                          <span className="translate-x-1 text-base text-[#69747C] opacity-40 transition group-hover/next:translate-x-0 group-hover/next:opacity-100">
+                            →
+                          </span>
+                        </button>
+                      ))}
+                  </div>
                 ) : (
                   <div className="mt-4 flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-[#C8CBCC] bg-[#F4F3F1] px-5 text-center text-sm text-[#778189]">
                     No upcoming deadlines are currently available.
