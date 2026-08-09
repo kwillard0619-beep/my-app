@@ -3685,9 +3685,9 @@ return (
                   Nearest deadlines
                 </p>
                 {upcomingDeadlines.length > 0 ? (
-                  <div className="mt-4 flex flex-1 flex-col justify-between gap-5">
+                  <div className="mt-3 flex flex-1 flex-col gap-3">
                     {upcomingDeadlines
-                      .slice(0, 2)
+                      .slice(0, 3)
                       .map((customer) => (
                         <button
                           key={customer.id}
@@ -3697,10 +3697,10 @@ return (
                               String(customer.id)
                             )
                           }
-                          className="group/next flex min-h-[78px] w-full items-center gap-4 rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] px-4 py-3.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                          className="group/next flex w-full items-center gap-3 rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
                         >
                           <span
-                            className="flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm"
+                            className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm"
                             style={{
                               backgroundColor:
                                 getDeadlineAccent(
@@ -3708,7 +3708,7 @@ return (
                                 ),
                             }}
                           >
-                            <span className="text-[9px] font-bold uppercase tracking-wider">
+                            <span className="text-[8px] font-bold uppercase tracking-wider">
                               {new Date(
                                 `${customer.deadline}T00:00:00`
                               ).toLocaleDateString(
@@ -3718,7 +3718,7 @@ return (
                                 }
                               )}
                             </span>
-                            <span className="text-lg font-bold leading-none">
+                            <span className="text-base font-bold leading-none">
                               {new Date(
                                 `${customer.deadline}T00:00:00`
                               ).getDate()}
@@ -3726,11 +3726,11 @@ return (
                           </span>
 
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[10px] font-bold uppercase tracking-[0.11em] text-[#778189]">
+                            <span className="block truncate text-[10px] font-bold uppercase tracking-[0.1em] text-[#778189]">
                               {customer.grantor ||
                                 "Grantor not specified"}
                             </span>
-                            <span className="mt-1.5 block truncate text-sm font-bold text-[#2F3038]">
+                            <span className="mt-1 block truncate text-xs font-bold text-[#2F3038]">
                               {customer.opportunity_name ||
                                 "Untitled opportunity"}
                             </span>
