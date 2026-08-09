@@ -3411,7 +3411,7 @@ return (
             <div className="relative mt-5 space-y-2">
               {highlightedDeadlines.length > 0 ? (
                 highlightedDeadlines.map(
-                  (customer, index) => {
+                  (customer) => {
                     const deadline = new Date(
                       `${customer.deadline}T00:00:00`
                     );
@@ -3474,13 +3474,6 @@ return (
                         </div>
 
                         <div className="flex items-center gap-3">
-                          {index === 0 && (
-                            <span className="hidden rounded-full bg-[#F1D889] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#4D4423] sm:inline-flex">
-                              {favoriteView === "archived"
-                                ? "Latest"
-                                : "Next"}
-                            </span>
-                          )}
                           <span className="translate-x-1 text-xl text-[#D4D9DC] opacity-50 transition group-hover/deadline:translate-x-0 group-hover/deadline:opacity-100">
                             →
                           </span>
@@ -3685,14 +3678,14 @@ return (
               </div>
             </div>
 
-            <div className="relative min-h-[210px] overflow-hidden rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)]">
+            <div className="relative flex min-h-[210px] flex-col overflow-hidden rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)]">
               <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#E5D4CB]/70 blur-3xl" />
-              <div className="relative">
+              <div className="relative flex flex-1 flex-col">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
                   Nearest deadlines
                 </p>
                 {upcomingDeadlines.length > 0 ? (
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-4 flex flex-1 flex-col justify-between gap-5">
                     {upcomingDeadlines
                       .slice(0, 2)
                       .map((customer) => (
@@ -3704,10 +3697,10 @@ return (
                               String(customer.id)
                             )
                           }
-                          className="group/next flex w-full items-center gap-3 rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                          className="group/next flex min-h-[78px] w-full items-center gap-4 rounded-2xl border border-[#D7D9DA] bg-[#F4F3F1] px-4 py-3.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
                         >
                           <span
-                            className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm"
+                            className="flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm"
                             style={{
                               backgroundColor:
                                 getDeadlineAccent(
@@ -3715,7 +3708,7 @@ return (
                                 ),
                             }}
                           >
-                            <span className="text-[8px] font-bold uppercase tracking-wider">
+                            <span className="text-[9px] font-bold uppercase tracking-wider">
                               {new Date(
                                 `${customer.deadline}T00:00:00`
                               ).toLocaleDateString(
@@ -3725,7 +3718,7 @@ return (
                                 }
                               )}
                             </span>
-                            <span className="text-base font-bold leading-none">
+                            <span className="text-lg font-bold leading-none">
                               {new Date(
                                 `${customer.deadline}T00:00:00`
                               ).getDate()}
@@ -3733,11 +3726,11 @@ return (
                           </span>
 
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[10px] font-bold uppercase tracking-[0.1em] text-[#778189]">
+                            <span className="block truncate text-[10px] font-bold uppercase tracking-[0.11em] text-[#778189]">
                               {customer.grantor ||
                                 "Grantor not specified"}
                             </span>
-                            <span className="mt-1 block truncate text-xs font-bold text-[#2F3038]">
+                            <span className="mt-1.5 block truncate text-sm font-bold text-[#2F3038]">
                               {customer.opportunity_name ||
                                 "Untitled opportunity"}
                             </span>
