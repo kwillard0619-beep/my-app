@@ -19,7 +19,9 @@ type FilterField =
   | "anticipated_deadline"
   | "category"
   | "limited_opportunity"
-  | "fellowship_opportunity";
+  | "fellowship_opportunity"
+  | "minimum_grant"
+  | "program_area";
 
 type FilterOperator =
   "is" | "is_not" | "contains" | "not_contains" | "before" | "after";
@@ -423,6 +425,8 @@ export default function CustomerTable({
 
   const [quickCategories, setQuickCategories] = useState<string[]>([]);
 
+  const [quickProgramAreas, setQuickProgramAreas] = useState<string[]>([]);
+
   // --------------------------------------------------
   // Advanced Filter State
   // --------------------------------------------------
@@ -529,6 +533,14 @@ export default function CustomerTable({
       ),
     ).sort((a, b) => a.localeCompare(b));
   }, [customers]);
+
+  const availableProgramAreas = useMemo(
+    () =>
+      Array.from(
+        new Set(customers.flatMap((customer) => customer.program_areas ?? [])),
+      ).sort((a, b) => a.localeCompare(b)),
+    [customers],
+  );
 
   const parseMaximumGrant = (value: string | number | null | undefined) => {
     if (value === null || value === undefined || value === "") {
@@ -739,6 +751,7 @@ export default function CustomerTable({
     setQuickDeadline("all");
     setQuickMonths([]);
     setQuickCategories([]);
+    setQuickProgramAreas([]);
   };
 
   // --------------------------------------------------
@@ -788,13 +801,26 @@ export default function CustomerTable({
           ? [String(customer.fellowship_opportunity)]
           : [];
 
+      case "minimum_grant":
+        return customer.grant_minimum !== null &&
+          customer.grant_minimum !== undefined
+          ? [String(customer.grant_minimum)]
+          : [];
+
+      case "program_area":
+        return customer.program_areas ?? [];
+
       default:
         return [];
     }
   };
 
   const getAdvancedOperators = (field: FilterField): FilterOperator[] => {
-    if (field === "grantor" || field === "category") {
+    if (
+      field === "grantor" ||
+      field === "category" ||
+      field === "program_area"
+    ) {
       return ["is", "is_not", "contains", "not_contains"];
     }
 
@@ -806,11 +832,17 @@ export default function CustomerTable({
   };
 
   const getOperatorLabel = (operator: FilterOperator, field: FilterField) => {
-    if (field === "maximum_grant" && operator === "is") {
+    if (
+      (field === "maximum_grant" || field === "minimum_grant") &&
+      operator === "is"
+    ) {
       return "is within";
     }
 
-    if (field === "maximum_grant" && operator === "is_not") {
+    if (
+      (field === "maximum_grant" || field === "minimum_grant") &&
+      operator === "is_not"
+    ) {
       return "is not within";
     }
 
@@ -834,9 +866,13 @@ export default function CustomerTable({
       return true;
     }
 
-    if (filter.field === "maximum_grant") {
+    if (filter.field === "maximum_grant" || filter.field === "minimum_grant") {
+      const grantValue =
+        filter.field === "minimum_grant"
+          ? customer.grant_minimum
+          : customer.maximum_grant;
       const hasRangeMatch = filter.values.some((rangeLabel) =>
-        matchesMaximumGrantRange(customer.maximum_grant, rangeLabel),
+        matchesMaximumGrantRange(grantValue, rangeLabel),
       );
 
       return filter.operator === "is_not" ? !hasRangeMatch : hasRangeMatch;
@@ -1210,6 +1246,17 @@ export default function CustomerTable({
       );
     }
 
+    if (isProspectView && quickProgramAreas.length > 0) {
+      result = result.filter((customer) =>
+        quickProgramAreas.some((selectedArea) =>
+          (customer.program_areas ?? []).some(
+            (area) =>
+              area.trim().toLowerCase() === selectedArea.trim().toLowerCase(),
+          ),
+        ),
+      );
+    }
+
     // --------------------------------------------------
     // ADVANCED FILTERS
     // --------------------------------------------------
@@ -1265,6 +1312,7 @@ export default function CustomerTable({
     quickDeadline,
     quickMonths,
     quickCategories,
+    quickProgramAreas,
     advancedFilters,
     mode,
     favoriteView,
@@ -1869,7 +1917,8 @@ export default function CustomerTable({
     quickMaximumGrants.length +
     (quickDeadline !== "all" ? 1 : 0) +
     quickMonths.length +
-    quickCategories.length;
+    quickCategories.length +
+    quickProgramAreas.length;
 
   const activeAdvancedFilterCount = advancedFilters.filter(
     (filter) => filter.values.length > 0,
@@ -1904,6 +1953,12 @@ export default function CustomerTable({
 
       case "fellowship_opportunity":
         return availableFellowshipOpportunities;
+
+      case "minimum_grant":
+        return MAXIMUM_GRANT_RANGES.map((range) => range.label);
+
+      case "program_area":
+        return availableProgramAreas;
 
       default:
         return [];
@@ -1948,6 +2003,12 @@ export default function CustomerTable({
 
       case "fellowship_opportunity":
         return "Fellowship Opportunity";
+
+      case "minimum_grant":
+        return "Minimum Grant";
+
+      case "program_area":
+        return "Program Areas";
 
       default:
         return "";
@@ -2905,7 +2966,7 @@ export default function CustomerTable({
                           largestProspect &&
                           setSelectedCustomerId(String(largestProspect.id))
                         }
-                        className="mt-auto flex items-center justify-between gap-3 pt-4 text-left text-xs leading-5 text-[#BFC5C8] transition hover:text-white disabled:cursor-default"
+                        className="mt-auto flex items-center justify-between gap-3 pt-4 text-left text-xs font-bold leading-5 text-[#E2C28D] transition hover:text-[#F2C14E] disabled:cursor-default"
                       >
                         <span className="line-clamp-2">
                           {largestProspect?.grantor_name ??
@@ -2925,27 +2986,42 @@ export default function CustomerTable({
                       <h3 className="mt-1 text-lg font-bold text-[#2F3038]">
                         Leading Funding Interests
                       </h3>
-                      <div className="mt-3 flex flex-1 flex-col gap-3">
-                        {prospectCategoryCoverage.map(({ category, count }) => (
-                          <button
-                            key={category}
-                            type="button"
-                            onClick={() => addCategoryQuickFilter(category)}
-                            className="group/prospect-category flex w-full items-center gap-3 rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
-                          >
-                            <span
-                              className={`flex h-9 min-w-9 items-center justify-center rounded-xl border px-2 text-xs font-bold ${getCategoryStyle(category, categoryColorMap)}`}
+                      <div className="mt-5 flex flex-1 items-end gap-4">
+                        {prospectCategoryCoverage.map(({ category, count }) => {
+                          const largestCount = Math.max(
+                            ...prospectCategoryCoverage.map(
+                              (item) => item.count,
+                            ),
+                            1,
+                          );
+                          const height = Math.max(
+                            42,
+                            (count / largestCount) * 92,
+                          );
+
+                          return (
+                            <button
+                              key={category}
+                              type="button"
+                              onClick={() => addCategoryQuickFilter(category)}
+                              className="group/prospect-category flex min-w-0 flex-1 flex-col items-center text-center"
+                              title={`Filter by ${category}`}
                             >
-                              {count}
-                            </span>
-                            <span className="min-w-0 flex-1 truncate text-xs font-bold text-[#2F3038]">
-                              {category}
-                            </span>
-                            <span className="text-[#69747C] opacity-40 transition group-hover/prospect-category:opacity-100">
-                              →
-                            </span>
-                          </button>
-                        ))}
+                              <span className="mb-2 text-lg font-bold text-[#2F3038]">
+                                {count}
+                              </span>
+                              <span className="flex h-24 w-full items-end overflow-hidden rounded-t-xl bg-[#EEF0F0]">
+                                <span
+                                  className={`block w-full rounded-t-xl border ${getCategoryStyle(category, categoryColorMap)} transition duration-300 group-hover/prospect-category:brightness-95`}
+                                  style={{ height }}
+                                />
+                              </span>
+                              <span className="mt-2 line-clamp-2 min-h-8 text-[10px] font-bold leading-4 text-[#565E64]">
+                                {category}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -3549,48 +3625,36 @@ export default function CustomerTable({
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
-                    {/* Maximum Grant */}
-
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                          Maximum Grant
-                        </label>
-                        {quickMaximumGrants.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setQuickMaximumGrants([])}
-                            className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
-                        {conditionalMaximumGrantRanges.map((amount) => {
-                          const count = getMaximumGrantFacetCount(amount);
-                          const selected = quickMaximumGrants.includes(amount);
-                          const disabled = count === 0 && !selected;
-
-                          return (
+                  {isProspectView ? (
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Grant Range
+                          </label>
+                          {quickMaximumGrants.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickMaximumGrants([])}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        <div className="mt-3 max-h-48 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
+                          {availableMaximumGrants.map((range) => (
                             <label
-                              key={amount}
-                              className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
-                                disabled
-                                  ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
-                                  : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
-                              }`}
+                              key={range}
+                              className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                             >
                               <input
                                 type="checkbox"
-                                checked={selected}
-                                disabled={disabled}
+                                checked={quickMaximumGrants.includes(range)}
                                 onChange={() =>
                                   activateQuickFilter(() =>
                                     toggleArrayValue(
-                                      amount,
+                                      range,
                                       quickMaximumGrants,
                                       setQuickMaximumGrants,
                                     ),
@@ -3598,176 +3662,77 @@ export default function CustomerTable({
                                 }
                                 className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                               />
-
-                              <span className="min-w-0 flex-1 truncate">
-                                {amount}
-                              </span>
-
-                              <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
-                                {count}
-                              </span>
+                              <span className="min-w-0 flex-1">{range}</span>
                             </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Deadline */}
-
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                          Application Deadline
-                        </label>
-                        {quickDeadline !== "all" && (
-                          <button
-                            type="button"
-                            onClick={() => setQuickDeadline("all")}
-                            className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
-                          >
-                            Clear
-                          </button>
-                        )}
+                          ))}
+                        </div>
                       </div>
 
-                      <select
-                        value={quickDeadline}
-                        onChange={(e) =>
-                          activateQuickFilter(() =>
-                            setQuickDeadline(e.target.value),
-                          )
-                        }
-                        className="mt-3 w-full rounded-xl border border-[#E2E3E3] bg-white px-4 py-3 text-sm text-[#394147] outline-none focus:border-[#B7655E] focus:ring-4 focus:ring-[#AF915A]/30"
-                      >
-                        <option value="all">All Deadlines</option>
-
-                        <option value="30">
-                          {isArchivedView
-                            ? "Closed within the past 30 days"
-                            : "Due within 30 days"}
-                        </option>
-
-                        <option value="60">
-                          {isArchivedView
-                            ? "Closed within the past 60 days"
-                            : "Due within 60 days"}
-                        </option>
-
-                        <option value="90">
-                          {isArchivedView
-                            ? "Closed within the past 90 days"
-                            : "Due within 90 days"}
-                        </option>
-
-                        <option value="no-deadline">
-                          No specific deadline
-                        </option>
-                      </select>
-                    </div>
-
-                    {/* Anticipated Deadline */}
-
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                          Anticipated Deadline
-                        </label>
-                        {quickMonths.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setQuickMonths([])}
-                            className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
-                        {conditionalMonths.map((month) => {
-                          const count = getMonthFacetCount(month);
-                          const selected = quickMonths.includes(month);
-                          const disabled = count === 0 && !selected;
-
-                          return (
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Program Areas
+                          </label>
+                          {quickProgramAreas.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickProgramAreas([])}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        <div className="mt-3 max-h-48 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
+                          {availableProgramAreas.map((area) => (
                             <label
-                              key={month}
-                              className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
-                                disabled
-                                  ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
-                                  : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
-                              }`}
+                              key={area}
+                              className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                             >
                               <input
                                 type="checkbox"
-                                checked={selected}
-                                disabled={disabled}
+                                checked={quickProgramAreas.includes(area)}
                                 onChange={() =>
                                   activateQuickFilter(() =>
                                     toggleArrayValue(
-                                      month,
-                                      quickMonths,
-                                      setQuickMonths,
+                                      area,
+                                      quickProgramAreas,
+                                      setQuickProgramAreas,
                                     ),
                                   )
                                 }
                                 className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                               />
-
-                              <span
-                                className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
-                                  month,
-                                )}`}
-                              >
-                                {month}
-                              </span>
-
-                              <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
-                                {count}
-                              </span>
+                              <span className="min-w-0 flex-1">{area}</span>
                             </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Categories */}
-
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
-                          Categories
-                        </label>
-                        {quickCategories.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setQuickCategories([])}
-                            className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
-                          >
-                            Clear
-                          </button>
-                        )}
+                          ))}
+                        </div>
                       </div>
 
-                      <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
-                        {conditionalCategories.map((category) => {
-                          const count = getCategoryFacetCount(category);
-                          const selected = quickCategories.includes(category);
-                          const disabled = count === 0 && !selected;
-
-                          return (
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Categories
+                          </label>
+                          {quickCategories.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickCategories([])}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        <div className="mt-3 max-h-48 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
+                          {availableCategories.map((category) => (
                             <label
                               key={category}
-                              className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
-                                disabled
-                                  ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
-                                  : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
-                              }`}
+                              className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-[#394147] hover:bg-[#F6EFEA]"
                             >
                               <input
                                 type="checkbox"
-                                checked={selected}
-                                disabled={disabled}
+                                checked={quickCategories.includes(category)}
                                 onChange={() =>
                                   activateQuickFilter(() =>
                                     toggleArrayValue(
@@ -3779,25 +3744,268 @@ export default function CustomerTable({
                                 }
                                 className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
                               />
-
                               <span
-                                className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
-                                  category,
-                                  categoryColorMap,
-                                )}`}
+                                className={`inline-flex min-w-0 flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(category, categoryColorMap)}`}
                               >
                                 {category}
                               </span>
-
-                              <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
-                                {count}
-                              </span>
                             </label>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
+                      {/* Maximum Grant */}
+
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Maximum Grant
+                          </label>
+                          {quickMaximumGrants.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickMaximumGrants([])}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
+                          {conditionalMaximumGrantRanges.map((amount) => {
+                            const count = getMaximumGrantFacetCount(amount);
+                            const selected =
+                              quickMaximumGrants.includes(amount);
+                            const disabled = count === 0 && !selected;
+
+                            return (
+                              <label
+                                key={amount}
+                                className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                                  disabled
+                                    ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                                    : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selected}
+                                  disabled={disabled}
+                                  onChange={() =>
+                                    activateQuickFilter(() =>
+                                      toggleArrayValue(
+                                        amount,
+                                        quickMaximumGrants,
+                                        setQuickMaximumGrants,
+                                      ),
+                                    )
+                                  }
+                                  className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
+                                />
+
+                                <span className="min-w-0 flex-1 truncate">
+                                  {amount}
+                                </span>
+
+                                <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                                  {count}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Deadline */}
+
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Application Deadline
+                          </label>
+                          {quickDeadline !== "all" && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickDeadline("all")}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+
+                        <select
+                          value={quickDeadline}
+                          onChange={(e) =>
+                            activateQuickFilter(() =>
+                              setQuickDeadline(e.target.value),
+                            )
+                          }
+                          className="mt-3 w-full rounded-xl border border-[#E2E3E3] bg-white px-4 py-3 text-sm text-[#394147] outline-none focus:border-[#B7655E] focus:ring-4 focus:ring-[#AF915A]/30"
+                        >
+                          <option value="all">All Deadlines</option>
+
+                          <option value="30">
+                            {isArchivedView
+                              ? "Closed within the past 30 days"
+                              : "Due within 30 days"}
+                          </option>
+
+                          <option value="60">
+                            {isArchivedView
+                              ? "Closed within the past 60 days"
+                              : "Due within 60 days"}
+                          </option>
+
+                          <option value="90">
+                            {isArchivedView
+                              ? "Closed within the past 90 days"
+                              : "Due within 90 days"}
+                          </option>
+
+                          <option value="no-deadline">
+                            No specific deadline
+                          </option>
+                        </select>
+                      </div>
+
+                      {/* Anticipated Deadline */}
+
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Anticipated Deadline
+                          </label>
+                          {quickMonths.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickMonths([])}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
+                          {conditionalMonths.map((month) => {
+                            const count = getMonthFacetCount(month);
+                            const selected = quickMonths.includes(month);
+                            const disabled = count === 0 && !selected;
+
+                            return (
+                              <label
+                                key={month}
+                                className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                                  disabled
+                                    ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                                    : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selected}
+                                  disabled={disabled}
+                                  onChange={() =>
+                                    activateQuickFilter(() =>
+                                      toggleArrayValue(
+                                        month,
+                                        quickMonths,
+                                        setQuickMonths,
+                                      ),
+                                    )
+                                  }
+                                  className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
+                                />
+
+                                <span
+                                  className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getMonthStyle(
+                                    month,
+                                  )}`}
+                                >
+                                  {month}
+                                </span>
+
+                                <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                                  {count}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Categories */}
+
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-[#626A70]">
+                            Categories
+                          </label>
+                          {quickCategories.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setQuickCategories([])}
+                              className="text-[10px] font-bold uppercase tracking-wide text-[#778189] hover:text-[#2F3038]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="mt-3 max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[#E2E3E3] bg-white p-3">
+                          {conditionalCategories.map((category) => {
+                            const count = getCategoryFacetCount(category);
+                            const selected = quickCategories.includes(category);
+                            const disabled = count === 0 && !selected;
+
+                            return (
+                              <label
+                                key={category}
+                                className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm ${
+                                  disabled
+                                    ? "cursor-not-allowed text-[#A0A5A9] opacity-55"
+                                    : "cursor-pointer text-[#394147] hover:bg-[#F6EFEA]"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selected}
+                                  disabled={disabled}
+                                  onChange={() =>
+                                    activateQuickFilter(() =>
+                                      toggleArrayValue(
+                                        category,
+                                        quickCategories,
+                                        setQuickCategories,
+                                      ),
+                                    )
+                                  }
+                                  className="h-4 w-4 rounded border-slate-300 accent-[#B7655E]"
+                                />
+
+                                <span
+                                  className={`inline-flex min-w-0 max-w-full flex-1 truncate rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryStyle(
+                                    category,
+                                    categoryColorMap,
+                                  )}`}
+                                >
+                                  {category}
+                                </span>
+
+                                <span className="rounded-full bg-[#ECEDEE] px-2 py-0.5 text-[10px] font-bold text-[#626A70]">
+                                  {count}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -3890,26 +4098,37 @@ export default function CustomerTable({
                               className="rounded-lg border border-[#DFE0E0] bg-white px-3 py-2 text-sm text-[#394147] outline-none focus:border-[#B7655E]"
                             >
                               <option value="grantor">Grantor</option>
-
-                              <option value="maximum_grant">
-                                Maximum Grant
-                              </option>
-
-                              <option value="deadline">Deadline</option>
-
-                              <option value="anticipated_deadline">
-                                Anticipated Deadline
-                              </option>
-
-                              <option value="category">Categories</option>
-
-                              <option value="limited_opportunity">
-                                Limited Opportunity
-                              </option>
-
-                              <option value="fellowship_opportunity">
-                                Fellowship Opportunity
-                              </option>
+                              {isProspectView ? (
+                                <>
+                                  <option value="program_area">
+                                    Program Areas
+                                  </option>
+                                  <option value="minimum_grant">
+                                    Minimum Grant
+                                  </option>
+                                  <option value="maximum_grant">
+                                    Maximum Grant
+                                  </option>
+                                  <option value="category">Categories</option>
+                                </>
+                              ) : (
+                                <>
+                                  <option value="maximum_grant">
+                                    Maximum Grant
+                                  </option>
+                                  <option value="deadline">Deadline</option>
+                                  <option value="anticipated_deadline">
+                                    Anticipated Deadline
+                                  </option>
+                                  <option value="category">Categories</option>
+                                  <option value="limited_opportunity">
+                                    Limited Opportunity
+                                  </option>
+                                  <option value="fellowship_opportunity">
+                                    Fellowship Opportunity
+                                  </option>
+                                </>
+                              )}
                             </select>
 
                             <select
@@ -4143,7 +4362,8 @@ export default function CustomerTable({
                       }
                       className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
                     >
-                      Maximum Grant: {amount} ×
+                      {isProspectView ? "Grant Range" : "Maximum Grant"}:{" "}
+                      {amount} ×
                     </button>
                   ))}
 
@@ -4195,6 +4415,23 @@ export default function CustomerTable({
                       )}`}
                     >
                       {category} ×
+                    </button>
+                  ))}
+
+                  {quickProgramAreas.map((area) => (
+                    <button
+                      key={`program-${area}`}
+                      type="button"
+                      onClick={() =>
+                        toggleArrayValue(
+                          area,
+                          quickProgramAreas,
+                          setQuickProgramAreas,
+                        )
+                      }
+                      className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25"
+                    >
+                      Program Area: {area} ×
                     </button>
                   ))}
 
@@ -5030,4 +5267,4 @@ export default function CustomerTable({
       </div>
     </div>
   );
-}
+  }

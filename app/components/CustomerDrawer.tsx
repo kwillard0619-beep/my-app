@@ -670,6 +670,26 @@ export default function CustomerDrawer({
                     </div>
                   </div>
                 </section>
+
+                <section className="flex w-full items-center justify-between gap-5 rounded-[22px] border border-[#C8CBCC] bg-[#E9E9E7] px-5 py-4 sm:px-6">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
+                      Record Activity
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#394147]">
+                      Last Updated
+                    </p>
+                  </div>
+                  <time className="text-right text-sm font-bold text-[#2F3038]">
+                    {new Date(
+                      customer.updated_at ?? customer.created_at,
+                    ).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </time>
+                </section>
               </>
             )}
 
