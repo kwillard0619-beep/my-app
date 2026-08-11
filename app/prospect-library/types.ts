@@ -13,6 +13,7 @@ export type Prospect = {
   program_areas: string[] | null;
   grant_minimum: number | string | null;
   grant_maximum: number | string | null;
+  rfp_cycle: string | null;
   contact_id: number | null;
   contact: ProspectContact | null;
   created_at: string;
