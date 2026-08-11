@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type AppSidebarProps = {
@@ -53,13 +49,9 @@ export default function AppSidebar({
   mobileOpen = false,
   onMobileClose,
 }: AppSidebarProps) {
-  const supabase = useMemo(
-    () => createClient(),
-    []
-  );
+  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] =
-    useState<CurrentProfile | null>(null);
+  const [profile, setProfile] = useState<CurrentProfile | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -103,8 +95,7 @@ export default function AppSidebar({
   useEffect(() => {
     if (!mobileOpen) return;
 
-    const previousOverflow =
-      document.body.style.overflow;
+    const previousOverflow = document.body.style.overflow;
 
     document.body.style.overflow = "hidden";
 
@@ -118,10 +109,7 @@ export default function AppSidebar({
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener(
-        "keydown",
-        handleEscape
-      );
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [mobileOpen, onMobileClose]);
 
@@ -139,9 +127,7 @@ export default function AppSidebar({
         .toUpperCase() || "LG"
     : "LG";
 
-  const renderSidebarContents = (
-    isMobile: boolean
-  ) => (
+  const renderSidebarContents = (isMobile: boolean) => (
     <>
       <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-white/25 blur-3xl" />
 
@@ -158,7 +144,7 @@ export default function AppSidebar({
             <span className="block truncate text-base font-bold tracking-[-0.02em]">
               LG Listings
             </span>
-            <span className="block truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-[#747E85]">
+            <span className="block whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.10em] text-[#747E85]">
               Funding Intelligence
             </span>
           </span>
@@ -176,10 +162,7 @@ export default function AppSidebar({
         )}
       </div>
 
-      <nav
-        className="relative mt-8 space-y-2"
-        aria-label="Primary navigation"
-      >
+      <nav className="relative mt-8 space-y-2" aria-label="Primary navigation">
         {navigationItems.map((item) => {
           const isActive = item.href === activePath;
 
@@ -197,9 +180,7 @@ export default function AppSidebar({
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white/60 text-[#444B51]">
                 {item.icon}
               </span>
-              <span className="min-w-0 flex-1">
-                {item.label}
-              </span>
+              <span className="min-w-0 flex-1">{item.label}</span>
               {isActive && (
                 <span className="h-2 w-2 shrink-0 rounded-full bg-[#B7655E]" />
               )}
@@ -289,7 +270,7 @@ export default function AppSidebar({
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#CACDCF] px-4 py-6 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-[256px] shrink-0 flex-col overflow-hidden border-r border-[#C7B5AE] bg-[#CACDCF] px-4 py-6 lg:flex">
         {renderSidebarContents(false)}
       </aside>
 
@@ -307,9 +288,7 @@ export default function AppSidebar({
         aria-label="Mobile navigation"
         aria-hidden={!mobileOpen}
         className={`fixed inset-y-0 left-0 z-[260] flex w-[min(86vw,320px)] flex-col overflow-y-auto border-r border-[#C7B5AE] bg-[#CACDCF] px-4 py-5 shadow-[24px_0_70px_rgba(18,19,22,0.28)] transition-transform duration-300 lg:hidden ${
-          mobileOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {renderSidebarContents(true)}

@@ -1,13 +1,13 @@
 export type Contact = {
   id: number;
-  name: string;
+  name: string | null;
   email: string | null;
   organization: string | null;
 };
 
 export type OpportunityAttachment = {
   id: number;
-  opportunity_id: number;
+  opportunity_id: number | null;
   file_name: string | null;
   file_path: string | null;
   created_at: string;
@@ -15,11 +15,7 @@ export type OpportunityAttachment = {
 
 export type Customer = {
   id: number;
-
-  // Internal field used for active/archived status
-  status: string | null;
-
-  // Opportunity information
+  status: string;
   grantor: string;
   opportunity_name: string;
   maximum_grant: string | null;
@@ -31,12 +27,18 @@ export type Customer = {
   additional_information: string | null;
   limited_opportunity: string | null;
   fellowship_opportunity: string | null;
-  attachments?: OpportunityAttachment[];
-
-  // Contact relationship
   contact_id: number | null;
   contact: Contact | null;
-
-  // System field
+  attachments?: OpportunityAttachment[] | null;
   created_at: string;
+
+  // Prospect Library fields. These are populated only in prospect mode.
+  grantor_name?: string;
+  overview?: string | null;
+  categories?: string[] | null;
+  program_areas?: string[] | null;
+  grant_minimum?: number | string | null;
+  grant_maximum?: number | string | null;
+  rfp_cycle?: string | null;
+  updated_at?: string;
 };
