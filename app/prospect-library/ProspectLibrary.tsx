@@ -16,6 +16,7 @@ import {
   createCategoryColorMap,
   getCategoryStyle,
 } from "../components/categoryColors";
+import ProspectDrawer from "./ProspectDrawer";
 import type { Prospect } from "./types";
 
 type SortField =
@@ -1074,9 +1075,26 @@ export default function ProspectLibrary({
                             </span>
                           ))}
                         </div>
-                        <p className="mt-4 text-sm font-bold">
-                          {grantRange(prospect)}
-                        </p>
+                        <div className="mt-4 grid grid-cols-2 gap-2.5">
+                          <div className="rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] p-3">
+                            <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#778189]">
+                              Minimum Grant
+                            </p>
+                            <p className="mt-1.5 text-sm font-bold text-[#3E454B]">
+                              {currency(prospect.grant_minimum) ||
+                                "Not specified"}
+                            </p>
+                          </div>
+                          <div className="rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] p-3">
+                            <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#778189]">
+                              Maximum Grant
+                            </p>
+                            <p className="mt-1.5 text-sm font-bold text-[#3E454B]">
+                              {currency(prospect.grant_maximum) ||
+                                "Not specified"}
+                            </p>
+                          </div>
+                        </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {list(prospect.categories).map((category) => (
                             <span
@@ -1106,10 +1124,10 @@ export default function ProspectLibrary({
                             Program Areas
                           </th>
                           <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
-                            Grant Range
+                            Minimum Grant
                           </th>
                           <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
-                            RFP Cycle
+                            Maximum Grant
                           </th>
                           <th className="border-b border-white/10 p-5 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">
                             Categories
@@ -1152,19 +1170,26 @@ export default function ProspectLibrary({
                               </div>
                             </td>
                             <td className="p-5 align-top text-center">
-                              <div className="inline-flex min-w-[150px] flex-col rounded-xl border border-[#C8CBCC] bg-white px-4 py-3 shadow-sm">
+                              <div className="inline-flex min-w-[120px] flex-col rounded-xl border border-[#C8CBCC] bg-white px-4 py-3 shadow-sm">
                                 <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#778189]">
-                                  Typical range
+                                  From
                                 </span>
                                 <span className="mt-1 text-sm font-bold text-[#3E454B]">
-                                  {grantRange(prospect)}
+                                  {currency(prospect.grant_minimum) ||
+                                    "Not specified"}
                                 </span>
                               </div>
                             </td>
                             <td className="p-5 align-top text-center">
-                              <span className="inline-flex max-w-[190px] rounded-xl border border-[#C8CBCC] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#4B5359] shadow-sm">
-                                {prospect.rfp_cycle || "Not documented"}
-                              </span>
+                              <div className="inline-flex min-w-[120px] flex-col rounded-xl border border-[#C8CBCC] bg-white px-4 py-3 shadow-sm">
+                                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#778189]">
+                                  Up to
+                                </span>
+                                <span className="mt-1 text-sm font-bold text-[#3E454B]">
+                                  {currency(prospect.grant_maximum) ||
+                                    "Not specified"}
+                                </span>
+                              </div>
                             </td>
                             <td className="p-5 align-top">
                               <div className="flex max-w-sm flex-wrap gap-1.5">
@@ -1212,246 +1237,13 @@ export default function ProspectLibrary({
         </section>
       </div>
 
-      {selected && (
-        <div
-          className="fixed inset-0 z-[200] flex justify-end bg-[#15171A]/60"
-          onMouseDown={(event) =>
-            event.target === event.currentTarget && setSelectedId(null)
-          }
-        >
-          <aside
-            role="dialog"
-            aria-modal="true"
-            className="relative flex h-[100dvh] w-full max-w-[780px] flex-col overflow-hidden border-l border-white/10 bg-[#F4F3F1] shadow-[-24px_0_70px_rgba(18,19,22,0.30)]"
-          >
-            <nav
-              aria-label="Prospect navigation"
-              className="absolute inset-y-0 left-0 z-40 hidden w-16 flex-col items-center border-r border-[#C8CBCC] bg-white/95 py-4 shadow-[8px_0_24px_rgba(47,48,56,0.06)] backdrop-blur sm:flex"
-            >
-              <div className="flex-1" />
-              <button
-                type="button"
-                onClick={() => navigateProspect(-1)}
-                disabled={selectedIndex <= 0}
-                aria-label="Previous prospect"
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#C8CBCC] bg-[#F4F3F1] text-xl text-[#3E454B] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md disabled:cursor-not-allowed disabled:opacity-35"
-              >
-                ↑
-              </button>
-              <div className="my-4 text-center">
-                <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#778189]">
-                  Record
-                </p>
-                <p className="mt-1 text-xs font-bold">{selectedIndex + 1}</p>
-                <div className="mx-auto my-1 h-px w-5 bg-[#C8CBCC]" />
-                <p className="text-[10px] font-semibold text-[#778189]">
-                  {filtered.length}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigateProspect(1)}
-                disabled={
-                  selectedIndex < 0 || selectedIndex >= filtered.length - 1
-                }
-                aria-label="Next prospect"
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#2F3038] bg-[#2F3038] text-xl text-white transition hover:translate-y-0.5 hover:bg-black hover:shadow-md disabled:cursor-not-allowed disabled:border-[#DEE0E1] disabled:bg-[#E2E3E3] disabled:text-[#A0A5A9] disabled:opacity-45"
-              >
-                ↓
-              </button>
-              <div className="flex-1" />
-            </nav>
-            <header className="relative ml-0 shrink-0 overflow-hidden bg-[#2F3038] px-4 pb-5 pt-5 text-white sm:ml-16 sm:px-8 sm:pb-8 sm:pt-7">
-              <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full border-[38px] border-[#C2A05A]/10" />
-              <div className="pointer-events-none absolute -bottom-24 right-28 h-52 w-52 rounded-full bg-[#B7655E]/10 blur-3xl" />
-              <div className="relative flex items-start justify-between gap-5">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
-                    Prospect Library
-                  </p>
-                  <h2 className="mt-2 text-xl font-bold leading-tight tracking-[-0.025em] sm:text-[2rem]">
-                    {selected.grantor_name}
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(null)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xl text-white/80 transition hover:rotate-90 hover:bg-white hover:text-[#2F3038]"
-                >
-                  ×
-                </button>
-              </div>
-            </header>
-            <div className="ml-0 min-h-0 flex-1 space-y-5 overflow-y-auto p-4 pb-24 sm:ml-16 sm:p-8 sm:pb-8">
-              <section className="rounded-[20px] border border-[#C8CBCC] bg-white p-5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                  Overview
-                </p>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#565E64]">
-                  {selected.overview || "No overview is currently available."}
-                </p>
-              </section>
-              <section className="grid gap-5 sm:grid-cols-2">
-                <div className="rounded-[20px] border border-[#C8CBCC] bg-white p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                    Categories
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {list(selected.categories).map((category) => (
-                      <span
-                        key={category}
-                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${getCategoryStyle(category, categoryColorMap)}`}
-                      >
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-[20px] border border-[#C8CBCC] bg-white p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                    Program Areas
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {list(selected.program_areas).map((area) => (
-                      <span
-                        key={area}
-                        className="rounded-full border border-[#C8CBCC] bg-[#E9E9E7] px-3 py-1.5 text-xs font-semibold"
-                      >
-                        {area}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </section>
-              <section className="grid gap-5 sm:grid-cols-2">
-                <div className="rounded-[20px] border border-[#C8CBCC] bg-white p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                    RFP Cycle
-                  </p>
-                  <p className="mt-3 text-sm font-semibold">
-                    {selected.rfp_cycle || "Not yet documented"}
-                  </p>
-                </div>
-                <div className="rounded-[20px] border border-[#C8CBCC] bg-white p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                    Grant Range
-                  </p>
-                  <p className="mt-3 text-lg font-bold">
-                    {grantRange(selected)}
-                  </p>
-                </div>
-              </section>
-              <section className="rounded-[20px] border border-[#C8CBCC] bg-white p-5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#778189]">
-                  Contact
-                </p>
-                {selected.contact ? (
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-[#F4F3F1] p-4">
-                      <div className="flex justify-between gap-2">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#92999E]">
-                          Full Name
-                        </p>
-                        {selected.contact.name && (
-                          <button
-                            type="button"
-                            onClick={() => copyText(selected.contact!.name!)}
-                            className="text-xs font-semibold"
-                          >
-                            Copy
-                          </button>
-                        )}
-                      </div>
-                      <p className="mt-1 text-sm font-semibold">
-                        {selected.contact.name || "Not provided"}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-[#F4F3F1] p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#92999E]">
-                        Organization
-                      </p>
-                      <p className="mt-1 text-sm font-semibold">
-                        {selected.contact.organization || "Not provided"}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-[#F4F3F1] p-4 sm:col-span-2">
-                      <div className="flex justify-between gap-2">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#92999E]">
-                          Email
-                        </p>
-                        {selected.contact.email && (
-                          <button
-                            type="button"
-                            onClick={() => copyText(selected.contact!.email!)}
-                            className="text-xs font-semibold"
-                          >
-                            Copy
-                          </button>
-                        )}
-                      </div>
-                      {selected.contact.email ? (
-                        <a
-                          href={`mailto:${selected.contact.email}`}
-                          className="mt-1 block break-all text-sm font-semibold text-[#8F4E49] underline"
-                        >
-                          {selected.contact.email}
-                        </a>
-                      ) : (
-                        <p className="mt-1 text-sm">Not provided</p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="mt-3 text-sm text-[#626A70]">
-                    No contact is assigned, or contact information requires a
-                    signed-in account.
-                  </p>
-                )}
-              </section>
-              <section className="grid grid-cols-2 gap-3 text-xs text-[#778189]">
-                <div className="rounded-2xl border border-[#C8CBCC] bg-[#E9E9E7] p-4">
-                  <b className="block uppercase tracking-wider">Created</b>
-                  <span className="mt-1 block">
-                    {dateLabel(selected.created_at)}
-                  </span>
-                </div>
-                <div className="rounded-2xl border border-[#C8CBCC] bg-[#E9E9E7] p-4">
-                  <b className="block uppercase tracking-wider">Updated</b>
-                  <span className="mt-1 block">
-                    {dateLabel(selected.updated_at)}
-                  </span>
-                </div>
-              </section>
-            </div>
-            <nav
-              aria-label="Prospect navigation"
-              className="absolute inset-x-0 bottom-0 z-40 flex items-center justify-between border-t border-[#C8CBCC] bg-white/95 px-4 py-3 shadow-[0_-10px_28px_rgba(47,48,56,0.10)] backdrop-blur sm:hidden"
-            >
-              <button
-                type="button"
-                onClick={() => navigateProspect(-1)}
-                disabled={selectedIndex <= 0}
-                className="rounded-xl border border-[#C8CBCC] px-4 py-2 text-sm font-semibold disabled:opacity-30"
-              >
-                ← Previous
-              </button>
-              <span className="text-xs font-bold text-[#778189]">
-                {selectedIndex + 1} of {filtered.length}
-              </span>
-              <button
-                type="button"
-                onClick={() => navigateProspect(1)}
-                disabled={
-                  selectedIndex < 0 || selectedIndex >= filtered.length - 1
-                }
-                className="rounded-xl border border-[#C8CBCC] px-4 py-2 text-sm font-semibold disabled:opacity-30"
-              >
-                Next →
-              </button>
-            </nav>
-          </aside>
-        </div>
-      )}
+      <ProspectDrawer
+        prospect={selected}
+        categoryColorMap={categoryColorMap}
+        navigationProspects={filtered}
+        onNavigate={setSelectedId}
+        onClose={() => setSelectedId(null)}
+      />
     </main>
   );
 }
