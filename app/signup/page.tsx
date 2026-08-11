@@ -127,8 +127,8 @@ export default function SignupPage() {
 
   if (status === "success") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#D4D5D6] px-4 py-10 text-[#2F3038]">
-        <section className="relative w-full max-w-xl overflow-hidden rounded-[30px] border border-white/50 bg-[#F4F3F1] p-8 text-center shadow-[0_22px_60px_rgba(47,48,56,0.16)] sm:p-12">
+      <main className="flex min-h-screen items-center justify-center bg-[#D4D5D6] px-3 py-3 text-[#2F3038] sm:px-4 sm:py-10">
+        <section className="relative w-full max-w-xl overflow-hidden rounded-[22px] border border-white/50 bg-[#F4F3F1] p-5 text-center shadow-[0_22px_60px_rgba(47,48,56,0.16)] sm:rounded-[30px] sm:p-12">
           <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#D8CCC7]/70 blur-3xl" />
 
           <div className="relative">
@@ -138,7 +138,7 @@ export default function SignupPage() {
             <p className="mt-7 text-[11px] font-bold uppercase tracking-[0.2em] text-[#778189]">
               Account created
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-[-0.035em]">
+            <h1 className="mt-2 text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] sm:text-3xl">
               Confirm your email
             </h1>
             <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#626A70]">
@@ -175,8 +175,8 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#D4D5D6] px-4 py-6 text-[#2F3038] sm:px-6 lg:py-10">
-      <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl overflow-hidden rounded-[32px] border border-white/40 bg-[#F4F3F1] shadow-[0_24px_70px_rgba(47,48,56,0.16)] lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="min-h-screen bg-[#D4D5D6] px-3 py-3 text-[#2F3038] sm:px-6 sm:py-6 lg:py-10">
+      <div className="mx-auto grid min-h-[calc(100dvh-1.5rem)] max-w-6xl overflow-hidden rounded-[22px] border border-white/40 bg-[#F4F3F1] shadow-[0_24px_70px_rgba(47,48,56,0.16)] sm:min-h-[calc(100vh-3rem)] sm:rounded-[32px] lg:grid-cols-[0.9fr_1.1fr]">
         <section className="relative hidden overflow-hidden bg-[#2F3038] p-10 text-white lg:flex lg:flex-col lg:justify-between xl:p-14">
           <div className="pointer-events-none absolute -left-20 -top-16 h-72 w-72 rounded-full bg-[#B7655E]/25 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-[#C2A05A]/15 blur-3xl" />
@@ -230,18 +230,18 @@ export default function SignupPage() {
           </p>
         </section>
 
-        <section className="relative p-6 sm:p-9 lg:p-12 xl:p-14">
+        <section className="relative p-5 sm:p-9 lg:p-12 xl:p-14">
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D8CCC7]/55 blur-3xl" />
 
           <div className="relative mx-auto max-w-xl">
-            <div className="mb-8 flex items-center justify-between lg:hidden">
+            <div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
               <Link href="/" className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2F3038] text-xs font-bold text-white">
                   LG
                 </span>
                 <span className="font-bold">LG Listings</span>
               </Link>
-              <Link href="/" className="text-sm font-semibold text-[#626A70] hover:text-[#2F3038]">
+              <Link href="/" className="shrink-0 text-xs font-semibold text-[#626A70] hover:text-[#2F3038] sm:text-sm">
                 Back to dashboard
               </Link>
             </div>
@@ -249,7 +249,7 @@ export default function SignupPage() {
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
               Create your account
             </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-[-0.035em]">
+            <h2 className="mt-2 text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] sm:text-3xl">
               Get started with LG Listings
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#626A70]">
@@ -278,7 +278,7 @@ export default function SignupPage() {
                       setFirstName(event.target.value);
                       clearMessage();
                     }}
-                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                   />
                 </div>
 
@@ -296,7 +296,7 @@ export default function SignupPage() {
                       setLastName(event.target.value);
                       clearMessage();
                     }}
-                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                   />
                 </div>
               </div>
@@ -314,7 +314,7 @@ export default function SignupPage() {
                     setOrganization(event.target.value);
                     clearMessage();
                   }}
-                  className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                  className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                 />
               </div>
 
@@ -332,7 +332,7 @@ export default function SignupPage() {
                     setEmail(event.target.value);
                     clearMessage();
                   }}
-                  className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                  className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                 />
               </div>
 
@@ -352,7 +352,7 @@ export default function SignupPage() {
                       setPassword(event.target.value);
                       clearMessage();
                     }}
-                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                   />
                 </div>
 
@@ -371,7 +371,7 @@ export default function SignupPage() {
                       setConfirmPassword(event.target.value);
                       clearMessage();
                     }}
-                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                   />
                 </div>
               </div>

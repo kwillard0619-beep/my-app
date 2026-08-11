@@ -44,6 +44,8 @@ export default function SubscribePage() {
   const [status, setStatus] =
     useState<FormStatus>("idle");
   const [message, setMessage] = useState("");
+  const [mobileNavigationOpen, setMobileNavigationOpen] =
+    useState(false);
 
   useEffect(() => {
     async function loadCategories() {
@@ -201,29 +203,38 @@ export default function SubscribePage() {
   return (
     <main className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
       <div className="mx-auto flex min-h-screen max-w-[1920px]">
-        <AppSidebar activePath="/subscribe" />
+        <AppSidebar
+          activePath="/subscribe"
+          mobileOpen={mobileNavigationOpen}
+          onMobileClose={() =>
+            setMobileNavigationOpen(false)
+          }
+        />
 
-        <section className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-          <div className="mb-5 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/80 px-4 py-3 backdrop-blur lg:hidden">
+        <section className="min-w-0 flex-1 px-3 py-3 sm:px-6 sm:py-5 lg:px-8 lg:py-7">
+          <div className="mb-3 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/90 px-3 py-3 shadow-sm backdrop-blur sm:mb-5 sm:px-4 lg:hidden">
             <Link href="/" className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2F3038] text-xs font-bold text-white">
                 LG
               </span>
               <span className="font-bold">LG Listings</span>
             </Link>
-            <Link
-              href="/"
-              className="rounded-xl border border-[#C8CBCC] bg-white px-3 py-2 text-sm font-semibold text-[#565E64]"
+            <button
+              type="button"
+              onClick={() => setMobileNavigationOpen(true)}
+              aria-label="Open navigation"
+              aria-expanded={mobileNavigationOpen}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white text-lg font-semibold text-[#565E64] transition hover:border-[#AEB3B6] hover:text-[#2F3038]"
             >
-              Dashboard
-            </Link>
+              ☰
+            </button>
           </div>
 
-          <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden rounded-[30px] border border-white/40 bg-[#F4F3F1] shadow-[0_18px_45px_rgba(47,48,56,0.10)]">
+          <div className="relative min-h-[calc(100dvh-1.5rem)] overflow-hidden rounded-[22px] border border-white/40 bg-[#F4F3F1] shadow-[0_18px_45px_rgba(47,48,56,0.10)] sm:min-h-[calc(100vh-3.5rem)] sm:rounded-[30px]">
             <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#D8CCC7]/55 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-[#C2A05A]/10 blur-3xl" />
 
-            <header className="relative overflow-hidden border-b border-white/10 bg-[#2F3038] px-7 py-10 text-white sm:px-10 lg:px-14 lg:py-12">
+            <header className="relative overflow-hidden border-b border-white/10 bg-[#2F3038] px-5 py-8 text-white sm:px-10 sm:py-10 lg:px-14 lg:py-12">
               <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#B7655E]/25 blur-3xl" />
               <div className="pointer-events-none absolute bottom-0 left-1/3 h-32 w-72 rounded-full bg-[#C2A05A]/10 blur-3xl" />
 
@@ -231,7 +242,7 @@ export default function SubscribePage() {
                 <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#D8CCC7]">
                   Personalized RFP alerts
                 </p>
-                <h1 className="mt-3 text-3xl font-bold tracking-[-0.035em] sm:text-4xl lg:text-5xl">
+                <h1 className="mt-3 text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl lg:text-5xl">
                   Bring the right opportunities to your inbox.
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-[#D4D9DC] sm:text-base">
@@ -240,10 +251,10 @@ export default function SubscribePage() {
               </div>
             </header>
 
-            <div className="relative grid gap-7 p-5 sm:p-8 xl:grid-cols-[minmax(0,1fr)_320px] lg:p-10">
+            <div className="relative grid gap-5 p-3 sm:gap-7 sm:p-8 lg:p-10 xl:grid-cols-[minmax(0,1fr)_320px]">
               <form
                 onSubmit={handleSubmit}
-                className="rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)] sm:p-8"
+                className="rounded-[20px] border border-[#C8CBCC] bg-white p-4 shadow-[0_14px_36px_rgba(47,48,56,0.08)] sm:rounded-[26px] sm:p-8"
               >
                 <div className="flex flex-col gap-3 border-b border-[#E2E3E3] pb-6 sm:flex-row sm:items-end sm:justify-between">
                   <div>
@@ -290,7 +301,7 @@ export default function SubscribePage() {
                         setFirstName(event.target.value);
                         resetMessage();
                       }}
-                      className="mt-3 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-sm text-[#334B59] shadow-inner outline-none transition placeholder:text-[#92999E] focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15"
+                      className="mt-3 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-base text-[#334B59] shadow-inner outline-none transition placeholder:text-[#92999E] focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                     />
                   </div>
 
@@ -312,7 +323,7 @@ export default function SubscribePage() {
                         setLastName(event.target.value);
                         resetMessage();
                       }}
-                      className="mt-3 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-sm text-[#334B59] shadow-inner outline-none transition placeholder:text-[#92999E] focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15"
+                      className="mt-3 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-base text-[#334B59] shadow-inner outline-none transition placeholder:text-[#92999E] focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -339,7 +350,7 @@ export default function SubscribePage() {
                         setEmail(event.target.value);
                         resetMessage();
                       }}
-                      className="w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] py-3.5 pl-11 pr-4 text-sm text-[#334B59] shadow-inner outline-none transition placeholder:text-[#92999E] focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15"
+                      className="w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] py-3.5 pl-11 pr-4 text-base text-[#334B59] shadow-inner outline-none transition placeholder:text-[#92999E] focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -436,7 +447,7 @@ export default function SubscribePage() {
                     type="button"
                     onClick={clearForm}
                     disabled={status === "submitting"}
-                    className="inline-flex items-center justify-center rounded-xl border border-[#C8CBCC] bg-[#F4F3F1] px-5 py-3.5 text-sm font-semibold text-[#565E64] transition hover:border-[#AEB3B6] hover:bg-white hover:text-[#2F3038] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-[#C8CBCC] bg-[#F4F3F1] px-5 py-3.5 text-sm font-semibold text-[#565E64] transition hover:border-[#AEB3B6] hover:bg-white hover:text-[#2F3038] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                   >
                     Clear Form
                   </button>
@@ -447,7 +458,7 @@ export default function SubscribePage() {
                       categoriesLoading ||
                       Boolean(categoriesError)
                     }
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2F3038] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,48,56,0.18)] transition hover:-translate-y-0.5 hover:bg-black hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2F3038] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,48,56,0.18)] transition hover:-translate-y-0.5 hover:bg-black hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
                   >
                     {status === "submitting"
                       ? "Subscribing…"
@@ -459,7 +470,7 @@ export default function SubscribePage() {
                 </div>
               </form>
 
-              <aside className="overflow-hidden rounded-[26px] border border-white/10 bg-[#2F3038] text-white shadow-[0_16px_38px_rgba(47,48,56,0.18)]">
+              <aside className="overflow-hidden rounded-[20px] border border-white/10 bg-[#2F3038] text-white shadow-[0_16px_38px_rgba(47,48,56,0.18)] sm:rounded-[26px]">
                 <div className="border-b border-white/10 p-6">
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#B7655E] text-lg shadow-lg">
                     ✦

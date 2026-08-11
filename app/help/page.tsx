@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import AppSidebar from "../components/AppSidebar";
@@ -53,6 +54,8 @@ export default function HelpPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [feedback, setFeedback] = useState("");
+  const [mobileNavigationOpen, setMobileNavigationOpen] =
+    useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,11 +103,36 @@ export default function HelpPage() {
   return (
     <main className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
       <div className="mx-auto flex min-h-screen max-w-[1920px]">
-        <AppSidebar activePath="/help" />
+        <AppSidebar
+          activePath="/help"
+          mobileOpen={mobileNavigationOpen}
+          onMobileClose={() =>
+            setMobileNavigationOpen(false)
+          }
+        />
 
-        <section className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+        <section className="min-w-0 flex-1 px-3 py-3 sm:px-6 sm:py-5 lg:px-8 lg:py-7">
           <div className="mx-auto max-w-[1500px]">
-            <header className="relative overflow-hidden rounded-[28px] text-white shadow-[0_18px_45px_rgba(47,48,56,0.16)]">
+            <div className="mb-3 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/90 px-3 py-3 shadow-sm backdrop-blur sm:mb-5 sm:px-4 lg:hidden">
+              <Link href="/" className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2F3038] text-xs font-bold text-white">
+                  LG
+                </span>
+                <span className="font-bold">LG Listings</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setMobileNavigationOpen(true)}
+                aria-label="Open navigation"
+                aria-expanded={mobileNavigationOpen}
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white text-lg font-semibold text-[#565E64] transition hover:border-[#AEB3B6] hover:text-[#2F3038]"
+              >
+                ☰
+              </button>
+            </div>
+
+            <header className="relative overflow-hidden rounded-[22px] text-white shadow-[0_18px_45px_rgba(47,48,56,0.16)] sm:rounded-[28px]">
               <div className="absolute inset-0 bg-gradient-to-r from-[#2F3038] via-[#3E454B] via-[35%] via-[#66717A] via-[55%] via-[#7A858E] via-[75%] to-[#C2A05A]" />
 
               <div className="pointer-events-none absolute inset-0">
@@ -126,13 +154,13 @@ export default function HelpPage() {
                 />
               </div>
 
-              <div className="relative px-6 pb-7 pt-7 sm:px-8 sm:pt-8 lg:px-10 lg:pt-9">
+              <div className="relative px-5 pb-6 pt-6 sm:px-8 sm:pb-7 sm:pt-8 lg:px-10 lg:pt-9">
                 <div className="min-w-0 pr-0 sm:pr-52">
                   <div className="max-w-3xl">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#E1DFDE]">
                       LG Listings Support
                     </p>
-                    <h1 className="text-3xl font-bold tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
+                    <h1 className="text-[2rem] font-bold leading-[1.08] tracking-[-0.025em] text-white sm:text-4xl lg:text-[2.65rem]">
                       How can we help?
                     </h1>
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-[#E9E9E7] sm:text-base">
@@ -143,12 +171,12 @@ export default function HelpPage() {
                   </div>
                 </div>
 
-                <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-[#E1DFDE]/60 to-transparent" />
+                <div className="mt-6 h-px w-full bg-gradient-to-r from-transparent via-[#E1DFDE]/60 to-transparent sm:mt-8" />
               </div>
             </header>
 
-            <div className="mt-7 grid items-start gap-7 xl:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)]">
-              <section className="rounded-[28px] border border-[#C8CBCC] bg-[#F4F3F1] p-5 shadow-[0_14px_38px_rgba(47,48,56,0.08)] sm:p-7">
+            <div className="mt-5 grid items-start gap-5 sm:mt-7 sm:gap-7 xl:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)]">
+              <section className="rounded-[20px] border border-[#C8CBCC] bg-[#F4F3F1] p-4 shadow-[0_14px_38px_rgba(47,48,56,0.08)] sm:rounded-[28px] sm:p-7">
                 <div className="mb-6">
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
                     Common questions
@@ -182,7 +210,7 @@ export default function HelpPage() {
                           onClick={() =>
                             setOpenFaq(isOpen ? null : index)
                           }
-                          className="flex w-full items-center justify-between gap-5 px-5 py-4 text-left"
+                          className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left sm:gap-5 sm:px-5"
                         >
                           <span className="text-sm font-bold leading-6 text-[#2F3038] sm:text-base">
                             {faq.question}
@@ -200,7 +228,7 @@ export default function HelpPage() {
                         {isOpen && (
                           <div
                             id={panelId}
-                            className="border-t border-[#E2E3E3] px-5 py-4 text-sm leading-7 text-[#626A70]"
+                            className="border-t border-[#E2E3E3] px-4 py-4 text-sm leading-7 text-[#626A70] sm:px-5"
                           >
                             {faq.answer}
                           </div>
@@ -212,7 +240,7 @@ export default function HelpPage() {
               </section>
 
               <aside className="xl:sticky xl:top-7">
-                <div className="relative overflow-hidden rounded-[28px] bg-[#2F3038] p-6 text-white shadow-[0_18px_45px_rgba(47,48,56,0.18)] sm:p-8">
+                <div className="relative overflow-hidden rounded-[20px] bg-[#2F3038] p-5 text-white shadow-[0_18px_45px_rgba(47,48,56,0.18)] sm:rounded-[28px] sm:p-8">
                   <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#B7655E]/20 blur-3xl" />
 
                   <div className="relative">
@@ -253,7 +281,7 @@ export default function HelpPage() {
                           required
                           maxLength={100}
                           autoComplete="name"
-                          className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.09] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#AEB6BB] focus:border-[#D1B270] focus:bg-white/[0.13] focus:ring-4 focus:ring-[#D1B270]/15"
+                          className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.09] px-4 py-3 text-base text-white outline-none transition placeholder:text-[#AEB6BB] focus:border-[#D1B270] focus:bg-white/[0.13] focus:ring-4 focus:ring-[#D1B270]/15 sm:text-sm"
                           placeholder="Your name"
                         />
                       </div>
@@ -272,7 +300,7 @@ export default function HelpPage() {
                           required
                           maxLength={254}
                           autoComplete="email"
-                          className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.09] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#AEB6BB] focus:border-[#D1B270] focus:bg-white/[0.13] focus:ring-4 focus:ring-[#D1B270]/15"
+                          className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.09] px-4 py-3 text-base text-white outline-none transition placeholder:text-[#AEB6BB] focus:border-[#D1B270] focus:bg-white/[0.13] focus:ring-4 focus:ring-[#D1B270]/15 sm:text-sm"
                           placeholder="you@example.com"
                         />
                       </div>
@@ -289,7 +317,7 @@ export default function HelpPage() {
                           name="topic"
                           required
                           defaultValue=""
-                          className="mt-2 w-full rounded-xl border border-white/15 bg-[#3C3D44] px-4 py-3 text-sm text-white outline-none transition focus:border-[#D1B270] focus:ring-4 focus:ring-[#D1B270]/15"
+                          className="mt-2 w-full rounded-xl border border-white/15 bg-[#3C3D44] px-4 py-3 text-base text-white outline-none transition focus:border-[#D1B270] focus:ring-4 focus:ring-[#D1B270]/15 sm:text-sm"
                         >
                           <option value="" disabled>
                             Select a topic
@@ -326,7 +354,7 @@ export default function HelpPage() {
                           minLength={10}
                           maxLength={3000}
                           rows={6}
-                          className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-white/[0.09] px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-[#AEB6BB] focus:border-[#D1B270] focus:bg-white/[0.13] focus:ring-4 focus:ring-[#D1B270]/15"
+                          className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-white/[0.09] px-4 py-3 text-base leading-6 text-white outline-none transition placeholder:text-[#AEB6BB] focus:border-[#D1B270] focus:bg-white/[0.13] focus:ring-4 focus:ring-[#D1B270]/15 sm:text-sm"
                           placeholder="Share the details of your question..."
                         />
                       </div>

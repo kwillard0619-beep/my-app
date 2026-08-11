@@ -148,6 +148,8 @@ export default function CustomerTable({
     );
   const [favoritePendingIds, setFavoritePendingIds] =
     useState<Set<string>>(() => new Set());
+  const [mobileNavigationOpen, setMobileNavigationOpen] =
+    useState(false);
   const [favoriteView, setFavoriteView] =
     useState<"active" | "archived">("active");
 
@@ -309,8 +311,29 @@ export default function CustomerTable({
     useState<string | null>(null);
 
   const rowRefs = useRef<
-    Record<string, HTMLTableRowElement | null>
+    Record<string, HTMLElement | null>
   >({});
+
+  const registerOpportunityElement = (
+    customerId: Customer["id"],
+    element: HTMLElement | null,
+    layout: "mobile" | "desktop"
+  ) => {
+    if (!element || typeof window === "undefined") {
+      return;
+    }
+
+    const isMobile = window.matchMedia(
+      "(max-width: 767px)"
+    ).matches;
+
+    if (
+      (layout === "mobile" && isMobile) ||
+      (layout === "desktop" && !isMobile)
+    ) {
+      rowRefs.current[String(customerId)] = element;
+    }
+  };
 
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) {
@@ -2925,14 +2948,18 @@ return (
     <div className="mx-auto flex min-h-screen max-w-[1920px]">
 
       <AppSidebar
-  activePath={
-    mode === "favorites"
-      ? "/favorites"
-      : mode === "archived"
-        ? "/archived"
-        : "/"
-  }
-/>
+        activePath={
+          mode === "favorites"
+            ? "/favorites"
+            : mode === "archived"
+              ? "/archived"
+              : "/"
+        }
+        mobileOpen={mobileNavigationOpen}
+        onMobileClose={() =>
+          setMobileNavigationOpen(false)
+        }
+      />
 
       <main className="min-w-0 flex-1 py-4 sm:py-6">
         <div className="mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-6">
@@ -2946,8 +2973,12 @@ return (
             </div>
             <button
               type="button"
+              onClick={() =>
+                setMobileNavigationOpen(true)
+              }
               aria-label="Open navigation"
-              className="rounded-xl border border-[#C8CBCC] bg-white px-3 py-2 text-[#565E64]"
+              aria-expanded={mobileNavigationOpen}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white text-lg text-[#565E64] transition hover:border-[#AEB3B6] hover:text-[#2F3038]"
             >
               ☰
             </button>
@@ -3156,7 +3187,7 @@ return (
                 ? "Your Saved Funding Timeline"
                 : "Your Funding Timeline"}
             </h2>
-            <p className="mt-2 overflow-x-auto whitespace-nowrap pb-1 text-sm leading-6 text-[#626A70]">
+            <p className="mt-2 pb-1 text-sm leading-6 text-[#626A70] sm:whitespace-nowrap">
               {favoriteView === "archived"
                 ? "The calendar highlights your five most recently closed favorites—select a colored date or its matching opportunity to open the full record."
                 : "The calendar highlights the next five deadlines—select a colored date or its matching opportunity to open the full record."}
@@ -3319,8 +3350,8 @@ return (
               })}
             </div>
 
-            <div className="relative mt-4 flex items-center justify-between border-t border-[#D7D9DA] pt-4 text-xs text-[#626A70]">
-              <span className="flex items-center gap-2">
+            <div className="relative mt-4 flex flex-col gap-3 border-t border-[#D7D9DA] pt-4 text-xs text-[#626A70] sm:flex-row sm:items-center sm:justify-between">
+              <span className="flex items-start gap-2 sm:items-center">
                 <span className="flex -space-x-1">
                   {highlightedDeadlines
                     .slice(0, 5)
@@ -3818,11 +3849,11 @@ return (
             SEARCH + FILTER TOOLBAR
         ================================================== */}
 
-        <div className="sticky top-0 z-30 isolate mb-8 overflow-visible rounded-[26px] border border-white/15 bg-black/85 px-5 py-5 shadow-[0_18px_42px_rgba(18,19,22,0.34)] backdrop-blur-xl sm:px-7">
+        <div className="sticky top-2 z-30 isolate mb-6 overflow-visible rounded-[22px] border border-white/15 bg-black/85 px-3 py-4 shadow-[0_18px_42px_rgba(18,19,22,0.34)] backdrop-blur-xl sm:top-0 sm:mb-8 sm:rounded-[26px] sm:px-7 sm:py-5">
 
           <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#D45D3B]/20 blur-3xl" />
 
-          <div className="relative mb-4">
+          <div className="relative mb-4 hidden sm:block">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8CCC7]">
               Search and refine
             </p>
@@ -3905,7 +3936,7 @@ return (
                 FILTER BUTTONS
             ================================================== */}
 
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
 
               <button
                 ref={quickFilterButtonRef}
@@ -4040,7 +4071,7 @@ return (
 
               {showSortOptions && (
 
-                <div className="absolute right-0 top-full z-[9999] mt-2 w-[420px] max-w-[90vw] rounded-2xl border border-[#DDCEC7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
+                <div className="absolute right-0 top-full z-[9999] mt-2 w-[calc(100vw-2rem)] max-w-[420px] rounded-2xl border border-[#DDCEC7] bg-white p-4 shadow-[0_20px_50px_rgba(42,64,76,0.18)]">
 
                   <div className="mb-4 flex items-center justify-between">
 
@@ -4315,10 +4346,10 @@ return (
 
             <div
               ref={quickFilterPopoverRef}
-              className="absolute left-4 right-4 top-full z-[150] mt-3 max-h-[82vh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-6 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6"
+              className="absolute left-0 right-0 top-full z-[150] mt-3 max-h-[72dvh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-4 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6 sm:max-h-[82vh] sm:p-6"
             >
 
-              <div className="mb-5 flex items-center justify-between">
+              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
 
@@ -4672,10 +4703,10 @@ return (
 
             <div
               ref={advancedFilterPopoverRef}
-              className="absolute left-4 right-4 top-full z-[150] mt-3 max-h-[72vh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-6 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6"
+              className="absolute left-0 right-0 top-full z-[150] mt-3 max-h-[72dvh] overflow-y-auto rounded-2xl border border-[#C8CBCC] bg-[#F4F3F1] p-4 shadow-[0_24px_60px_rgba(18,19,22,0.30)] sm:left-6 sm:right-6 sm:max-h-[72vh] sm:p-6"
             >
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
 
@@ -5312,7 +5343,188 @@ return (
 
       <div className="relative z-0 overflow-hidden rounded-[24px] border border-[#C8CBCC] bg-[#F4F3F1] shadow-[0_12px_35px_rgba(63,91,108,0.07)]">
 
-        <div className="overflow-x-auto">
+        {/* Mobile opportunity cards */}
+        <div className="space-y-3 p-3 md:hidden">
+          {filteredCustomers.map((customer) => {
+            const isSelected =
+              String(selectedCustomerId) ===
+              String(customer.id);
+            const daysUntilDeadline =
+              getDeadlineDays(customer.deadline);
+            const deadlineDate = customer.deadline
+              ? new Date(
+                  `${customer.deadline}T00:00:00`
+                )
+              : null;
+            const isPastDeadline = Boolean(
+              deadlineDate &&
+                deadlineDate < new Date()
+            );
+
+            return (
+              <div
+                key={customer.id}
+                ref={(element) =>
+                  registerOpportunityElement(
+                    customer.id,
+                    element,
+                    "mobile"
+                  )
+                }
+                role="button"
+                tabIndex={0}
+                onClick={() =>
+                  setSelectedCustomerId(
+                    String(customer.id)
+                  )
+                }
+                onKeyDown={(event) => {
+                  if (event.currentTarget !== event.target) {
+                    return;
+                  }
+
+                  if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                  ) {
+                    event.preventDefault();
+                    setSelectedCustomerId(
+                      String(customer.id)
+                    );
+                  }
+                }}
+                className={`rounded-[20px] border p-4 text-left shadow-sm transition active:scale-[0.995] ${
+                  isSelected
+                    ? "border-[#2F3038] bg-[#F2D9D5] shadow-[inset_5px_0_0_#2F3038,0_10px_26px_rgba(47,48,56,0.10)]"
+                    : "border-[#D1D3D4] bg-white"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-[#778189]">
+                      {customer.grantor ||
+                        "Grantor not specified"}
+                    </p>
+                    <h3 className="mt-1.5 text-[15px] font-bold leading-5 text-[#2F3038]">
+                      {customer.opportunity_name ||
+                        "Untitled opportunity"}
+                    </h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={
+                      !favoritesReady ||
+                      favoritePendingIds.has(
+                        String(customer.id)
+                      )
+                    }
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void toggleFavorite(customer.id);
+                    }}
+                    aria-label={
+                      favoriteIds.has(String(customer.id))
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-xl transition disabled:cursor-wait disabled:opacity-50 ${
+                      favoriteIds.has(String(customer.id))
+                        ? "border-[#C4932D] bg-[#F2C14E] text-[#171719]"
+                        : "border-[#C8CBCC] bg-[#F4F3F1] text-[#69747C]"
+                    }`}
+                  >
+                    {favoriteIds.has(String(customer.id))
+                      ? "★"
+                      : "☆"}
+                  </button>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2.5">
+                  <div className="rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] p-3">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#778189]">
+                      Maximum Grant
+                    </p>
+                    <p className="mt-1.5 text-sm font-bold text-[#3E454B]">
+                      {customer.maximum_grant ||
+                        "Not specified"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#D7D9DA] bg-[#F4F3F1] p-3">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#778189]">
+                      Deadline
+                    </p>
+                    <p className="mt-1.5 text-sm font-bold text-[#3E454B]">
+                      {customer.deadline
+                        ? formatDeadline(customer.deadline)
+                        : "Not set"}
+                    </p>
+                    {customer.deadline && (
+                      <p className="mt-1 text-[10px] font-semibold text-[#778189]">
+                        {isPastDeadline
+                          ? "Past deadline"
+                          : daysUntilDeadline === 0
+                            ? "Due today"
+                            : daysUntilDeadline !== null
+                              ? `${daysUntilDeadline} days remaining`
+                              : ""}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {customer.anticipated_deadline && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        addMonthQuickFilter(
+                          String(
+                            customer.anticipated_deadline
+                          )
+                        );
+                      }}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${getMonthStyle(
+                        customer.anticipated_deadline
+                      )}`}
+                    >
+                      {customer.anticipated_deadline}
+                    </button>
+                  )}
+
+                  {(customer.rfp_categories ?? []).map(
+                    (category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          addCategoryQuickFilter(category);
+                        }}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${getCategoryStyle(
+                          category,
+                          categoryColorMap
+                        )}`}
+                      >
+                        {category}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <div className="mt-4 flex items-center justify-between border-t border-[#E0E1E2] pt-3 text-xs font-semibold text-[#626A70]">
+                  <span>Open full record</span>
+                  <span aria-hidden="true">→</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop opportunity table */}
+        <div className="hidden overflow-x-auto md:block">
 
           <table className="w-full">
 
@@ -5398,9 +5610,11 @@ return (
                       <tr
                       key={customer.id}
                       ref={(element) => {
-                        rowRefs.current[
-                          String(customer.id)
-                        ] = element;
+                        registerOpportunityElement(
+                          customer.id,
+                          element,
+                          "desktop"
+                        );
                       }}
                       onClick={() =>
                         setSelectedCustomerId(

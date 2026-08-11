@@ -115,8 +115,8 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#D4D5D6] px-4 py-6 text-[#2F3038] sm:px-6 lg:py-10">
-      <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl overflow-hidden rounded-[32px] border border-white/40 bg-[#F4F3F1] shadow-[0_24px_70px_rgba(47,48,56,0.16)] lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="min-h-screen bg-[#D4D5D6] px-3 py-3 text-[#2F3038] sm:px-6 sm:py-6 lg:py-10">
+      <div className="mx-auto grid min-h-[calc(100dvh-1.5rem)] max-w-6xl overflow-hidden rounded-[22px] border border-white/40 bg-[#F4F3F1] shadow-[0_24px_70px_rgba(47,48,56,0.16)] sm:min-h-[calc(100vh-3rem)] sm:rounded-[32px] lg:grid-cols-[0.9fr_1.1fr]">
         <section className="relative hidden overflow-hidden bg-[#2F3038] p-10 text-white lg:flex lg:flex-col lg:justify-between xl:p-14">
           <div className="pointer-events-none absolute -left-20 -top-16 h-72 w-72 rounded-full bg-[#B7655E]/25 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-[#C2A05A]/15 blur-3xl" />
@@ -170,11 +170,11 @@ export default function LoginPage() {
           </p>
         </section>
 
-        <section className="relative flex items-center p-6 sm:p-9 lg:p-12 xl:p-14">
+        <section className="relative flex items-center p-5 sm:p-9 lg:p-12 xl:p-14">
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D8CCC7]/55 blur-3xl" />
 
           <div className="relative mx-auto w-full max-w-lg">
-            <div className="mb-10 flex items-center justify-between lg:hidden">
+            <div className="mb-8 flex items-center justify-between gap-3 sm:mb-10 lg:hidden">
               <Link
                 href="/"
                 className="flex items-center gap-3"
@@ -188,7 +188,7 @@ export default function LoginPage() {
               </Link>
               <Link
                 href="/"
-                className="text-sm font-semibold text-[#626A70] hover:text-[#2F3038]"
+                className="shrink-0 text-xs font-semibold text-[#626A70] hover:text-[#2F3038] sm:text-sm"
               >
                 Back to dashboard
               </Link>
@@ -197,7 +197,7 @@ export default function LoginPage() {
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
               Account access
             </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-[-0.035em]">
+            <h2 className="mt-2 text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] sm:text-3xl">
               Sign in to LG Listings
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#626A70]">
@@ -234,12 +234,12 @@ export default function LoginPage() {
                     setEmail(event.target.value);
                     clearMessage();
                   }}
-                  className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3.5 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                  className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-white px-4 py-3.5 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                   <label
                     htmlFor="password"
                     className="text-xs font-bold uppercase tracking-[0.14em] text-[#626A70]"
@@ -268,7 +268,7 @@ export default function LoginPage() {
                       );
                       clearMessage();
                     }}
-                    className="w-full rounded-2xl border border-[#D8C3B9] bg-white py-3.5 pl-4 pr-20 text-sm outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15"
+                    className="w-full rounded-2xl border border-[#D8C3B9] bg-white py-3.5 pl-4 pr-20 text-base outline-none transition focus:border-[#B7655E] focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                   />
                   <button
                     type="button"

@@ -36,7 +36,7 @@ export default async function ArchivedPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#D4D5D6] p-8">
+      <div className="min-h-screen bg-[#D4D5D6] p-4 sm:p-8">
         <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
           <h1 className="font-bold">
             Archived opportunities could not be loaded

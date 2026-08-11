@@ -65,6 +65,8 @@ export default function AccountForm({
   >("idle");
   const [alertMessage, setAlertMessage] =
     useState("");
+  const [mobileNavigationOpen, setMobileNavigationOpen] =
+    useState(false);
 
   const alertCategoryOptions = useMemo(
     () =>
@@ -304,10 +306,16 @@ export default function AccountForm({
   return (
     <main className="min-h-screen bg-[#D4D5D6] text-[#2F3038]">
       <div className="mx-auto flex min-h-screen max-w-[1920px]">
-        <AppSidebar activePath="/account" />
+        <AppSidebar
+          activePath="/account"
+          mobileOpen={mobileNavigationOpen}
+          onMobileClose={() =>
+            setMobileNavigationOpen(false)
+          }
+        />
 
-        <section className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-          <div className="mb-5 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/80 px-4 py-3 backdrop-blur lg:hidden">
+        <section className="min-w-0 flex-1 px-3 py-3 sm:px-6 sm:py-5 lg:px-8 lg:py-7">
+          <div className="mb-3 flex items-center justify-between rounded-2xl border border-[#C8CBCC] bg-white/90 px-3 py-3 shadow-sm backdrop-blur sm:mb-5 sm:px-4 lg:hidden">
             <Link
               href="/"
               className="flex items-center gap-3"
@@ -319,18 +327,21 @@ export default function AccountForm({
                 LG Listings
               </span>
             </Link>
-            <Link
-              href="/"
-              className="rounded-xl border border-[#C8CBCC] bg-white px-3 py-2 text-sm font-semibold text-[#565E64]"
+            <button
+              type="button"
+              onClick={() => setMobileNavigationOpen(true)}
+              aria-label="Open navigation"
+              aria-expanded={mobileNavigationOpen}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#C8CBCC] bg-white text-lg font-semibold text-[#565E64] transition hover:border-[#AEB3B6] hover:text-[#2F3038]"
             >
-              Dashboard
-            </Link>
+              ☰
+            </button>
           </div>
 
-          <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden rounded-[30px] border border-white/40 bg-[#F4F3F1] shadow-[0_18px_45px_rgba(47,48,56,0.10)]">
+          <div className="relative min-h-[calc(100dvh-1.5rem)] overflow-hidden rounded-[22px] border border-white/40 bg-[#F4F3F1] shadow-[0_18px_45px_rgba(47,48,56,0.10)] sm:min-h-[calc(100vh-3.5rem)] sm:rounded-[30px]">
             <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#D8CCC7]/55 blur-3xl" />
 
-            <header className="relative overflow-hidden border-b border-white/10 bg-[#2F3038] px-7 py-9 text-white sm:px-10 lg:px-14">
+            <header className="relative overflow-hidden border-b border-white/10 bg-[#2F3038] px-5 py-8 text-white sm:px-10 sm:py-9 lg:px-14">
               <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[#B7655E]/25 blur-3xl" />
               <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -348,10 +359,11 @@ export default function AccountForm({
                 <form
                   action="/auth/signout"
                   method="post"
+                  className="w-full sm:w-auto"
                 >
                   <button
                     type="submit"
-                    className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+                    className="w-full rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
                   >
                     Sign Out
                   </button>
@@ -359,8 +371,8 @@ export default function AccountForm({
               </div>
             </header>
 
-            <div className="relative grid gap-7 p-5 sm:p-8 xl:grid-cols-[300px_minmax(0,1fr)] lg:p-10">
-              <aside className="h-fit rounded-[24px] border border-[#C8CBCC] bg-[#E9E9E7] p-6">
+            <div className="relative grid gap-5 p-3 sm:gap-7 sm:p-8 lg:p-10 xl:grid-cols-[300px_minmax(0,1fr)]">
+              <aside className="h-fit rounded-[20px] border border-[#C8CBCC] bg-[#E9E9E7] p-5 sm:rounded-[24px] sm:p-6">
                 <span className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#2F3038] text-xl font-bold text-white shadow-lg">
                   {initials}
                 </span>
@@ -388,7 +400,7 @@ export default function AccountForm({
 
               <form
                 onSubmit={handleSubmit}
-                className="rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)] sm:p-8"
+                className="rounded-[20px] border border-[#C8CBCC] bg-white p-4 shadow-[0_14px_36px_rgba(47,48,56,0.08)] sm:rounded-[26px] sm:p-8"
               >
                 <div className="border-b border-[#E2E3E3] pb-5">
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
@@ -430,7 +442,7 @@ export default function AccountForm({
                         setFirstName(event.target.value);
                         clearMessage();
                       }}
-                      className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-sm outline-none transition focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15"
+                      className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-base outline-none transition focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                     />
                   </div>
 
@@ -451,7 +463,7 @@ export default function AccountForm({
                         setLastName(event.target.value);
                         clearMessage();
                       }}
-                      className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-sm outline-none transition focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15"
+                      className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-base outline-none transition focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -472,7 +484,7 @@ export default function AccountForm({
                       setOrganization(event.target.value);
                       clearMessage();
                     }}
-                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-sm outline-none transition focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15"
+                    className="mt-2.5 w-full rounded-2xl border border-[#D8C3B9] bg-[#F9F8F6] px-4 py-3.5 text-base outline-none transition focus:border-[#B7655E] focus:bg-white focus:ring-4 focus:ring-[#B7655E]/15 sm:text-sm"
                   />
                 </div>
 
@@ -499,7 +511,7 @@ export default function AccountForm({
                   <button
                     type="submit"
                     disabled={saving}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2F3038] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,48,56,0.18)] transition hover:-translate-y-0.5 hover:bg-black disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2F3038] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(47,48,56,0.18)] transition hover:-translate-y-0.5 hover:bg-black disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 sm:w-auto"
                   >
                     {saving
                       ? "Saving…"
@@ -508,7 +520,7 @@ export default function AccountForm({
                 </div>
               </form>
 
-              <section className="rounded-[26px] border border-[#C8CBCC] bg-white p-6 shadow-[0_14px_36px_rgba(47,48,56,0.08)] sm:p-8 xl:col-start-2">
+              <section className="rounded-[20px] border border-[#C8CBCC] bg-white p-4 shadow-[0_14px_36px_rgba(47,48,56,0.08)] sm:rounded-[26px] sm:p-8 xl:col-start-2">
                 <div className="flex flex-col gap-4 border-b border-[#E2E3E3] pb-5 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#778189]">
@@ -626,14 +638,14 @@ export default function AccountForm({
                         <button
                           type="button"
                           onClick={startEditingAlerts}
-                          className="rounded-xl bg-[#2F3038] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
+                          className="w-full rounded-xl bg-[#2F3038] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black sm:w-auto"
                         >
                           Edit Categories
                         </button>
                       ) : (
                         <Link
                           href="/subscribe"
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2F3038] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2F3038] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black sm:w-auto"
                         >
                           Subscribe to RFP Alerts
                           <span aria-hidden="true">→</span>
@@ -643,7 +655,7 @@ export default function AccountForm({
                   </div>
                 ) : (
                   <div className="mt-6">
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#626A70]">
                           Choose funding areas
@@ -706,12 +718,12 @@ export default function AccountForm({
                       </p>
                     )}
 
-                    <div className="mt-7 flex justify-end gap-3 border-t border-[#E2E3E3] pt-6">
+                    <div className="mt-7 flex flex-col-reverse gap-3 border-t border-[#E2E3E3] pt-6 sm:flex-row sm:justify-end">
                       <button
                         type="button"
                         onClick={cancelEditingAlerts}
                         disabled={savingAlerts}
-                        className="rounded-xl border border-[#C8CBCC] bg-white px-5 py-3 text-sm font-semibold text-[#565E64] transition hover:bg-[#F4F3F1] disabled:opacity-50"
+                        className="w-full rounded-xl border border-[#C8CBCC] bg-white px-5 py-3 text-sm font-semibold text-[#565E64] transition hover:bg-[#F4F3F1] disabled:opacity-50 sm:w-auto"
                       >
                         Cancel
                       </button>
@@ -723,7 +735,7 @@ export default function AccountForm({
                           draftAlertCategories.length ===
                             0
                         }
-                        className="rounded-xl bg-[#2F3038] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                        className="w-full rounded-xl bg-[#2F3038] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
                       >
                         {savingAlerts
                           ? "Saving…"

@@ -420,7 +420,7 @@ export default function CustomerDrawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby="opportunity-drawer-title"
-        className="relative flex h-full w-full max-w-[780px] flex-col overflow-hidden border-l border-white/10 bg-[#F4F3F1] shadow-[-24px_0_70px_rgba(18,19,22,0.30)]"
+        className="relative flex h-[100dvh] w-full max-w-[780px] flex-col overflow-hidden border-l border-white/10 bg-[#F4F3F1] shadow-[-24px_0_70px_rgba(18,19,22,0.30)]"
         onClick={(event) =>
           event.stopPropagation()
         }
@@ -428,7 +428,7 @@ export default function CustomerDrawer({
         {/* Left-side record navigation */}
         <nav
           aria-label="Opportunity navigation"
-          className="absolute inset-y-0 left-0 z-30 flex w-16 flex-col items-center border-r border-[#C8CBCC] bg-white/95 py-4 shadow-[8px_0_24px_rgba(47,48,56,0.06)] backdrop-blur"
+          className="absolute inset-y-0 left-0 z-30 hidden w-16 flex-col items-center border-r border-[#C8CBCC] bg-white/95 py-4 shadow-[8px_0_24px_rgba(47,48,56,0.06)] backdrop-blur sm:flex"
         >
           <div className="flex-1" />
 
@@ -483,12 +483,12 @@ export default function CustomerDrawer({
         </nav>
 
         {/* Header */}
-        <header className="relative ml-16 shrink-0 overflow-hidden bg-[#2F3038] px-6 pb-7 pt-6 text-white sm:px-8 sm:pb-8 sm:pt-7">
+        <header className="relative ml-0 shrink-0 overflow-hidden bg-[#2F3038] px-4 pb-5 pt-5 text-white sm:ml-16 sm:px-8 sm:pb-8 sm:pt-7">
           <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full border-[38px] border-[#C2A05A]/10" />
           <div className="pointer-events-none absolute -bottom-24 right-28 h-52 w-52 rounded-full bg-[#B7655E]/10 blur-3xl" />
 
           <div className="relative flex items-start justify-between gap-5">
-            <div className="min-w-0 pr-4">
+            <div className="min-w-0 pr-1 sm:pr-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4D9DC]">
                   {customer.grantor ||
@@ -496,7 +496,7 @@ export default function CustomerDrawer({
                 </p>
                 <h2
                   id="opportunity-drawer-title"
-                  className="mt-2 text-2xl font-bold leading-tight tracking-[-0.025em] text-white sm:text-[2rem]"
+                  className="mt-2 text-xl font-bold leading-tight tracking-[-0.025em] text-white sm:text-[2rem]"
                 >
                   {customer.opportunity_name ||
                     "Untitled Opportunity"}
@@ -558,8 +558,8 @@ export default function CustomerDrawer({
         </header>
 
         {/* Scrollable details */}
-        <div className="ml-16 min-h-0 flex-1 overflow-y-auto">
-          <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
+        <div className="ml-0 min-h-0 flex-1 overflow-y-auto pb-24 sm:ml-16 sm:pb-0">
+          <div className="space-y-5 px-4 py-5 sm:space-y-6 sm:px-8 sm:py-8">
             {/* Opportunity snapshot */}
             <section aria-labelledby="snapshot-heading">
               <div className="mb-3">
@@ -936,6 +936,49 @@ export default function CustomerDrawer({
             </section>
           </div>
         </div>
+
+        {/* Compact phone navigation */}
+        <nav
+          aria-label="Opportunity navigation"
+          className="absolute inset-x-0 bottom-0 z-40 flex items-center justify-between border-t border-[#C8CBCC] bg-white/95 px-4 py-3 shadow-[0_-10px_28px_rgba(47,48,56,0.10)] backdrop-blur sm:hidden"
+        >
+          <button
+            type="button"
+            onClick={handlePrevious}
+            disabled={!hasPrevious}
+            className={`flex min-w-[92px] items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold transition ${
+              hasPrevious
+                ? "border-[#C8CBCC] bg-[#F4F3F1] text-[#3E454B]"
+                : "cursor-not-allowed border-[#DEE0E1] bg-[#F4F3F1] text-[#A0A5A9] opacity-45"
+            }`}
+          >
+            <span aria-hidden="true">←</span>
+            Previous
+          </button>
+
+          <div className="px-2 text-center">
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#778189]">
+              Record
+            </p>
+            <p className="mt-0.5 text-xs font-bold text-[#2F3038]">
+              {recordPosition} / {recordTotal}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={!hasNext}
+            className={`flex min-w-[92px] items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold transition ${
+              hasNext
+                ? "border-[#2F3038] bg-[#2F3038] text-white"
+                : "cursor-not-allowed border-[#DEE0E1] bg-[#E2E3E3] text-[#A0A5A9] opacity-45"
+            }`}
+          >
+            Next
+            <span aria-hidden="true">→</span>
+          </button>
+        </nav>
 
       </aside>
     </div>
